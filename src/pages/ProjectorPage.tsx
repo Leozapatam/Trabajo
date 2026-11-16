@@ -212,6 +212,7 @@ export const ProjectorPage: React.FC = () => {
           style={{ position: 'relative', zIndex: 2, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
         >
           <TacticalOriginMap
+            world={activeWorld}
             exploredZones={session.exploredZones}
             focusedZoneId={session.focusedZoneId}
           />
