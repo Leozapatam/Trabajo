@@ -2071,3 +2071,76 @@
   font-size: 0.9rem;
   cursor: pointer;
 }
+
+/* --- HUD en tres columnas: aula · minipantalla del proyector al centro · controles --- */
+.clase__hud {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+}
+.clase__hud-center {
+  display: flex;
+  justify-content: center;
+}
+.clase__hud-right {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.mirror {
+  position: relative;
+  flex: none;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid rgba(253, 230, 138, 0.55);
+  border-radius: 8px;
+  background: #03050a;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.mirror:hover {
+  border-color: #fde68a;
+  transform: translateY(-1px);
+}
+.mirror__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.mirror__tag {
+  position: absolute;
+  left: 6px;
+  bottom: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(3, 5, 10, 0.78);
+  color: #fecaca;
+  font-family: var(--font-sans);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+.mirror__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f43f5e;
+  animation: mirror-live 1.4s ease-in-out infinite;
+}
+@keyframes mirror-live {
+  50% {
+    opacity: 0.25;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mirror__dot {
+    animation: none;
+  }
+}

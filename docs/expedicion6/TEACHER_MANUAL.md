@@ -15,7 +15,8 @@ Para proyectar sin mostrar tu guion, notas ni respuestas:
 2. **Elige tu aula.** ← → cambian de grado, Enter entra.
 3. **¿Con quién contamos para esta sesión?** Todos llegan como presentes: toca a quien falta (Presente → Ausente → Excusa). **COMENZAR** o Enter guarda la lista e inicia la clase.
 4. **En clase.**
-   - Arriba: **3 corazones** (llamados de atención al grupo en esta clase; clic apaga uno, clic derecho lo devuelve; sin corazones el proyector anuncia la tarea extensa) y **5 estrellas** (cada 5 puntos de aporte del grupo encienden una; llenas, clic para cobrar la recompensa).
+   - Arriba al centro: una **minipantalla en vivo** con lo que está mostrando el proyector (clic para abrir su ventana).
+   - Arriba a la derecha: **3 corazones** (llamados de atención al grupo en esta clase; clic apaga uno, clic derecho lo devuelve; sin corazones el proyector anuncia la tarea extensa) y **5 estrellas** (cada 5 puntos de aporte del grupo encienden una; llenas, clic para cobrar la recompensa).
    - Izquierda: la escena y su pregunta. Las **notas de orador** (Narra → Dialoga → Cuaderno) se abren con el botón o la tecla `N`.
    - Desde la segunda clase del año: **Al llegar · cuaderno**, una actividad de entrada que puedes proyectar.
    - Debajo, el **mapa del periodo**: cada tema con su barra, sus evidencias (clic: pendiente → en curso → lograda) y sus clases.

@@ -11,6 +11,7 @@ import { EntryActivityCard, ENTRY_EVENT_ID } from '../components/clase/EntryActi
 import { EvidenceCheck } from '../components/clase/EvidenceCheck';
 import { GameHud } from '../components/clase/GameHud';
 import { NotesDrawer } from '../components/clase/NotesDrawer';
+import { ProjectorMirror } from '../components/clase/ProjectorMirror';
 import { TopicMap } from '../components/clase/TopicMap';
 import { KIND_LABEL, YearPlanWindow } from '../components/clase/YearPlanWindow';
 import { DiskStatusBadge } from '../components/gm/DiskStatusBadge';
@@ -377,8 +378,11 @@ export const ClassPage: React.FC = () => {
             </span>
           )}
         </div>
-        {session.classStarted && <GameHud session={session} onHeart={heartAction} onStar={starAction} onClaim={claimReward} />}
+        <div className="clase__hud-center">
+          <ProjectorMirror onOpen={openProjector} />
+        </div>
         <div className="clase__hud-right">
+          {session.classStarted && <GameHud session={session} onHeart={heartAction} onStar={starAction} onClaim={claimReward} />}
           <span className="clase__hud-clock">
             {clock.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' })} · P{session.period}
           </span>
