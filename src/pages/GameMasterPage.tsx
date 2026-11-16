@@ -5,7 +5,6 @@ import {
   BarChart3,
   BookOpen,
   Calendar,
-  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Eye,
@@ -33,7 +32,6 @@ import {
   recordAttendanceSnapshot,
   saveAndBroadcastSession,
   subscribeToNewerSession,
-  switchClassroomRoster,
 } from '../engine/sessionStore';
 import type {
   ActiveEventBanner,
@@ -43,9 +41,9 @@ import type {
 import { TitleBackdrop } from '../components/TitleBackdrop';
 import { DiskStatusBadge } from '../components/gm/DiskStatusBadge';
 import { ResourceBank } from '../components/gm/ResourceBank';
+import { ClassSettings } from '../components/gm/ClassSettings';
 import { StudentArena } from '../components/gm/StudentArena';
 import { requestDiskBackup } from '../engine/diskSync';
-import { GRADE_GROUPS } from '../engine/grades';
 import { TacticalOriginMap } from '../components/TacticalOriginMap';
 
 const QUICK_EVENTS: ActiveEventBanner[] = [
@@ -241,7 +239,7 @@ export const GameMasterPage: React.FC = () => {
 
   return (
     <div className="retro-scope" style={{ position: 'relative', minHeight: '100vh', zIndex: 1 }}>
-      <TitleBackdrop vignette="left" />
+      <TitleBackdrop vignette="full" />
       <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 0, background: 'rgba(6, 10, 19, 0.62)' }} />
       <div style={{ position: 'relative', zIndex: 2, maxWidth: 1440, margin: '0 auto', padding: '16px 20px 48px' }}>
         {/* Barra superior tipo HUD de videojuego */}
@@ -762,207 +760,15 @@ export const GameMasterPage: React.FC = () => {
 
         {/* ==================== TAB 2: ESTUDIANTES (ASISTENCIA POR FECHA + HETEROEVALUACIÓN) ==================== */}
         {mainTab === 'estudiantes' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 16, alignItems: 'start' }}>
-            {/* Registro manual de fecha, clase iniciada y carga de estudiantes */}
-            <section className="editorial-card" style={{ padding: 20 }}>
-              <h2 className="font-display" style={{ fontSize: '1.6rem', margin: '0 0 14px' }}>
-                Registro de Clase y Asistencia
-              </h2>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  Fecha de registro
-                  <input
-                    type="date"
-                    value={session.classDate}
-                    onChange={(e) => commit((prev) => ({ ...prev, classDate: e.target.value }))}
-                    style={{
-                      width: '100%',
-                      marginTop: 4,
-                      background: '#0F172A',
-                      color: '#F8FAFC',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: 6,
-                      padding: '7px 8px',
-                    }}
-                  />
-                </label>
-
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  ¿Se inicia clase hoy?
-                  <button
-                    type="button"
-                    className={session.classStarted ? 'btn btn-teal' : 'btn'}
-                    style={{ width: '100%', marginTop: 4, padding: '7px 10px' }}
-                    onClick={() =>
-                      commit((prev) => ({
-                        ...prev,
-                        classStarted: !prev.classStarted,
-                        active: !prev.classStarted,
-                        status: !prev.classStarted ? 'running' : 'idle',
-                      }))
-                    }
-                  >
-                    {session.classStarted ? 'Sí · Clase iniciada' : 'No · Solo gestión'}
-                  </button>
-                </label>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
-                <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Año
-                  <input
-                    type="text"
-                    value={session.schoolYear}
-                    onChange={(e) =>
-                      commit((prev) => switchClassroomRoster(prev, e.target.value, prev.classroomName))
-                    }
-                    style={{
-                      width: '100%',
-                      marginTop: 4,
-                      background: '#0F172A',
-                      color: '#F8FAFC',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: 6,
-                      padding: '6px 8px',
-                    }}
-                  />
-                </label>
-                <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Grado
-                  <select
-                    value={session.classroomName}
-                    onChange={(e) =>
-                      commit((prev) => switchClassroomRoster(prev, prev.schoolYear, e.target.value))
-                    }
-                    style={{
-                      width: '100%',
-                      marginTop: 4,
-                      background: '#0F172A',
-                      color: '#F8FAFC',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: 6,
-                      padding: '6px 8px',
-                    }}
-                  >
-                    {GRADE_GROUPS.map((g) => (
-                      <option key={g.id} value={g.id}>
-                        {g.id} · {g.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Periodo (3 al año)
-                  <select
-                    value={session.period}
-                    onChange={(e) =>
-                      commit((prev) => ({ ...prev, period: Number(e.target.value) as 1 | 2 | 3 }))
-                    }
-                    style={{
-                      width: '100%',
-                      marginTop: 4,
-                      background: '#0F172A',
-                      color: '#FDE68A',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: 6,
-                      padding: '6px 8px',
-                    }}
-                  >
-                    <option value={1}>Periodo 1</option>
-                    <option value={2}>Periodo 2</option>
-                    <option value={3}>Periodo 3</option>
-                  </select>
-                </label>
-              </div>
-
-              {/* Conversión matemática a nota de 1.0 a 5.0 */}
-              <div
-                style={{
-                  padding: 10,
-                  borderRadius: 8,
-                  background: 'rgba(56, 189, 248, 0.06)',
-                  border: '1px solid var(--border-teal)',
-                  marginBottom: 14,
-                }}
-              >
-                <div className="font-mono" style={{ fontSize: '0.72rem', color: 'var(--accent-teal)', marginBottom: 6 }}>
-                  ESCALA DE NOTA (1.0 A 5.0 CON DECIMALES)
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  <label style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                    Nota base
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="1"
-                      max="5"
-                      value={session.gradeConfig.baseGrade}
-                      onChange={(e) =>
-                        commit((prev) => ({
-                          ...prev,
-                          gradeConfig: { ...prev.gradeConfig, baseGrade: Number(e.target.value) || 3.5 },
-                        }))
-                      }
-                      style={{
-                        width: '100%',
-                        marginTop: 4,
-                        background: '#0F172A',
-                        color: '#F8FAFC',
-                        border: '1px solid var(--border-subtle)',
-                        borderRadius: 6,
-                        padding: '5px 8px',
-                      }}
-                    />
-                  </label>
-                  <label style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                    Valor por punto (+/-)
-                    <input
-                      type="number"
-                      step="0.05"
-                      min="0.05"
-                      max="1"
-                      value={session.gradeConfig.stepPerPoint}
-                      onChange={(e) =>
-                        commit((prev) => ({
-                          ...prev,
-                          gradeConfig: { ...prev.gradeConfig, stepPerPoint: Number(e.target.value) || 0.1 },
-                        }))
-                      }
-                      style={{
-                        width: '100%',
-                        marginTop: 4,
-                        background: '#0F172A',
-                        color: '#F8FAFC',
-                        border: '1px solid var(--border-subtle)',
-                        borderRadius: 6,
-                        padding: '5px 8px',
-                      }}
-                    />
-                  </label>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <Link to="/grupos" className="btn" style={{ flex: 1 }}>
-                    <Users size={16} /> Matricular o retirar en Gestión de grupos
-                  </Link>
-                  {session.students.length > 0 && (
-                    <button type="button" className="btn btn-teal" onClick={handleSaveAttendanceToday}>
-                      <CheckCircle2 size={16} /> Guardar asistencia ({session.classDate})
-                    </button>
-                  )}
-                </div>
-                {attendanceSavedToast && (
-                  <span style={{ fontSize: '0.84rem', color: '#6EE7B7' }}>
-                    Asistencia del {session.classDate} guardada. ({savedDatesCount} fechas registradas).
-                  </span>
-                )}
-              </div>
-            </section>
-
+          <div className="gm-students">
             <StudentArena session={session} commit={commit} />
+            <ClassSettings
+              session={session}
+              commit={commit}
+              onSaveAttendance={handleSaveAttendanceToday}
+              attendanceSaved={attendanceSavedToast}
+              savedDatesCount={savedDatesCount}
+            />
           </div>
         )}
 

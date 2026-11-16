@@ -1,0 +1,96 @@
+/* Pestaña Estudiantes: fichas primero, ajustes en una franja compacta */
+
+.gm-students {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* --- Ficha: el nombre nunca empuja nada fuera de la tarjeta --- */
+.gm-arena .gm-token__header {
+  min-width: 0;
+}
+
+.gm-arena .gm-token__name {
+  min-width: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+
+/* La asistencia va como etiqueta montada en el borde superior de la ficha */
+.gm-arena .gm-token__status {
+  position: absolute;
+  top: -9px;
+  right: 8px;
+  z-index: 1;
+  padding: 2px 6px;
+  font-size: 0.5rem;
+  background: #0b1324;
+}
+
+/* --- Franja de ajustes --- */
+.gm-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 18px;
+}
+
+.gm-settings__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  color: rgba(253, 230, 138, 0.85);
+}
+
+.gm-settings__fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 10px;
+}
+
+.gm-settings__fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.gm-settings__fields input,
+.gm-settings__fields select {
+  width: 100%;
+  padding: 6px 8px;
+  background: #0f172a;
+  color: #f8fafc;
+  border: 2px solid rgba(148, 163, 184, 0.35);
+  border-radius: 2px;
+  font: inherit;
+  font-size: 0.86rem;
+  color-scheme: dark;
+}
+
+.gm-settings__fields input:focus,
+.gm-settings__fields select:focus {
+  outline: none;
+  border-color: #e8b86d;
+}
+
+.gm-settings__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gm-settings__note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}

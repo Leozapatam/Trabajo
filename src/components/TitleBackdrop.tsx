@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import fondos from 'virtual:fondos';
+import { AmbientBreeze, type BreezeScene } from './AmbientBreeze';
 import '../styles/backdrop.css';
+
+/** Ilustraciones del espacio (por nombre de archivo): no llevan hojas */
+const COSMOS_ART = /cosmos|solar|galax|espacio|universo/i;
 
 const PIXEL_STARS: { left: string; top: string; size: number; delay: string; gold?: boolean }[] = [
   { left: '8%', top: '14%', size: 3, delay: '0s' },
@@ -88,6 +92,9 @@ export const TitleBackdrop: React.FC<TitleBackdropProps> = ({ vignette = 'left',
     };
   }, [rotate]);
 
+  // El ambiente sigue a la ilustración que está entrando: hojas en paisajes, polvo de estrellas en el espacio
+  const scene: BreezeScene = COSMOS_ART.test(layers[layers.length - 1] ?? '') ? 'cosmos' : 'tierra';
+
   return (
     <div className="backdrop" aria-hidden="true">
       {layers.map((src, i) => (
@@ -98,6 +105,7 @@ export const TitleBackdrop: React.FC<TitleBackdropProps> = ({ vignette = 'left',
 
       {/* Viñeta para el contraste del título y los menús */}
       <div className="backdrop__vignette" style={{ background: VIGNETTES[vignette] }} />
+      <AmbientBreeze key={scene} scene={scene} intensity={vignette === 'full' ? 'soft' : 'full'} />
       <div className="backdrop__scanlines" />
 
       {/* Estrellas pixel art titilantes */}

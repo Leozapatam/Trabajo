@@ -10,6 +10,7 @@ import {
   undoLastPointEvent,
 } from '../../engine/sessionStore';
 import type { AttendanceStatus, RecognitionCategory, SessionState, StudentState } from '../../engine/types';
+import '../../styles/gm-arena.css';
 
 type ArenaMode = 'puntos' | 'asistencia';
 
@@ -172,7 +173,7 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
   const absentToday = session.students.filter((s) => s.active && dayMap?.[s.id] === 'ausente').length;
 
   return (
-    <section className="rpg-window" style={{ padding: 20, gridColumn: '1 / -1' }}>
+    <section className="rpg-window gm-arena" style={{ padding: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
         <div className="retro-tabs">
           {MODES.map((m) => (
@@ -259,8 +260,11 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
                 <div className="gm-token__header">
                   <span className="gm-token__avatar">{initials(st.name)}</span>
                   <span className="gm-token__name">{st.name}</span>
-                  <span className="gm-token__status">{ATTENDANCE_LABEL[status]}</span>
                 </div>
+                {/* En Puntos solo se avisa quién no está; en Asistencia se ve el estado de todos */}
+                {(mode === 'asistencia' || status !== 'presente') && (
+                  <span className="gm-token__status">{ATTENDANCE_LABEL[status]}</span>
+                )}
                 <div className="gm-token__grade-row" title={`Desempeño ${level.label}`}>
                   <div className="gm-token__grade-bar">
                     <div className="gm-token__grade-fill" style={{ width: `${((grade - 1) / 4) * 100}%` }} />

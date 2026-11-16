@@ -1,0 +1,151 @@
+/* Brisa: hojas, luciérnagas y ráfagas sobre las ilustraciones.
+   Solo se animan transform y opacity, así que corre en la tarjeta gráfica. */
+
+.breeze {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  animation: breeze-appear 2.4s ease-out both;
+}
+
+.breeze--soft {
+  opacity: 0.5;
+}
+
+/* --- Hojas: viajan con el viento, se mecen y giran por pasos (retro) --- */
+.breeze__leaf {
+  position: absolute;
+  left: 0;
+  animation: breeze-travel var(--dur) linear var(--delay) infinite;
+  will-change: transform;
+}
+
+.breeze__sway {
+  display: block;
+  animation: breeze-sway var(--sway) ease-in-out infinite alternate;
+}
+
+.breeze__spin {
+  display: block;
+  width: var(--size);
+  height: var(--size);
+  filter: drop-shadow(1px 1px 0 rgba(4, 7, 14, 0.55));
+  animation: breeze-spin var(--spin) steps(8) infinite;
+}
+
+@keyframes breeze-travel {
+  from {
+    transform: translate3d(-6vw, 0, 0);
+  }
+  to {
+    transform: translate3d(108vw, var(--drop), 0);
+  }
+}
+
+@keyframes breeze-sway {
+  from {
+    transform: translateY(-12px);
+  }
+  to {
+    transform: translateY(16px);
+  }
+}
+
+@keyframes breeze-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Luciérnagas / polvo de estrellas --- */
+.breeze__mote {
+  position: absolute;
+  background: #fde68a;
+  box-shadow: 0 0 8px 2px rgba(253, 230, 138, 0.55);
+  animation:
+    breeze-float var(--float) ease-in-out var(--delay) infinite alternate,
+    breeze-pulse var(--pulse) ease-in-out var(--delay) infinite;
+}
+
+.breeze--cosmos .breeze__mote {
+  background: #e0f2fe;
+  box-shadow: 0 0 8px 2px rgba(125, 211, 252, 0.6);
+}
+
+@keyframes breeze-float {
+  from {
+    transform: translate3d(-14px, 10px, 0);
+  }
+  to {
+    transform: translate3d(18px, -22px, 0);
+  }
+}
+
+@keyframes breeze-pulse {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  45%,
+  60% {
+    opacity: 0.95;
+  }
+}
+
+/* --- Ráfagas de viento (tierra) y estrellas fugaces (cosmos) --- */
+.breeze__streak {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+  opacity: 0;
+  animation: breeze-gust var(--cycle) ease-in var(--delay) infinite;
+}
+
+.breeze--cosmos .breeze__streak {
+  background: linear-gradient(90deg, transparent, rgba(224, 242, 254, 0.2), #ffffff);
+  animation-name: breeze-shooting-star;
+}
+
+/* Casi todo el ciclo está quieta e invisible: la ráfaga pasa en el último tramo */
+@keyframes breeze-gust {
+  0%,
+  78% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scaleX(0.4);
+  }
+  84% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(38vw, -18px, 0) scaleX(1.25);
+  }
+}
+
+@keyframes breeze-shooting-star {
+  0%,
+  88% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(18deg);
+  }
+  91% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(34vw, 11vw, 0) rotate(18deg);
+  }
+}
+
+@keyframes breeze-appear {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breeze {
+    display: none;
+  }
+}

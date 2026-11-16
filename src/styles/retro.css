@@ -44,7 +44,8 @@
   font-family: var(--font-pixel);
   font-size: 0.72rem;
   color: #f8fafc;
-  text-shadow: 2px 2px 0 #060a13, 4px 4px 0 rgba(232, 184, 109, 0.45);
+  /* Una sola sombra: a este tamaño la segunda se leía como texto duplicado */
+  text-shadow: 2px 2px 0 #060a13;
   letter-spacing: 0.06em;
 }
 
