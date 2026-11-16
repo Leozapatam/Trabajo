@@ -122,6 +122,29 @@ export const SpecialClassBrief: React.FC<SpecialClassBriefProps> = ({ cls, plan,
     <article key={cls.id} className="clase__script">
       <h1 className="clase__title">{cls.title}</h1>
       <p className="clase__question">{cls.subtitle}</p>
+      {cls.evaluation && (
+        <section className="clase__block">
+          <h2>EVALUACIÓN SIE · {cls.evaluation.totalWeight}</h2>
+          <p>
+            <strong>{cls.evaluation.label}</strong> — Componente {cls.evaluation.component} ({cls.evaluation.componentWeight} del componente)
+          </p>
+          <p>{cls.evaluation.description}</p>
+        </section>
+      )}
+      {cls.movie && (
+        <section className="clase__block">
+          <h2>CINE-FORO PEDAGÓGICO</h2>
+          <p><strong>Película:</strong> {cls.movie.title}</p>
+          <p><strong>Eje de análisis:</strong> {cls.movie.focus}</p>
+        </section>
+      )}
+      {cls.transversal && (
+        <section className="clase__block">
+          <h2>CÁTEDRA TRANSVERSAL</h2>
+          <p><strong>{cls.transversal.title}</strong></p>
+          <p>{cls.transversal.description}</p>
+        </section>
+      )}
       <section className="clase__block">
         <h2>PASOS</h2>
         <ol className="clase__steps">

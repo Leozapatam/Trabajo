@@ -77,6 +77,25 @@ export const YearPlanWindow: React.FC<YearPlanWindowProps> = ({ plan, current, d
                       <span className="plan__class-kind">{KIND_LABEL[c.kind]}</span>
                       <span className="plan__class-title">{c.title}</span>
                       <span className="plan__class-sub">{c.subtitle}</span>
+                      {(c.evaluation || c.movie || c.transversal) && (
+                        <span className="plan__class-badges">
+                          {c.evaluation && (
+                            <span className="plan__badge is-eval" title={c.evaluation.description}>
+                              📝 {c.evaluation.label} ({c.evaluation.totalWeight})
+                            </span>
+                          )}
+                          {c.movie && (
+                            <span className="plan__badge is-movie" title={c.movie.focus}>
+                              🎬 {c.movie.title}
+                            </span>
+                          )}
+                          {c.transversal && (
+                            <span className="plan__badge is-trans" title={c.transversal.description}>
+                              🏛️ {c.transversal.title}
+                            </span>
+                          )}
+                        </span>
+                      )}
                     </span>
                     {isCurrent ? (
                       <span className="plan__class-tag">AHORA</span>

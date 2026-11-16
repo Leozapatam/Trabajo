@@ -83,7 +83,7 @@ function resumeForAula(state: SessionState): SessionState {
     missions.map((m) => m.id)
   );
   // Si la clase en curso de la ruta es de otra misión, se abre en su primera escena
-  const current = getCurrentPlannedClass(resumed, buildYearPlan(missions));
+  const current = getCurrentPlannedClass(resumed, buildYearPlan(missions, state.classroomName));
   if (current?.missionId && current.missionId !== resumed.missionId) {
     return openPlannedMission(resumed, missions, current);
   }
@@ -143,7 +143,7 @@ export const ClassPage: React.FC = () => {
 
   const aula = getAula(session.classroomName);
   const { worlds, missions } = useMemo(() => missionsForAula(aula.id), [aula.id]);
-  const plan = useMemo(() => buildYearPlan(missions), [missions]);
+  const plan = useMemo(() => buildYearPlan(missions, aula.id), [missions, aula.id]);
   const currentClass = getCurrentPlannedClass(session, plan);
   const doneClasses = getClassPlanProgress(session)?.done ?? {};
   /** Introducción, examen o cierre sin misión: se muestra la guía de esa clase */

@@ -67,6 +67,40 @@ describe('Ruta del año', () => {
     expect(plan).toHaveLength(78);
     expect(plan[2]).toMatchObject({ kind: 'mision', title: 'Clase libre' });
   });
+
+  it('integra las 8 evaluaciones del SIE, 2 películas y cátedras transversales en cada periodo', () => {
+    const plan6 = buildYearPlan(missionsOf('6°'), '6°');
+    // En cada uno de los 3 periodos deben existir las evaluaciones clave del SIE
+    for (let p = 1; p <= 3; p++) {
+      const periodClasses = plan6.filter((c) => c.period === p);
+      const evals = periodClasses.filter((c) => c.evaluation).map((c) => c.evaluation!.code);
+      // P1, C2, P2, C3, P3, C4, P4, C1, A1_A2
+      expect(evals).toContain('P1'); // Taller 1 (10%)
+      expect(evals).toContain('C2'); // Quiz 1 (8.75%)
+      expect(evals).toContain('P2'); // Plan Lector (10%)
+      expect(evals).toContain('C3'); // Quiz 2 (8.75%)
+      expect(evals).toContain('P3'); // Exposición (10%)
+      expect(evals).toContain('C4'); // Control oral (7%)
+      expect(evals).toContain('P4'); // Cuaderno (10%)
+      expect(evals).toContain('C1'); // Examen Saber (10.5%)
+      expect(evals).toContain('A1_A2'); // Auto y Heteroevaluación (25%)
+
+      // 2 Películas por periodo
+      const movies = periodClasses.filter((c) => c.movie).map((c) => c.movie!.title);
+      expect(movies).toHaveLength(2);
+
+      // Cátedras transversales
+      const transversals = periodClasses.filter((c) => c.transversal).map((c) => c.transversal!.tag);
+      expect(transversals.length).toBeGreaterThanOrEqual(2);
+      if (p === 1) expect(transversals).toContain('ebejico');
+      if (p === 3) expect(transversals).toContain('afrocolombianidad');
+    }
+
+    // Grupos unidos reciben sus películas y ejes integradores
+    const planFused = buildYearPlan(missionsOf('6°–7°'), '6°–7°');
+    expect(planFused.filter((c) => c.period === 1 && c.movie)[0].movie?.title).toContain('El Origen de la Tierra');
+    expect(planFused.filter((c) => c.period === 1 && c.transversal)[0].transversal?.tag).toBe('ebejico');
+  });
 });
 
 describe('Avance de cada aula en su ruta', () => {

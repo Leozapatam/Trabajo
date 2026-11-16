@@ -1430,6 +1430,40 @@
   color: rgba(226, 232, 240, 0.6);
 }
 
+.plan__class-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.plan__badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  line-height: 1.2;
+}
+
+.plan__badge.is-eval {
+  background: rgba(232, 184, 109, 0.2);
+  color: #fde68a;
+  border: 1px solid rgba(232, 184, 109, 0.4);
+}
+
+.plan__badge.is-movie {
+  background: rgba(56, 189, 248, 0.2);
+  color: #7dd3fc;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+.plan__badge.is-trans {
+  background: rgba(52, 211, 153, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
 .plan__class-tag,
 .plan__class-done {
   margin-left: auto;

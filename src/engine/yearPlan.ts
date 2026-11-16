@@ -1,5 +1,13 @@
 import { getClassroomKey } from './sessionStore';
 import type { AcademicPeriod, MissionDefinition, SessionState } from './types';
+import {
+  EVALUATION_SLOTS,
+  MOVIES_BY_GRADE,
+  TRANSVERSALS_BY_PERIOD,
+  type PlannedEvaluation,
+  type PeriodMovie,
+  type PeriodTransversal,
+} from '../data/scheduleMetadata';
 
 /**
  * Ruta del año: 3 periodos × 13 semanas × 2 clases = 78 clases por grado.
@@ -38,6 +46,12 @@ export interface PlannedClass {
   /** Sesión k de n de la misma misión */
   session?: number;
   sessions?: number;
+  /** Evaluación formal del SIE asociada a esta clase (8 por periodo) */
+  evaluation?: PlannedEvaluation;
+  /** Película o cine-foro programado en esta clase (2 por periodo) */
+  movie?: PeriodMovie;
+  /** Efeméride o cátedra transversal (Ebéjico, Afrocolombianidad, Paz, etc.) */
+  transversal?: PeriodTransversal;
 }
 
 const SPECIAL: Record<Exclude<PlannedClassKind, 'mision'>, [string, string][]> = {
@@ -64,16 +78,30 @@ function classId(period: number, week: number, slot: number): string {
   return `p${period}-s${week}-c${slot}`;
 }
 
+function detectGradeKey(missions: MissionDefinition[], classroomName?: string): string {
+  if (classroomName && MOVIES_BY_GRADE[classroomName]) return classroomName;
+  const worldId = missions.find((m) => m.id !== INTRO_MISSION_ID)?.worldId;
+  if (worldId === 'origenes') return '6°';
+  if (worldId === 'imperios') return '7°';
+  if (worldId === 'revoluciones') return '8°';
+  if (worldId === 'sigloxx') return '9°';
+  if (worldId === 'geopolitica') return '10°';
+  if (worldId === 'globalizacion') return '11°';
+  return '6°';
+}
+
 /**
  * Construye las 78 clases de un grado a partir de sus misiones en orden de DBA.
  * Las misiones se reparten entre los 3 periodos y, dentro de cada periodo, entre
  * las 20 clases de las semanas 2 a 11; cada clase cubre un tramo de escenas.
+ * Vincula las 8 notas del SIE de la I.E.R. Boyacá, 2 películas y las cátedras transversales.
  */
-export function buildYearPlan(missions: MissionDefinition[]): PlannedClass[] {
+export function buildYearPlan(missions: MissionDefinition[], classroomName?: string): PlannedClass[] {
   const intro = missions.find((m) => m.id === INTRO_MISSION_ID);
   const teaching = missions.filter((m) => m.id !== INTRO_MISSION_ID);
   const missionsPerPeriod = splitEvenly(teaching.length, PERIODS_PER_YEAR);
   const teachingSlots = (EXAM_WEEK - INTRO_WEEK - 1) * CLASSES_PER_WEEK;
+  const gradeKey = detectGradeKey(missions, classroomName);
 
   const plan: PlannedClass[] = [];
   let missionCursor = 0;
@@ -113,13 +141,36 @@ export function buildYearPlan(missions: MissionDefinition[]): PlannedClass[] {
     let missionIndex = 0;
     for (let week = 1; week <= WEEKS_PER_PERIOD; week++) {
       for (let slot = 1; slot <= CLASSES_PER_WEEK; slot++) {
+        const slotKey = `s${week}-c${slot}`;
+        const evaluation = EVALUATION_SLOTS[slotKey];
+
+        // 2 Películas por periodo: Semana 2 Slot 1 y Semana 6 Slot 1
+        let movie: PeriodMovie | undefined;
+        const gradeMovies = MOVIES_BY_GRADE[gradeKey]?.[period];
+        if (gradeMovies) {
+          if (week === 2 && slot === 1) movie = gradeMovies[0];
+          else if (week === 6 && slot === 1) movie = gradeMovies[1];
+        }
+
+        // Cátedras transversales: Semana 4 Slot 1 y Semana 7 Slot 1
+        let transversal: PeriodTransversal | undefined;
+        const periodTrans = TRANSVERSALS_BY_PERIOD[period];
+        if (periodTrans) {
+          if (week === 4 && slot === 1) transversal = periodTrans.week4;
+          else if (week === 7 && slot === 1) transversal = periodTrans.week7;
+        }
+
         const base = {
           id: classId(p, week, slot),
           number: plan.length + 1,
           period,
           week,
           slot: slot as 1 | 2,
+          evaluation,
+          movie,
+          transversal,
         };
+
         if (week === INTRO_WEEK) {
           // La primera introducción del año usa la misión de reglas si el grado la tiene
           if (p === 1 && intro) {
