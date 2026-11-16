@@ -1,6 +1,7 @@
 // Endpoints /api/* compartidos por el servidor de desarrollo (Vite) y el servidor local de aula.
 import { createAgenda } from './agenda.mjs';
-import { createDataStore, resolveDataDirs } from './dataStore.mjs';
+import { createDataStore } from './dataStore.mjs';
+import { migrateLegacyData, resolvePaths } from './localConfig.mjs';
 import { createResourceScanner } from './resources.mjs';
 
 const MAX_BODY_BYTES = 25 * 1024 * 1024;
@@ -46,10 +47,22 @@ function readBody(req) {
   });
 }
 
+/** Datos de este PC; la primera vez trae los que estaban en Documentos */
+function createDefaultStore() {
+  const { dataDir, mirrorDir } = resolvePaths();
+  if (migrateLegacyData(dataDir)) console.log(`Datos copiados de Documentos a ${dataDir}`);
+  return createDataStore({ dataDir, mirrorDir });
+}
+
+function resourcePaths() {
+  const { socialesDir, generalesDir, powerpointExe } = resolvePaths();
+  return { socialesDir: socialesDir ?? '', generalesDir: generalesDir ?? '', powerpointExe };
+}
+
 export function createApiHandler(
-  store = createDataStore(resolveDataDirs()),
-  agenda = createAgenda({ dataDir: resolveDataDirs().dataDir }),
-  resources = createResourceScanner()
+  store = createDefaultStore(),
+  agenda = createAgenda({ dataDir: resolvePaths().dataDir }),
+  resources = createResourceScanner(resourcePaths())
 ) {
   return async function apiHandler(req, res, next) {
     const url = new URL(req.url ?? '/', 'http://localhost');

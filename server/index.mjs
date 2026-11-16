@@ -5,7 +5,7 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { extname, join, normalize, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createApiHandler } from './api.mjs';
-import { resolveDataDirs } from './dataStore.mjs';
+import { resolvePaths } from './localConfig.mjs';
 
 const PORT = Number(process.env.EXPEDICION6_PORT || 5176);
 const DIST_DIR = fileURLToPath(new URL('../dist/', import.meta.url));
@@ -57,8 +57,9 @@ server.on('error', (err) => {
 });
 
 server.listen(PORT, '127.0.0.1', () => {
-  const { dataDir, mirrorDir } = resolveDataDirs();
-  console.log(`Expedición 6 lista en http://127.0.0.1:${PORT}`);
+  const { dataDir, mirrorDir, socialesDir, configFile } = resolvePaths();
+  console.log(`Ciencias Sociales lista en http://127.0.0.1:${PORT}`);
   console.log(`Datos: ${dataDir}`);
   console.log(`Espejo de respaldos: ${mirrorDir ?? '(desactivado)'}`);
+  console.log(`Banco de Recursos: ${socialesDir ?? '(no encontrado: revisa Google Drive o ${configFile})'}`);
 });

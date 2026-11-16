@@ -3,9 +3,10 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
+import { resolvePaths } from '../server/localConfig.mjs';
 
-const DEFAULT_SOURCE = 'G:\\Mi unidad\\1. 💼 Trabajo\\1. Clases\\0.1 DBA PLAN SABER 11.html';
-const source = process.argv[2] ?? DEFAULT_SOURCE;
+const source = process.argv[2] ?? resolvePaths().dbaPlanFile;
+if (!source) throw new Error('No encontré la carpeta de Clases en Drive: pasa la ruta del plan DBA como argumento');
 const outFile = fileURLToPath(new URL('../src/data/dbaPlan.json', import.meta.url));
 
 const html = readFileSync(source, 'utf8');

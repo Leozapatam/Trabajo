@@ -2,21 +2,17 @@
 // atómica, respaldos diarios y de cierre de clase, y espejo opcional en Drive.
 import { copyFile, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { resolvePaths } from './localConfig.mjs';
 
 export const DATA_FILE_NAME = 'expedicion6-datos.json';
 export const BACKUP_DIR_NAME = 'respaldos';
 export const MAX_BACKUPS = 60;
 
+/** Carpeta de datos y espejo de respaldos de este PC (ver server/localConfig.mjs) */
 export function resolveDataDirs(env = process.env) {
-  const dataDir = env.EXPEDICION6_DATA_DIR || join(homedir(), 'Documents', 'Expedicion6-Datos');
-  let mirrorDir = env.EXPEDICION6_MIRROR_DIR;
-  if (mirrorDir === undefined) {
-    const drive = 'G:\\Mi unidad\\1. 💼 Trabajo\\1. Clases';
-    mirrorDir = existsSync(drive) ? join(drive, 'Expedicion6-Respaldos') : '';
-  }
-  return { dataDir, mirrorDir: mirrorDir || null };
+  const { dataDir, mirrorDir } = resolvePaths({ env });
+  return { dataDir, mirrorDir };
 }
 
 function localStamp(date = new Date()) {
