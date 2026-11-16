@@ -13,9 +13,12 @@ export type RecognitionCategory =
 
 export type AttendanceStatus = 'presente' | 'ausente' | 'excusa';
 
+/** Acciones de puntaje en clase: +1 aporte, +2 aporte extra, −1 interrupción, −2 impide la clase */
+export type ScoreAction = 'aporte' | 'aporte-extra' | 'interrupcion' | 'impide-clase';
+
 export type AcademicPeriod = 1 | 2 | 3;
 
-/** Un +1 / -1 otorgado en clase. Las notas por periodo se calculan a partir de este registro. */
+/** Un punto otorgado en clase (+2 a −2). Las notas por periodo se calculan a partir de este registro. */
 export interface PointEvent {
   id: string;
   category: RecognitionCategory;
@@ -23,6 +26,8 @@ export interface PointEvent {
   period: AcademicPeriod;
   date: string;
   ts: number;
+  /** Acción que lo originó (los puntos anteriores al cambio no la tienen) */
+  action?: ScoreAction;
   /** Saldo trasladado desde el formato v1 (sin historial) */
   migrated?: boolean;
 }

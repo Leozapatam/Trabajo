@@ -1,6 +1,7 @@
 import { getAttendanceSummary } from './grading';
 import { getAttendanceOnClassDate, getClassroomKey } from './sessionStore';
-import type { RecognitionCategory, SessionState } from './types';
+import { actionOf, SCORE_ACTIONS } from './scoring';
+import type { ScoreAction, SessionState } from './types';
 
 /** Dónde quedó la narración de un aula: cada grado sigue su propia misión */
 export interface ClassProgress {
@@ -59,7 +60,8 @@ export interface ClassSummary {
   excusas: string[];
   /** Puntos netos del día por estudiante, de mayor a menor (solo quienes sumaron) */
   topContributors: { name: string; points: number }[];
-  pointsByCategory: Record<RecognitionCategory, number>;
+  /** Cuántas veces se usó cada acción hoy */
+  actionCounts: Record<ScoreAction, number>;
   totalPoints: number;
   resourcesUsed: string[];
   /** Estudiantes con 15 % o más de fallas sin excusa en el periodo */
@@ -82,19 +84,16 @@ export function getClassSummary(state: SessionState): ClassSummary {
     else presentes += 1;
   }
 
-  const pointsByCategory: Record<RecognitionCategory, number> = {
-    investigacion: 0,
-    participacion: 0,
-    comportamiento: 0,
-    actitudinal: 0,
-  };
+  const actionCounts = Object.fromEntries(SCORE_ACTIONS.map((a) => [a.key, 0])) as Record<ScoreAction, number>;
+  let totalPoints = 0;
   const topContributors: { name: string; points: number }[] = [];
   for (const s of active) {
     let net = 0;
     for (const ev of s.pointLog ?? []) {
       if (ev.date !== date || ev.migrated) continue;
       net += ev.delta;
-      pointsByCategory[ev.category] += ev.delta;
+      actionCounts[actionOf(ev)] += 1;
+      totalPoints += ev.delta;
     }
     if (net > 0) topContributors.push({ name: s.name, points: net });
   }
@@ -118,8 +117,8 @@ export function getClassSummary(state: SessionState): ClassSummary {
     ausentes,
     excusas,
     topContributors,
-    pointsByCategory,
-    totalPoints: Object.values(pointsByCategory).reduce((a, b) => a + b, 0),
+    actionCounts,
+    totalPoints,
     resourcesUsed,
     absenceAlerts,
   };

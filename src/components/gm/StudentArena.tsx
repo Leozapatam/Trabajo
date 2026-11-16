@@ -2,24 +2,17 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClipboardCheck, Sparkles } from 'lucide-react';
 import { getAttendanceSummary, getPerformanceLevel, PERFORMANCE_LEVELS } from '../../engine/grading';
+import { awardAction, formatDelta, getScoreAction, SCORE_ACTIONS } from '../../engine/scoring';
 import {
-  awardStudentPoints,
   calculateCurrentPeriodGrade,
   getAttendanceOnClassDate,
   markAttendance,
   undoLastPointEvent,
 } from '../../engine/sessionStore';
-import type { AttendanceStatus, RecognitionCategory, SessionState, StudentState } from '../../engine/types';
+import type { AttendanceStatus, ScoreAction, SessionState, StudentState } from '../../engine/types';
 import '../../styles/gm-arena.css';
 
 type ArenaMode = 'puntos' | 'asistencia';
-
-const CATEGORIES: { key: RecognitionCategory; label: string }[] = [
-  { key: 'investigacion', label: 'Investigación' },
-  { key: 'participacion', label: 'Participación' },
-  { key: 'comportamiento', label: 'Comportamiento' },
-  { key: 'actitudinal', label: 'Actitudinal' },
-];
 
 const ATTENDANCE_CYCLE: Record<AttendanceStatus, AttendanceStatus> = {
   presente: 'ausente',
@@ -76,7 +69,7 @@ interface StudentArenaProps {
  */
 export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) => {
   const [mode, setMode] = useState<ArenaMode>('puntos');
-  const [category, setCategory] = useState<RecognitionCategory>('participacion');
+  const [scoreAction, setScoreAction] = useState<ScoreAction>('aporte');
   const [floats, setFloats] = useState<Record<string, FloatFx>>({});
   const [levelUps, setLevelUps] = useState<Record<string, LevelFx>>({});
   const [toast, setToast] = useState<Toast | null>(null);
@@ -106,13 +99,13 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
     }
   };
 
-  const award = (student: StudentState, delta: number) => {
+  const award = (student: StudentState, action: ScoreAction) => {
+    const def = getScoreAction(action);
     const before = calculateCurrentPeriodGrade(session, student);
-    const after = calculateCurrentPeriodGrade(session, awardStudentPoints(session, student.id, category, delta).students.find((s) => s.id === student.id)!);
-    commit((prev) => awardStudentPoints(prev, student.id, category, delta));
-    flash(student.id, delta, before, after);
-    const label = CATEGORIES.find((c) => c.key === category)!.label;
-    showToast(`${delta > 0 ? '+1' : '−1'} ${label} · ${student.name}`, () =>
+    const after = calculateCurrentPeriodGrade(session, awardAction(session, student.id, action).students.find((s) => s.id === student.id)!);
+    commit((prev) => awardAction(prev, student.id, action));
+    flash(student.id, def.delta, before, after);
+    showToast(`${formatDelta(def.delta)} ${def.label} · ${student.name}`, () =>
       commit((prev) => undoLastPointEvent(prev, student.id))
     );
   };
@@ -128,16 +121,16 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
 
   const handleTokenClick = (student: StudentState, e: React.MouseEvent) => {
     if (mode === 'asistencia') return cycleAttendance(student);
-    award(student, e.shiftKey ? -1 : 1);
+    award(student, e.shiftKey ? 'interrupcion' : scoreAction);
   };
 
   const handleTokenContextMenu = (student: StudentState, e: React.MouseEvent) => {
     if (mode !== 'puntos') return;
     e.preventDefault();
-    award(student, -1);
+    award(student, 'interrupcion');
   };
 
-  // Atajos: 1–4 categoría, P/A modo, Ctrl+Z deshacer
+  // Atajos: 1–4 acción, P/A modo, Ctrl+Z deshacer
   const toastRef = useRef(toast);
   toastRef.current = toast;
   useEffect(() => {
@@ -154,8 +147,8 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
       }
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       const idx = Number(e.key) - 1;
-      if (idx >= 0 && idx < CATEGORIES.length) {
-        setCategory(CATEGORIES[idx].key);
+      if (idx >= 0 && idx < SCORE_ACTIONS.length) {
+        setScoreAction(SCORE_ACTIONS[idx].key);
         setMode('puntos');
         return;
       }
@@ -197,18 +190,19 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
 
       {mode === 'puntos' && (
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14, alignItems: 'center' }}>
-          {CATEGORIES.map((c, i) => (
+          {SCORE_ACTIONS.map((a, i) => (
             <button
-              key={c.key}
+              key={a.key}
               type="button"
-              className={`gm-category-chip gm-category-chip--${c.key}${category === c.key ? ' is-selected' : ''}`}
-              onClick={() => setCategory(c.key)}
+              className={`gm-category-chip gm-score-chip--${a.key}${scoreAction === a.key ? ' is-selected' : ''}`}
+              onClick={() => setScoreAction(a.key)}
+              title={a.hint}
             >
-              {i + 1} · {c.label}
+              {i + 1} · {formatDelta(a.delta)} {a.label}
             </button>
           ))}
           <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            Clic +1 · clic derecho −1 · Ctrl+Z deshacer
+            Clic: acción elegida · clic derecho: −1 interrupción · Ctrl+Z deshacer
           </span>
         </div>
       )}
@@ -254,7 +248,7 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
               >
                 {fx && (
                   <span key={fx.key} className={fx.delta > 0 ? 'gm-float-plus' : 'gm-float-minus'}>
-                    {fx.delta > 0 ? '+1' : '−1'}
+                    {formatDelta(fx.delta)}
                   </span>
                 )}
                 <div className="gm-token__header">

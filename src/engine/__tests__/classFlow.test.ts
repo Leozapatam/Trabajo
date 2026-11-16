@@ -69,7 +69,8 @@ describe('Resumen de cierre de clase', () => {
     const summary = getClassSummary(s);
     expect(summary).toMatchObject({ presentes: 2, ausentes: ['Beto'], excusas: ['Carla'], totalPoints: 2 });
     expect(summary.topContributors).toEqual([{ name: 'Ana', points: 2 }]);
-    expect(summary.pointsByCategory).toMatchObject({ participacion: 2, investigacion: 1, comportamiento: -1 });
+    // Puntos de antes del cambio (sin acción): se deducen por su valor
+    expect(summary.actionCounts).toEqual({ aporte: 3, 'aporte-extra': 0, interrupcion: 1, 'impide-clase': 0 });
     expect(summary.resourcesUsed).toEqual(['Origen del universo']);
     // Una sola clase y faltó sin excusa: 100 % → riesgo
     expect(summary.absenceAlerts).toEqual([{ name: 'Beto', rate: 1, risk: true }]);

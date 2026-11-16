@@ -4,7 +4,7 @@ import { AmbientBreeze } from '../components/AmbientBreeze';
 import { getAula, worldDisplayName } from '../components/aulas/aulaInfo';
 import { GradeLabel } from '../components/aulas/GradeLabel';
 import { ClassSummaryScreen } from '../components/clase/ClassSummaryScreen';
-import { CATEGORIES, GroupColumn, type FloatFx } from '../components/clase/GroupColumn';
+import { GroupColumn, type FloatFx } from '../components/clase/GroupColumn';
 import { Inventory, INVENTORY_TABS, type InventoryTab } from '../components/clase/Inventory';
 import { SpecialClassBrief } from '../components/clase/SpecialClassBrief';
 import { VotingBlock } from '../components/clase/VotingBlock';
@@ -20,14 +20,14 @@ import {
 } from '../engine/classFlow';
 import { requestDiskBackup } from '../engine/diskSync';
 import {
-  awardStudentPoints,
   changeSceneState,
   loadSessionState,
   saveAndBroadcastSession,
   subscribeToNewerSession,
   undoLastPointEvent,
 } from '../engine/sessionStore';
-import type { MissionDefinition, ProjectorViewMode, RecognitionCategory, SessionState, StudentState } from '../engine/types';
+import { awardAction, formatDelta, getScoreAction, SCORE_ACTIONS } from '../engine/scoring';
+import type { MissionDefinition, ProjectorViewMode, ScoreAction, SessionState, StudentState } from '../engine/types';
 import {
   buildYearPlan,
   CLASSES_PER_YEAR,
@@ -113,7 +113,7 @@ export const ClassPage: React.FC = () => {
   });
   useEffect(() => subscribeToNewerSession(setSession), []);
 
-  const [category, setCategory] = useState<RecognitionCategory>('participacion');
+  const [scoreAction, setScoreAction] = useState<ScoreAction>('aporte');
   const [floats, setFloats] = useState<Record<string, FloatFx>>({});
   const [toast, setToast] = useState<Toast | null>(null);
   const [inventory, setInventory] = useState<InventoryTab | null>(manageOnly ? 'exploradores' : null);
@@ -214,8 +214,10 @@ export const ClassPage: React.FC = () => {
     commit((prev) => ({ ...prev, revealed: !prev.revealed, projectorMode: 'scene' }));
   };
 
-  const award = (student: StudentState, delta: number) => {
-    commit((prev) => awardStudentPoints(prev, student.id, category, delta));
+  const award = (student: StudentState, action: ScoreAction) => {
+    const def = getScoreAction(action);
+    const delta = def.delta;
+    commit((prev) => awardAction(prev, student.id, action));
     fxCounter.current += 1;
     const key = fxCounter.current;
     setFloats((prev) => ({ ...prev, [student.id]: { key, delta } }));
@@ -227,8 +229,7 @@ export const ClassPage: React.FC = () => {
         return next;
       });
     }, 900);
-    const label = CATEGORIES.find((c) => c.key === category)!.label;
-    showToast(`${delta > 0 ? '+1' : '−1'} ${label} · ${student.name}`, () =>
+    showToast(`${formatDelta(delta)} ${def.label} · ${student.name}`, () =>
       commit((prev) => undoLastPointEvent(prev, student.id))
     );
   };
@@ -300,7 +301,7 @@ export const ClassPage: React.FC = () => {
       else if (key === 'v') a.commit((prev) => (prev.voting.options.length ? toggleVotingOpen(prev) : prev));
       else if (key === 'i' || e.key === 'Tab') setInventory('exploradores');
       else if (key === 'c') setPlanOpen(true);
-      else if (e.key >= '1' && e.key <= '4') setCategory(CATEGORIES[Number(e.key) - 1].key);
+      else if (e.key >= '1' && e.key <= '4') setScoreAction(SCORE_ACTIONS[Number(e.key) - 1].key);
       else return;
       e.preventDefault();
     };
@@ -446,7 +447,7 @@ export const ClassPage: React.FC = () => {
           </article>
         )}
 
-        <GroupColumn session={session} category={category} onCategory={setCategory} onAward={award} floats={floats} />
+        <GroupColumn session={session} action={scoreAction} onAction={setScoreAction} onAward={award} floats={floats} />
       </main>
 
       <footer className="clase__bar">

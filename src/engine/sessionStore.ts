@@ -5,6 +5,7 @@ import type {
   AttendanceStatus,
   PointEvent,
   RecognitionCategory,
+  ScoreAction,
   ResourceItem,
   SceneDefinition,
   SessionState,
@@ -766,7 +767,8 @@ export function awardStudentPoints(
   state: SessionState,
   studentId: string,
   category: RecognitionCategory,
-  delta: number
+  delta: number,
+  action?: ScoreAction
 ): SessionState {
   return {
     ...state,
@@ -776,6 +778,7 @@ export function awardStudentPoints(
         id: `pt-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
         category,
         delta,
+        ...(action ? { action } : {}),
         period: state.period,
         date: state.classDate || getTodayIsoDate(),
         ts: Date.now(),

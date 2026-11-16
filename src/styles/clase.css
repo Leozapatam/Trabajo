@@ -1453,3 +1453,37 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Acciones de puntaje: verde +1, dorado +2, ámbar −1, rojo −2 */
+.clase__cat--aporte,
+.gm-score-chip--aporte {
+  --c: #34d399;
+  --chip-color: #34d399;
+}
+.clase__cat--aporte-extra,
+.gm-score-chip--aporte-extra {
+  --c: #fde68a;
+  --chip-color: #fde68a;
+}
+.clase__cat--interrupcion,
+.gm-score-chip--interrupcion {
+  --c: #fb923c;
+  --chip-color: #fb923c;
+}
+.clase__cat--impide-clase,
+.gm-score-chip--impide-clase {
+  --c: #f87171;
+  --chip-color: #f87171;
+}
+
+.gm-score-chip--aporte,
+.gm-score-chip--aporte-extra,
+.gm-score-chip--interrupcion,
+.gm-score-chip--impide-clase {
+  color: var(--chip-color);
+}
+
+.clase__cat-delta {
+  font-family: var(--font-pixel);
+  font-size: 0.56rem;
+}

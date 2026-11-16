@@ -16,7 +16,7 @@ Para proyectar sin mostrar tu guion, notas ni respuestas:
 3. **¿Con quién contamos para esta sesión?** Todos llegan como presentes: toca a quien falta (Presente → Ausente → Excusa). **COMENZAR** o Enter guarda la lista e inicia la clase.
 4. **En clase.**
    - Izquierda: la pregunta de la escena y tu guion. Debajo, lo que ve el proyector, las pistas, el hallazgo, la votación y el propósito.
-   - Derecha: el grupo. Clic da +1 en la categoría activa, clic derecho da −1.
+   - Derecha: el grupo. Clic aplica la acción elegida; clic derecho da −1 (interrupción).
    - Abajo: Anterior, Pista, Revelar hallazgo, Siguiente.
 5. **Cerrar clase.** Muestra el resumen del día (asistencia, aportes, recursos) y guarda un respaldo.
 
@@ -30,7 +30,8 @@ Para proyectar sin mostrar tu guion, notas ni respuestas:
 | `H` | Mostrar la siguiente pista |
 | `R` | Revelar u ocultar el hallazgo |
 | `V` | Mostrar u ocultar la votación en el proyector |
-| `1` `2` `3` `4` | Categoría de puntos: Investigación, Participación, Comportamiento, Actitudinal |
+| `1` `2` `3` `4` | Acción de puntaje: +1 Aporte, +2 Aporte extra, −1 Interrupción, −2 Impide la clase |
+| `C` | Ruta del año: ver y elegir cualquiera de las 78 clases |
 | `Ctrl + Z` | Deshacer el último punto |
 | `P` | Abrir la ventana del proyector |
 | `I` | Abrir o cerrar el inventario (`Q` y `E` cambian de pestaña) |
@@ -46,6 +47,11 @@ Para proyectar sin mostrar tu guion, notas ni respuestas:
 
 ## 5. Notas y datos
 
-- Cada +1 / −1 mueve la nota del periodo (base 3.5, 0.1 por punto, entre 1.0 y 5.0). La nota anual pondera los periodos 30 % / 35 % / 35 % según el SIE.
-- Todo se guarda solo en `Documentos\Expedicion6-Datos`, con respaldos automáticos. Detalles en `DATA_PERSISTENCE.md`.
+- Acciones de puntaje (cada punto mueve 0.1 la nota del periodo; base 3.5, entre 1.0 y 5.0):
+  - **+1 Aporte:** participa y aporta a la clase.
+  - **+2 Aporte extra:** aporta más de lo que se pide.
+  - **−1 Interrupción:** una falta que interrumpe la clase.
+  - **−2 Impide la clase:** comportamiento reiterado que no deja dar la clase.
+- La nota anual pondera los periodos 30 % / 35 % / 35 % según el SIE.
+- Todo se guarda solo en tu Google Drive (`1. Clases\Expedicion6-Datos`), con respaldos automáticos, y te sigue a cualquier PC. Detalles en `DATA_PERSISTENCE.md`.
 - La matrícula y los retiros se hacen en **Gestión de grupos**, desde la portada.

@@ -3,14 +3,8 @@ import { Link } from 'react-router-dom';
 import { initials } from '../aulas/aulaInfo';
 import { getPerformanceLevel } from '../../engine/grading';
 import { calculateCurrentPeriodGrade, getAttendanceOnClassDate } from '../../engine/sessionStore';
-import type { RecognitionCategory, SessionState, StudentState } from '../../engine/types';
-
-export const CATEGORIES: { key: RecognitionCategory; label: string }[] = [
-  { key: 'investigacion', label: 'Investigación' },
-  { key: 'participacion', label: 'Participación' },
-  { key: 'comportamiento', label: 'Comportamiento' },
-  { key: 'actitudinal', label: 'Actitudinal' },
-];
+import { formatDelta, SCORE_ACTIONS } from '../../engine/scoring';
+import type { ScoreAction, SessionState, StudentState } from '../../engine/types';
 
 export interface FloatFx {
   key: number;
@@ -19,31 +13,32 @@ export interface FloatFx {
 
 interface GroupColumnProps {
   session: SessionState;
-  category: RecognitionCategory;
-  onCategory: (c: RecognitionCategory) => void;
-  onAward: (student: StudentState, delta: number) => void;
+  action: ScoreAction;
+  onAction: (a: ScoreAction) => void;
+  onAward: (student: StudentState, action: ScoreAction) => void;
   floats: Record<string, FloatFx>;
 }
 
-/** El grupo siempre a la vista: clic +1 en la categoría activa, clic derecho −1 */
-export const GroupColumn: React.FC<GroupColumnProps> = ({ session, category, onCategory, onAward, floats }) => {
+/** El grupo siempre a la vista: clic aplica la acción elegida, clic derecho una interrupción */
+export const GroupColumn: React.FC<GroupColumnProps> = ({ session, action, onAction, onAward, floats }) => {
   const students = session.students.filter((s) => s.active);
 
   return (
     <aside className="clase__group" aria-label="El grupo">
-      <div className="clase__cats" role="radiogroup" aria-label="Categoría de puntos">
-        {CATEGORIES.map((c, i) => (
+      <div className="clase__cats" role="radiogroup" aria-label="Acción de puntaje">
+        {SCORE_ACTIONS.map((a, i) => (
           <button
-            key={c.key}
+            key={a.key}
             type="button"
             role="radio"
-            aria-checked={category === c.key}
-            className={`clase__cat clase__cat--${c.key}${category === c.key ? ' is-active' : ''}`}
-            onClick={() => onCategory(c.key)}
-            title={`${c.label} (tecla ${i + 1})`}
+            aria-checked={action === a.key}
+            className={`clase__cat clase__cat--${a.key}${action === a.key ? ' is-active' : ''}`}
+            onClick={() => onAction(a.key)}
+            title={`${a.hint} (tecla ${i + 1})`}
           >
             <span className="clase__cat-key">{i + 1}</span>
-            {c.label}
+            <span className="clase__cat-delta">{formatDelta(a.delta)}</span>
+            {a.label}
           </button>
         ))}
       </div>
@@ -66,17 +61,17 @@ export const GroupColumn: React.FC<GroupColumnProps> = ({ session, category, onC
                 type="button"
                 className={`clase__slot is-${status}`}
                 disabled={!here}
-                onClick={(e) => onAward(st, e.shiftKey ? -1 : 1)}
+                onClick={(e) => onAward(st, e.shiftKey ? 'interrupcion' : action)}
                 onContextMenu={(e) => {
                   e.preventDefault();
-                  if (here) onAward(st, -1);
+                  if (here) onAward(st, 'interrupcion');
                 }}
                 title={here ? `${st.name} · ${grade.toFixed(1)} (${level.label})` : `${st.name} · ${status}`}
                 aria-label={`${st.name}, nota ${grade.toFixed(1)}${here ? '' : `, ${status}`}`}
               >
                 {fx && (
                   <span key={fx.key} className={`clase__float${fx.delta < 0 ? ' is-minus' : ''}`}>
-                    {fx.delta > 0 ? '+1' : '−1'}
+                    {formatDelta(fx.delta)}
                   </span>
                 )}
                 <span className="clase__slot-face">{initials(st.name)}</span>
@@ -90,7 +85,7 @@ export const GroupColumn: React.FC<GroupColumnProps> = ({ session, category, onC
           })}
         </div>
       )}
-      <span className="clase__group-hint">Clic +1 · clic derecho −1 · Ctrl+Z deshacer</span>
+      <span className="clase__group-hint">Clic: acción elegida · clic derecho: −1 interrupción · Ctrl+Z deshacer</span>
     </aside>
   );
 };

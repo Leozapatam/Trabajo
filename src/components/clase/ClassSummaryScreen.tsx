@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { longDate } from '../aulas/aulaInfo';
 import { GradeLabel } from '../aulas/GradeLabel';
-import { CATEGORIES } from './GroupColumn';
+import { formatDelta, SCORE_ACTIONS } from '../../engine/scoring';
 import type { ClassSummary } from '../../engine/classFlow';
 
 interface ClassSummaryScreenProps {
@@ -82,8 +82,8 @@ export const ClassSummaryScreen: React.FC<ClassSummaryScreenProps> = ({
             </ol>
           )}
           <p className="resumen__muted">
-            {CATEGORIES.filter((c) => summary.pointsByCategory[c.key] !== 0)
-              .map((c) => `${c.label} ${summary.pointsByCategory[c.key] > 0 ? '+' : ''}${summary.pointsByCategory[c.key]}`)
+            {SCORE_ACTIONS.filter((a) => summary.actionCounts[a.key] > 0)
+              .map((a) => `${summary.actionCounts[a.key]} × ${a.label} (${formatDelta(a.delta)})`)
               .join(' · ')}
           </p>
         </section>
