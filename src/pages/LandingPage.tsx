@@ -1,5 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CalendarDays } from 'lucide-react';
+import { CalendarPanel } from '../components/overlay/CalendarPanel';
+import { GameWindow } from '../components/overlay/GameWindow';
 import { TitleBackdrop } from '../components/TitleBackdrop';
 import { getGradeGroup, GRADE_GROUPS } from '../engine/grades';
 import {
@@ -10,6 +13,9 @@ import {
 } from '../engine/sessionStore';
 import type { AcademicPeriod } from '../engine/types';
 import '../styles/title-menu.css';
+
+/** Semiventanas que se abren desde los botones redondos de la portada */
+type Panel = 'calendario';
 
 type MenuRow = 'nueva' | 'gestionar' | 'grupos' | 'grado' | 'periodo' | 'fecha';
 const ROWS: MenuRow[] = ['nueva', 'gestionar', 'grupos', 'grado', 'periodo', 'fecha'];
@@ -30,6 +36,8 @@ export const LandingPage: React.FC = () => {
   const [classroomName, setClassroomName] = useState<string>(initial.classroomName);
   const [period, setPeriod] = useState<AcademicPeriod>(initial.period || 1);
   const [cursor, setCursor] = useState<MenuRow>('nueva');
+  const [panel, setPanel] = useState<Panel | null>(null);
+  const closePanel = useCallback(() => setPanel(null), []);
 
   const enter = (startClass: boolean) => {
     const current = loadSessionState();
@@ -65,13 +73,17 @@ export const LandingPage: React.FC = () => {
   };
 
   // Los manejadores cambian en cada render; el listener lee siempre la última versión
-  const handlersRef = useRef({ cursor, activate, changeValue });
-  handlersRef.current = { cursor, activate, changeValue };
+  const handlersRef = useRef({ cursor, activate, changeValue, panel });
+  handlersRef.current = { cursor, activate, changeValue, panel };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const { cursor: cur, activate: act, changeValue: change } = handlersRef.current;
+      const { cursor: cur, activate: act, changeValue: change, panel: openPanel } = handlersRef.current;
+      if (openPanel) return; // con una semiventana abierta, el menú no se mueve
       const idx = ROWS.indexOf(cur);
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (e.key.toLowerCase() === 'c' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        setPanel('calendario');
+      } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault();
         const dir = e.key === 'ArrowDown' ? 1 : -1;
         setCursor(ROWS[(idx + dir + ROWS.length) % ROWS.length]);
@@ -118,6 +130,19 @@ export const LandingPage: React.FC = () => {
     <div className="title-screen">
       <TitleBackdrop vignette="right" />
 
+      <div className="title-dock" aria-label="Accesos rápidos">
+        <button type="button" className="title-dock__button" onClick={() => setPanel('calendario')} aria-label="Agenda (C)">
+          <CalendarDays size={20} />
+          <span className="title-dock__label">Agenda · C</span>
+        </button>
+      </div>
+
+      {panel === 'calendario' && (
+        <GameWindow title="AGENDA" icon={<CalendarDays size={16} />} onClose={closePanel}>
+          <CalendarPanel />
+        </GameWindow>
+      )}
+
       <header className="title-logo animate-title-enter" style={{ position: 'relative', zIndex: 2 }}>
         <span className="title-logo__brand">
           <img className="title-logo__avatar" src="/assets/brand/profe-leo-avatar.png" alt="Profe Leo" />
@@ -157,7 +182,7 @@ export const LandingPage: React.FC = () => {
             />
           </li>
         </ul>
-        <span className="title-hint">↑ ↓ moverse · ← → cambiar · Enter entrar</span>
+        <span className="title-hint">↑ ↓ moverse · ← → cambiar · Enter entrar · C agenda</span>
       </nav>
 
       <footer className="title-footer" style={{ position: 'relative', zIndex: 2 }}>

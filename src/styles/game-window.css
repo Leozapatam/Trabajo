@@ -1,0 +1,194 @@
+/* Semiventana de juego: panel flotante dentro de la pantalla (agenda, inventario…) */
+
+.game-window__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(6, 10, 19, 0.55);
+  backdrop-filter: blur(3px);
+  animation: game-window-fade 0.16s ease-out both;
+}
+
+.game-window {
+  width: min(1100px, 94vw);
+  height: min(760px, 88vh);
+  display: flex;
+  flex-direction: column;
+  background: rgba(8, 14, 28, 0.96);
+  border: 2px solid #e8b86d;
+  box-shadow:
+    0 0 0 2px #060a13,
+    0 0 0 4px rgba(56, 189, 248, 0.22),
+    8px 8px 0 #04070e,
+    0 0 40px rgba(232, 184, 109, 0.18);
+  border-radius: 2px;
+  animation: game-window-pop 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.game-window__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 2px solid rgba(232, 184, 109, 0.35);
+  background: linear-gradient(180deg, rgba(232, 184, 109, 0.1), transparent);
+}
+
+.game-window__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: #fde68a;
+  text-shadow: 2px 2px 0 #04070e;
+}
+
+.game-window__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: transparent;
+  border: 1px solid rgba(253, 230, 138, 0.4);
+  border-radius: 2px;
+  color: #fde68a;
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  cursor: pointer;
+}
+
+.game-window__close:hover {
+  background: rgba(232, 184, 109, 0.15);
+}
+
+.game-window__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px 14px;
+}
+
+.game-window__tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.game-window__tab {
+  position: relative;
+  padding: 5px 12px 5px 22px;
+  background: transparent;
+  border: none;
+  color: rgba(226, 232, 240, 0.6);
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+.game-window__tab.is-active {
+  color: #fff;
+}
+
+.game-window__tab.is-active::before {
+  content: '➤';
+  position: absolute;
+  left: 4px;
+  color: #fde68a;
+  font-size: 0.8em;
+}
+
+/* Botones redondos semitransparentes de la portada */
+.title-dock {
+  position: fixed;
+  top: clamp(16px, 3vw, 36px);
+  left: clamp(16px, 3vw, 40px);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.title-dock__button {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(6, 10, 19, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  color: rgba(253, 230, 138, 0.9);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.title-dock__button:hover,
+.title-dock__button:focus-visible {
+  background: rgba(6, 10, 19, 0.7);
+  transform: scale(1.06);
+}
+
+.title-dock__label {
+  position: absolute;
+  left: calc(100% + 10px);
+  white-space: nowrap;
+  font-size: 0.78rem;
+  color: #f8fafc;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+}
+
+.title-dock__button:hover .title-dock__label,
+.title-dock__button:focus-visible .title-dock__label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@keyframes game-window-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes game-window-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-window__backdrop,
+  .game-window {
+    animation: none;
+  }
+}
+
+.game-window__input {
+  width: 100%;
+  background: #0f172a;
+  color: #f8fafc;
+  border: 2px solid rgba(232, 184, 109, 0.35);
+  border-radius: 2px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.game-window__input:focus {
+  outline: none;
+  border-color: #e8b86d;
+}
