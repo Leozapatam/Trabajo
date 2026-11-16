@@ -15,8 +15,8 @@ import '../styles/title-menu.css';
 /** Semiventanas que se abren desde los botones redondos de la portada */
 type Panel = 'calendario';
 
-type MenuRow = 'empezar' | 'gestionar' | 'grupos' | 'periodo' | 'fecha';
-const ROWS: MenuRow[] = ['empezar', 'gestionar', 'grupos', 'periodo', 'fecha'];
+type MenuRow = 'empezar' | 'gestionar' | 'grupos' | 'logros' | 'periodo' | 'fecha';
+const ROWS: MenuRow[] = ['empezar', 'gestionar', 'grupos', 'logros', 'periodo', 'fecha'];
 
 function shiftDate(iso: string, days: number): string {
   const [y, m, d] = iso.split('-').map(Number);
@@ -54,6 +54,7 @@ export const LandingPage: React.FC = () => {
     if (row === 'empezar') enter(true);
     else if (row === 'gestionar') enter(false);
     else if (row === 'grupos') navigate('/grupos');
+    else if (row === 'logros') navigate('/logros');
     else changeValue(row, 1);
   };
 
@@ -150,6 +151,9 @@ export const LandingPage: React.FC = () => {
           </li>
           <li {...itemProps('grupos', 0.3, true)} onClick={() => navigate('/grupos')}>
             Gestión de grupos
+          </li>
+          <li {...itemProps('logros', 0.35, true)} onClick={() => navigate('/logros')}>
+            Logros
           </li>
           <li aria-hidden="true" className="title-menu__divider" />
           <li {...itemProps('periodo', 0.5)}>{stepper('periodo', 'Periodo', `${period}`)}</li>

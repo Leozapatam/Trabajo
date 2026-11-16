@@ -7,6 +7,7 @@ const AulasPage = lazy(() => import('./pages/AulasPage').then((m) => ({ default:
 const RollCallPage = lazy(() => import('./pages/RollCallPage').then((m) => ({ default: m.RollCallPage })));
 const ClassPage = lazy(() => import('./pages/ClassPage').then((m) => ({ default: m.ClassPage })));
 const GroupsPage = lazy(() => import('./pages/GroupsPage').then((m) => ({ default: m.GroupsPage })));
+const AchievementsPage = lazy(() => import('./pages/AchievementsPage').then((m) => ({ default: m.AchievementsPage })));
 const ProjectorPage = lazy(() => import('./pages/ProjectorPage').then((m) => ({ default: m.ProjectorPage })));
 
 const Loading: React.FC = () => (
@@ -28,6 +29,7 @@ export const App: React.FC = () => {
           <Route path="/lista" element={<RollCallPage />} />
           <Route path="/clase" element={<ClassPage />} />
           <Route path="/grupos" element={<GroupsPage />} />
+          <Route path="/logros" element={<AchievementsPage />} />
           {/* El panel clásico se retiró: los enlaces viejos llevan a la pantalla de clase */}
           <Route path="/game-master" element={<Navigate to="/clase" replace />} />
           <Route path="/projector" element={<ProjectorPage />} />

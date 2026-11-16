@@ -264,8 +264,23 @@ export interface ResourceUsageEntry {
   period: AcademicPeriod;
 }
 
+/** Datos del docente para los logros; viven solo en el archivo de datos local */
+export interface TeacherProfile {
+  /** AAAA-MM-DD */
+  birthDate?: string;
+  /** Primer día como docente, AAAA-MM-DD */
+  startDate?: string;
+  /** Semanas cotizadas antes de empezar a dar clase */
+  priorWeeks?: number;
+  /** Meta legal de semanas (por defecto 1300) */
+  goalWeeks?: number;
+  /** Edad de pensión (por defecto 57, Ley 812 de 2003) */
+  pensionAge?: number;
+}
+
 export interface SessionState {
   schemaVersion?: number;
+  teacherProfile?: TeacherProfile;
   sessionId: string;
   active: boolean;
   classStarted: boolean;

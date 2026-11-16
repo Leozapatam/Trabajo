@@ -1487,3 +1487,109 @@
   font-family: var(--font-pixel);
   font-size: 0.56rem;
 }
+
+/* --- Notas en esquema: narra → dialoga → cuaderno --- */
+.notes__question {
+  margin: 4px 0 18px;
+  padding: 10px 16px;
+  max-width: 70ch;
+  border-left: 4px solid var(--gold);
+  background: rgba(253, 230, 138, 0.08);
+  border-radius: 0 10px 10px 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  line-height: 1.2;
+  color: var(--gold);
+}
+
+.notes__flow {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 78ch;
+}
+
+.notes__arrow {
+  align-self: flex-start;
+  margin-left: 22px;
+  transform: rotate(90deg);
+  color: rgba(253, 230, 138, 0.45);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.notes__step {
+  --c: #7dd3fc;
+  padding: 12px 16px 12px 18px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-left: 4px solid var(--c);
+  border-radius: 12px;
+  background: rgba(8, 12, 22, 0.62);
+  backdrop-filter: blur(4px);
+}
+.notes__step.is-dialoga { --c: #e8b86d; }
+.notes__step.is-cuaderno { --c: #a7f3d0; }
+
+.notes__step-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--c);
+}
+
+.notes__step-n {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--c);
+  color: #0b1020;
+  font-size: 0.72rem;
+  letter-spacing: 0;
+}
+
+.notes__step-text {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: rgba(226, 232, 240, 0.82);
+}
+.notes__step-text strong {
+  color: #f8fafc;
+  font-weight: 700;
+}
+.notes__step.is-dialoga .notes__step-text {
+  font-size: 1.16rem;
+}
+
+.notes__hints {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.55);
+}
+.notes__hint {
+  padding: 2px 9px;
+  border: 1px dashed rgba(232, 184, 109, 0.4);
+  border-radius: 999px;
+  cursor: help;
+}
+.notes__hint.is-shown {
+  border-style: solid;
+  background: rgba(232, 184, 109, 0.18);
+  color: #fde68a;
+}

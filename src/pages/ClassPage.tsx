@@ -7,7 +7,7 @@ import { ClassSummaryScreen } from '../components/clase/ClassSummaryScreen';
 import { GroupColumn, type FloatFx } from '../components/clase/GroupColumn';
 import { Inventory, INVENTORY_TABS, type InventoryTab } from '../components/clase/Inventory';
 import { SpecialClassBrief } from '../components/clase/SpecialClassBrief';
-import { VotingBlock } from '../components/clase/VotingBlock';
+import { SceneNotes } from '../components/clase/SceneNotes';
 import { KIND_LABEL, YearPlanWindow } from '../components/clase/YearPlanWindow';
 import { DiskStatusBadge } from '../components/gm/DiskStatusBadge';
 import { MISSIONS_LIST, worldArtById, worldsByGrade } from '../data/catalog';
@@ -15,7 +15,6 @@ import {
   getClassSummary,
   rememberClassProgress,
   resumeClassProgress,
-  toggleVotingOpen,
   type ClassSummary,
 } from '../engine/classFlow';
 import { requestDiskBackup } from '../engine/diskSync';
@@ -209,11 +208,6 @@ export const ClassPage: React.FC = () => {
     commit((prev) => ({ ...prev, revealedHintsCount: prev.revealedHintsCount + 1, projectorMode: 'scene' }));
   };
 
-  const toggleReveal = () => {
-    if (!scene) return;
-    commit((prev) => ({ ...prev, revealed: !prev.revealed, projectorMode: 'scene' }));
-  };
-
   const award = (student: StudentState, action: ScoreAction) => {
     const def = getScoreAction(action);
     const delta = def.delta;
@@ -258,7 +252,7 @@ export const ClassPage: React.FC = () => {
   };
 
   // Los atajos leen siempre la última versión de las acciones
-  const actions = { goToScene, revealHint, toggleReveal, openProjector, sceneIndex, inventory, closing, toast, commit, planOpen };
+  const actions = { goToScene, revealHint, openProjector, sceneIndex, inventory, closing, toast, commit, planOpen };
   const actionsRef = useRef(actions);
   actionsRef.current = actions;
   useEffect(() => {
@@ -296,9 +290,7 @@ export const ClassPage: React.FC = () => {
       if (e.key === 'ArrowRight') a.goToScene(a.sceneIndex + 1);
       else if (e.key === 'ArrowLeft') a.goToScene(a.sceneIndex - 1);
       else if (key === 'h') a.revealHint();
-      else if (key === 'r') a.toggleReveal();
       else if (key === 'p') a.openProjector();
-      else if (key === 'v') a.commit((prev) => (prev.voting.options.length ? toggleVotingOpen(prev) : prev));
       else if (key === 'i' || e.key === 'Tab') setInventory('exploradores');
       else if (key === 'c') setPlanOpen(true);
       else if (e.key >= '1' && e.key <= '4') setScoreAction(SCORE_ACTIONS[Number(e.key) - 1].key);
@@ -388,53 +380,7 @@ export const ClassPage: React.FC = () => {
               }`}
             />
           )}
-          <article key={scene.id} className="clase__script">
-            <h1 className="clase__title">{scene.title}</h1>
-            <p className="clase__question">{scene.promptQuestion}</p>
-
-            <section className="clase__block">
-              <h2>GUION</h2>
-              <p className="clase__guion">{scene.teacherNotes.facilitationScript}</p>
-            </section>
-
-            <section className="clase__block">
-              <h2>EN EL PROYECTOR</h2>
-              <p>{scene.narrative}</p>
-              {scene.notebookPrompt && <p className="clase__notebook">Cuaderno: {scene.notebookPrompt}</p>}
-            </section>
-
-            {scene.hints.length > 0 && (
-              <section className="clase__block">
-                <h2>
-                  PISTAS · {hintsShown} DE {scene.hints.length} A LA VISTA
-                </h2>
-                <ol className="clase__hints">
-                  {scene.hints.map((hint, i) => (
-                    <li key={i} className={i < hintsShown ? 'is-shown' : ''}>
-                      {hint}
-                    </li>
-                  ))}
-                </ol>
-              </section>
-            )}
-
-            <section className={`clase__block clase__finding${session.revealed ? ' is-revealed' : ''}`}>
-              <h2>HALLAZGO · {session.revealed ? 'A LA VISTA DEL GRUPO' : 'OCULTO PARA EL GRUPO'}</h2>
-              <p>{scene.publicAnswerSummary}</p>
-            </section>
-
-            <VotingBlock session={session} commit={commit} question={scene.promptQuestion} />
-
-            <section className="clase__block is-quiet">
-              <h2>OJO CON</h2>
-              <p>{scene.teacherNotes.whatToWatchFor}</p>
-            </section>
-
-            <section className="clase__block is-quiet">
-              <h2>PROPÓSITO</h2>
-              <p>{scene.teacherNotes.pedagogicalGoal}</p>
-            </section>
-          </article>
+          <SceneNotes scene={scene} hintsShown={hintsShown} />
           </div>
         ) : (
           <article className="clase__script">
@@ -456,9 +402,6 @@ export const ClassPage: React.FC = () => {
         </button>
         <button type="button" className="clase__act" onClick={revealHint} disabled={!scene}>
           <kbd>H</kbd> Pista {scene ? `${hintsShown}/${scene.hints.length}` : ''}
-        </button>
-        <button type="button" className={`clase__act${session.revealed ? ' is-on' : ''}`} onClick={toggleReveal} disabled={!scene}>
-          <kbd>R</kbd> {session.revealed ? 'Ocultar hallazgo' : 'Revelar hallazgo'}
         </button>
         <button
           type="button"
