@@ -1,0 +1,355 @@
+/* ==========================================================================
+   EXPEDICIÓN 6 — Kit Visual Game Master (Retro Epic Pixel Art)
+   Diseñado para que Claude Code lo integre en GameMasterPage sin CSS adicional.
+   ========================================================================== */
+
+/* 1. Ficha de estudiante tipo carta / unidad de estrategia (.gm-token) */
+.gm-token {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(11, 19, 36, 0.94);
+  border: 2px solid rgba(232, 184, 109, 0.45);
+  box-shadow: 0 0 0 2px #060a13, 3px 3px 0 #04070e;
+  border-radius: 4px;
+  transition: transform 0.14s ease, border-color 0.14s ease, opacity 0.14s ease;
+}
+
+.gm-token:hover {
+  transform: translateY(-1px);
+  border-color: #e8b86d;
+}
+
+.gm-token__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gm-token__avatar {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-pixel);
+  font-size: 0.62rem;
+  color: #060a13;
+  background: #e8b86d;
+  border: 2px solid #fde68a;
+  box-shadow: 2px 2px 0 #04070e;
+}
+
+.gm-token__name {
+  flex: 1;
+  font-weight: 700;
+  font-size: 0.96rem;
+  color: #f8fafc;
+  line-height: 1.2;
+}
+
+.gm-token__status {
+  font-family: var(--font-pixel);
+  font-size: 0.54rem;
+  padding: 3px 6px;
+  border: 1px solid currentColor;
+  background: rgba(0, 0, 0, 0.35);
+  text-transform: uppercase;
+}
+
+.gm-token__grade-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gm-token__grade-bar {
+  flex: 1;
+  height: 10px;
+  background: #060a13;
+  border: 2px solid rgba(148, 163, 184, 0.35);
+  padding: 1px;
+}
+
+.gm-token__grade-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #34d399);
+  transition: width 0.22s ease;
+}
+
+.gm-token__grade-value {
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #fde68a;
+  min-width: 34px;
+  text-align: right;
+}
+
+/* Variantes de estado de asistencia / retiro */
+.gm-token.is-presente {
+  border-color: rgba(52, 211, 153, 0.65);
+}
+.gm-token.is-presente .gm-token__avatar {
+  background: #34d399;
+  border-color: #a7f3d0;
+}
+.gm-token.is-presente .gm-token__status {
+  color: #6ee7b7;
+}
+
+.gm-token.is-ausente {
+  border-color: rgba(251, 113, 133, 0.65);
+  background: rgba(35, 13, 24, 0.86);
+}
+.gm-token.is-ausente .gm-token__avatar {
+  background: #fb7185;
+  border-color: #fecdd3;
+}
+.gm-token.is-ausente .gm-token__status {
+  color: #fecdd3;
+}
+
+.gm-token.is-excusa {
+  border-color: rgba(232, 184, 109, 0.75);
+}
+.gm-token.is-excusa .gm-token__avatar {
+  background: #e8b86d;
+  border-color: #fde68a;
+}
+.gm-token.is-excusa .gm-token__status {
+  color: #fde68a;
+}
+
+.gm-token.is-retirado {
+  opacity: 0.52;
+  border-style: dashed;
+  border-color: rgba(148, 163, 184, 0.4);
+}
+.gm-token.is-retirado .gm-token__name {
+  text-decoration: line-through;
+}
+.gm-token.is-retirado .gm-token__avatar {
+  background: #475569;
+  border-color: #94a3b8;
+  color: #f8fafc;
+}
+.gm-token.is-retirado .gm-token__status {
+  color: #94a3b8;
+}
+
+/* 2. Animación flotante "+1" / "−1" (.gm-float-plus / .gm-float-minus) */
+@keyframes gm-float-up-fade {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0) scale(0.9);
+  }
+  18% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1.06);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -24px, 0) scale(1);
+  }
+}
+
+.gm-float-plus,
+.gm-float-minus {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  pointer-events: none;
+  font-family: var(--font-pixel);
+  font-size: 0.72rem;
+  text-shadow: 2px 2px 0 #04070e;
+  animation: gm-float-up-fade 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  z-index: 10;
+}
+
+.gm-float-plus {
+  color: #6ee7b7;
+}
+
+.gm-float-minus {
+  color: #fb7185;
+}
+
+/* 3. Chips de categoría (.gm-category-chip) */
+.gm-category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  background: #0d1526;
+  border: 2px solid var(--chip-color, #94a3b8);
+  box-shadow: 2px 2px 0 #04070e;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background-color 0.12s ease;
+}
+
+.gm-category-chip:hover {
+  transform: translateY(-1px);
+}
+
+.gm-category-chip--investigacion {
+  --chip-color: #38bdf8;
+  color: #7dd3fc;
+}
+
+.gm-category-chip--participacion {
+  --chip-color: #e8b86d;
+  color: #fde68a;
+}
+
+.gm-category-chip--comportamiento {
+  --chip-color: #34d399;
+  color: #6ee7b7;
+}
+
+.gm-category-chip--actitudinal {
+  --chip-color: #f472b6;
+  color: #fbcfe8;
+}
+
+.gm-category-chip.is-selected {
+  background: var(--chip-color, #38bdf8);
+  color: #060a13;
+  box-shadow: 0 0 0 2px #060a13, 0 0 12px var(--chip-color, #38bdf8);
+}
+
+/* 4. Destello de logro desbloqueado (.gm-level-up) */
+@keyframes gm-level-flash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(232, 184, 109, 0);
+    transform: scale(0.98);
+  }
+  35% {
+    box-shadow: 0 0 22px 4px var(--level-glow, rgba(232, 184, 109, 0.55));
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 3px 3px 0 #04070e;
+    transform: scale(1);
+  }
+}
+
+.gm-level-up {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  font-family: var(--font-pixel);
+  font-size: 0.62rem;
+  line-height: 1.4;
+  background: #0d1526;
+  border: 2px solid var(--level-color, #e8b86d);
+  color: var(--level-color, #fde68a);
+  box-shadow: 3px 3px 0 #04070e;
+  border-radius: 3px;
+  animation: gm-level-flash 0.9s ease-out both;
+}
+
+.gm-level-up--basico {
+  --level-color: #38bdf8;
+  --level-glow: rgba(56, 189, 248, 0.55);
+}
+
+.gm-level-up--alto {
+  --level-color: #34d399;
+  --level-glow: rgba(52, 211, 153, 0.55);
+}
+
+.gm-level-up--superior {
+  --level-color: #e8b86d;
+  --level-glow: rgba(232, 184, 109, 0.65);
+}
+
+/* 5. Alertas de inasistencia (.gm-alert-atencion / .gm-alert-riesgo) */
+.gm-alert-atencion,
+.gm-alert-riesgo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 3px;
+  box-shadow: 2px 2px 0 #04070e;
+}
+
+.gm-alert-atencion {
+  background: rgba(232, 184, 109, 0.14);
+  border: 2px solid #e8b86d;
+  color: #fde68a;
+}
+
+.gm-alert-riesgo {
+  background: rgba(251, 113, 133, 0.16);
+  border: 2px solid #fb7185;
+  color: #fecdd3;
+}
+
+/* 6. Aviso inferior pequeño con botón Deshacer (.gm-toast) */
+.gm-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #0d1526;
+  border: 2px solid #e8b86d;
+  box-shadow: 0 0 0 2px #060a13, 4px 4px 0 #04070e;
+  border-radius: 4px;
+  color: #f8fafc;
+  font-size: 0.86rem;
+}
+
+.gm-toast__undo {
+  padding: 4px 10px;
+  font-family: var(--font-pixel);
+  font-size: 0.56rem;
+  background: #e8b86d;
+  color: #060a13;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.gm-toast__undo:hover {
+  background: #fde68a;
+}
+
+/* Respeto estricto de prefers-reduced-motion y .reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .gm-token,
+  .gm-token__grade-fill,
+  .gm-category-chip,
+  .gm-float-plus,
+  .gm-float-minus,
+  .gm-level-up {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.reduced-motion .gm-token,
+.reduced-motion .gm-token__grade-fill,
+.reduced-motion .gm-category-chip,
+.reduced-motion .gm-float-plus,
+.reduced-motion .gm-float-minus,
+.reduced-motion .gm-level-up {
+  animation: none !important;
+  transition: none !important;
+}
