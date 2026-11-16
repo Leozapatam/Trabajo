@@ -49,7 +49,7 @@ import type {
   ResourceItem,
   SessionState,
 } from '../engine/types';
-import { CosmicBackdrop } from '../components/CosmicBackdrop';
+import { TitleBackdrop } from '../components/TitleBackdrop';
 import { DiskStatusBadge } from '../components/gm/DiskStatusBadge';
 import { StudentArena } from '../components/gm/StudentArena';
 import { requestDiskBackup } from '../engine/diskSync';
@@ -280,28 +280,27 @@ export const GameMasterPage: React.FC = () => {
   const savedDatesCount = Object.keys(session.attendanceByDate).length;
 
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', zIndex: 1 }}>
-      <CosmicBackdrop />
+    <div className="retro-scope" style={{ position: 'relative', minHeight: '100vh', zIndex: 1 }}>
+      <TitleBackdrop vignette="left" />
+      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 0, background: 'rgba(6, 10, 19, 0.62)' }} />
       <div style={{ position: 'relative', zIndex: 2, maxWidth: 1440, margin: '0 auto', padding: '16px 20px 48px' }}>
-        {/* Barra superior de aplicación web */}
+        {/* Barra superior tipo HUD de videojuego */}
         <header
-          className="editorial-card"
+          className="retro-hud"
           style={{
-            padding: '12px 18px',
             marginBottom: 14,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: 12,
-            borderColor: 'var(--border-gold)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <Link to="/" className="btn btn-ghost" style={{ padding: '7px 12px' }}>
               <ArrowLeft size={16} /> Inicio
             </Link>
-            <span className="font-pixel" style={{ fontSize: '0.68rem', color: 'var(--accent-gold)' }}>
+            <span className="retro-hud__title">
               GAME MASTER
             </span>
             <span className="badge-pill" style={{ color: session.classStarted ? '#6EE7B7' : '#94A3B8' }}>
@@ -333,32 +332,25 @@ export const GameMasterPage: React.FC = () => {
           </div>
         </header>
 
-        {/* Navegación principal del Tablero Web */}
-        <nav
-          style={{
-            display: 'flex',
-            gap: 8,
-            marginBottom: 16,
-            flexWrap: 'wrap',
-          }}
-        >
+        {/* Menú de juego principal con cursor ➤ */}
+        <nav className="retro-tabs" style={{ marginBottom: 16 }}>
           <button
             type="button"
-            className={mainTab === 'tablero' ? 'btn btn-primary' : 'btn'}
+            className={`retro-tab${mainTab === 'tablero' ? ' is-active' : ''}`}
             onClick={() => setMainTab('tablero')}
           >
             <Gamepad2 size={16} /> Tablero de Clase
           </button>
           <button
             type="button"
-            className={mainTab === 'estudiantes' ? 'btn btn-primary' : 'btn'}
+            className={`retro-tab${mainTab === 'estudiantes' ? ' is-active' : ''}`}
             onClick={() => setMainTab('estudiantes')}
           >
             <Users size={16} /> Estudiantes ({activeStudentsCount})
           </button>
           <button
             type="button"
-            className={mainTab === 'recursos' ? 'btn btn-primary' : 'btn'}
+            className={`retro-tab${mainTab === 'recursos' ? ' is-active' : ''}`}
             onClick={() => setMainTab('recursos')}
           >
             <FolderOpen size={16} /> Banco de Recursos ({session.resources.length})

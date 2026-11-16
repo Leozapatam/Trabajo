@@ -172,14 +172,14 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
   const absentToday = session.students.filter((s) => s.active && dayMap?.[s.id] === 'ausente').length;
 
   return (
-    <section className="editorial-card" style={{ padding: 20, gridColumn: '1 / -1' }}>
+    <section className="rpg-window" style={{ padding: 20, gridColumn: '1 / -1' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div className="retro-tabs">
           {MODES.map((m) => (
             <button
               key={m.key}
               type="button"
-              className={mode === m.key ? 'btn btn-primary' : 'btn'}
+              className={`retro-tab${mode === m.key ? ' is-active' : ''}`}
               onClick={() => setMode(m.key)}
               title={`Atajo: ${m.hotkey}`}
             >

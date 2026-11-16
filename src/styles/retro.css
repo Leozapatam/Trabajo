@@ -1,0 +1,239 @@
+/* ==========================================================================
+   CIENCIAS SOCIALES — Sistema de Diseño Retro Epic Pixel Art
+   Estética oficial alineada con title-menu.css:
+   - Azul noche #060A13 / #0D1526, dorado #E8B86D / #FDE68A, cielo #38BDF8
+   - Esquinas cuadradas, doble borde pixel, sombra dura, cursor ➤ animado
+   ========================================================================== */
+
+@keyframes retro-cursor-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+/* Ventana RPG reutilizable */
+.rpg-window,
+.editorial-card,
+.pixel-frame {
+  background: rgba(8, 14, 28, 0.92);
+  border: 2px solid #e8b86d;
+  box-shadow:
+    0 0 0 2px #060a13,
+    0 0 0 4px rgba(56, 189, 248, 0.28),
+    5px 5px 0 #04070e;
+  border-radius: 2px;
+  backdrop-filter: blur(8px);
+}
+
+/* Barra superior tipo HUD de videojuego */
+.retro-hud {
+  background: rgba(6, 10, 19, 0.94);
+  border: 2px solid #e8b86d;
+  box-shadow:
+    0 0 0 2px #060a13,
+    4px 4px 0 #04070e;
+  border-radius: 2px;
+  padding: 10px 16px;
+}
+
+.retro-hud__title {
+  font-family: var(--font-pixel);
+  font-size: 0.72rem;
+  color: #f8fafc;
+  text-shadow: 2px 2px 0 #060a13, 4px 4px 0 rgba(232, 184, 109, 0.45);
+  letter-spacing: 0.06em;
+}
+
+/* Botones pixel con desplazamiento táctil de 2px */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 2px;
+  border: 2px solid rgba(148, 163, 184, 0.45);
+  background: #0d1526;
+  color: #f8fafc;
+  font-weight: 700;
+  font-size: 0.88rem;
+  box-shadow: 3px 3px 0 #04070e;
+  transition: transform 0.1s ease, border-color 0.12s ease, box-shadow 0.1s ease, background-color 0.12s ease;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: #fde68a;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #04070e;
+}
+
+.btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #04070e;
+}
+
+.btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #fde68a 0%, #e8b86d 100%);
+  color: #060a13;
+  border-color: #fde68a;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #fef3c7 0%, #f2c782 100%);
+  border-color: #ffffff;
+}
+
+.btn-teal {
+  background: linear-gradient(180deg, #7dd3fc 0%, #38bdf8 100%);
+  color: #04111d;
+  border-color: #bae6fd;
+}
+
+.btn-teal:hover:not(:disabled) {
+  background: linear-gradient(180deg, #bae6fd 0%, #7dd3fc 100%);
+  border-color: #ffffff;
+}
+
+.btn-ghost {
+  background: rgba(13, 21, 38, 0.72);
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow: 2px 2px 0 #04070e;
+}
+
+/* Badges y etiquetas pixel */
+.badge-pill,
+.pixel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 2px solid rgba(232, 184, 109, 0.55);
+  background: #0d1526;
+  color: #fde68a;
+  box-shadow: 2px 2px 0 #04070e;
+}
+
+.pixel-badge {
+  font-family: var(--font-pixel);
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+/* Pestañas tipo menú de juego con cursor ➤ */
+.retro-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px;
+  background: rgba(6, 10, 19, 0.85);
+  border: 2px solid rgba(232, 184, 109, 0.38);
+  box-shadow: 3px 3px 0 #04070e;
+  border-radius: 2px;
+}
+
+.retro-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px 9px 28px;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 2px;
+  color: rgba(226, 232, 240, 0.68);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.retro-tab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.retro-tab.is-active {
+  color: #fde68a;
+  background: rgba(232, 184, 109, 0.14);
+  border-color: #e8b86d;
+  box-shadow: 2px 2px 0 #04070e;
+}
+
+.retro-tab.is-active::before {
+  content: '➤';
+  position: absolute;
+  left: 9px;
+  color: #fde68a;
+  font-size: 0.85em;
+  animation: retro-cursor-nudge 1.1s ease-in-out infinite;
+}
+
+/* Inputs, selects y textareas pixel dentro de .retro-scope */
+.retro-input,
+.retro-scope input:not([type='checkbox']):not([type='radio']),
+.retro-scope select,
+.retro-scope textarea {
+  background: #060a13 !important;
+  color: #f8fafc !important;
+  border: 2px solid rgba(148, 163, 184, 0.38) !important;
+  border-radius: 2px !important;
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+
+.retro-input:focus,
+.retro-scope input:focus,
+.retro-scope select:focus,
+.retro-scope textarea:focus {
+  border-color: #fde68a !important;
+  outline: none;
+}
+
+/* Scrollbar pixel art */
+.retro-scope ::-webkit-scrollbar,
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.retro-scope ::-webkit-scrollbar-track,
+::-webkit-scrollbar-track {
+  background: #060a13;
+}
+
+.retro-scope ::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb {
+  background: #e8b86d;
+  border: 1px solid #060a13;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .retro-tab.is-active::before,
+  .btn {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.reduced-motion .retro-tab.is-active::before,
+.reduced-motion .btn {
+  animation: none !important;
+  transition: none !important;
+}

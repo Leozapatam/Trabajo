@@ -69,11 +69,11 @@ export const GroupsPage: React.FC = () => {
   );
 
   return (
-    <div className="groups-screen">
+    <div className="groups-screen retro-scope">
       <TitleBackdrop vignette="left" />
-      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 0, background: 'rgba(6,10,19,0.55)' }} />
+      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 0, background: 'rgba(6,10,19,0.58)' }} />
 
-      <header className="groups-header" style={{ position: 'relative', zIndex: 2 }}>
+      <header className="groups-header retro-hud" style={{ position: 'relative', zIndex: 2 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <button type="button" className="btn btn-ghost" onClick={() => navigate('/')} title="Volver (Esc)">
             <ArrowLeft size={16} /> Portada

@@ -68,9 +68,10 @@ export const TacticalOriginMap: React.FC<TacticalOriginMapProps> = ({
           position: 'relative',
           width: '100%',
           aspectRatio: '16 / 9',
-          borderRadius: 14,
+          borderRadius: 2,
           overflow: 'hidden',
-          border: '1px solid rgba(232, 184, 109, 0.28)',
+          border: '2px solid rgba(232, 184, 109, 0.45)',
+          boxShadow: 'inset 0 0 28px rgba(0,0,0,0.65)',
           backgroundImage: `
             linear-gradient(to right, rgba(148, 163, 184, 0.06) 1px, transparent 1px),
             linear-gradient(to bottom, rgba(148, 163, 184, 0.06) 1px, transparent 1px),
@@ -193,9 +194,10 @@ export const TacticalOriginMap: React.FC<TacticalOriginMapProps> = ({
               <div
                 style={{
                   padding: compact ? '3px 8px' : '5px 12px',
-                  borderRadius: 999,
-                  background: focused ? 'rgba(232, 184, 109, 0.95)' : 'rgba(13, 21, 38, 0.9)',
-                  border: `1px solid ${focused ? '#E8B86D' : 'rgba(148,163,184,0.28)'}`,
+                  borderRadius: 2,
+                  background: focused ? '#E8B86D' : '#0D1526',
+                  border: `2px solid ${focused ? '#FDE68A' : 'rgba(232,184,109,0.4)'}`,
+                  boxShadow: '2px 2px 0 #04070E',
                   color: focused ? '#060A13' : '#F8FAFC',
                   fontSize: compact ? '0.68rem' : '0.84rem',
                   fontWeight: 700,
