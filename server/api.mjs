@@ -1,5 +1,7 @@
 // Endpoints /api/* compartidos por el servidor de desarrollo (Vite) y el servidor local de aula.
+import { createAgenda } from './agenda.mjs';
 import { createDataStore, resolveDataDirs } from './dataStore.mjs';
+import { createResourceScanner } from './resources.mjs';
 
 const MAX_BODY_BYTES = 25 * 1024 * 1024;
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
@@ -44,7 +46,11 @@ function readBody(req) {
   });
 }
 
-export function createApiHandler(store = createDataStore(resolveDataDirs())) {
+export function createApiHandler(
+  store = createDataStore(resolveDataDirs()),
+  agenda = createAgenda({ dataDir: resolveDataDirs().dataDir }),
+  resources = createResourceScanner()
+) {
   return async function apiHandler(req, res, next) {
     const url = new URL(req.url ?? '/', 'http://localhost');
     if (!url.pathname.startsWith('/api/')) return next?.();
@@ -64,6 +70,42 @@ export function createApiHandler(store = createDataStore(resolveDataDirs())) {
       if (url.pathname === '/api/respaldo' && req.method === 'POST') {
         const body = JSON.parse((await readBody(req)) || '{}');
         return sendJson(res, 200, { ok: true, backup: await store.backup(body.label) });
+      }
+      // --- Agenda (Google Calendar vía iCal secreto) ---
+      if (url.pathname === '/api/agenda' && req.method === 'GET') {
+        const days = Number(url.searchParams.get('dias') ?? 7);
+        return sendJson(res, 200, await agenda.events({ days, force: url.searchParams.has('refrescar') }));
+      }
+      if (url.pathname === '/api/agenda/config' && req.method === 'PUT') {
+        const body = JSON.parse((await readBody(req)) || '{}');
+        await agenda.configure(body.url);
+        return sendJson(res, 200, { ok: true });
+      }
+      if (url.pathname === '/api/agenda/config' && req.method === 'DELETE') {
+        await agenda.disconnect();
+        return sendJson(res, 200, { ok: true });
+      }
+      // --- Banco de Recursos (Google Drive local) ---
+      if (url.pathname === '/api/recursos' && req.method === 'GET') {
+        const force = url.searchParams.get('refrescar') === '1';
+        const idx = await resources.getIndex(force);
+        return sendJson(res, 200, {
+          available: idx.available,
+          scannedAt: idx.scannedAt,
+          units: idx.units,
+          resources: idx.resources,
+        });
+      }
+      const openMatch = /^\/api\/recursos\/([a-f0-9]+)\/abrir$/.exec(url.pathname);
+      if (openMatch && req.method === 'POST') {
+        const body = JSON.parse((await readBody(req)) || '{}');
+        const modo = body.modo === 'presentar' ? 'presentar' : 'abrir';
+        return sendJson(res, 200, await resources.openResource(openMatch[1], modo));
+      }
+      const fileMatch = /^\/api\/recursos\/([a-f0-9]+)\/archivo$/.exec(url.pathname);
+      if (fileMatch && req.method === 'GET') {
+        await resources.serveResourceFile(fileMatch[1], req, res);
+        return;
       }
       return sendJson(res, 404, { error: 'Ruta no encontrada' });
     } catch (err) {
