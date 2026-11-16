@@ -165,6 +165,7 @@ export interface MissionDefinition {
   scenes: SceneDefinition[];
   glossary: GlossaryEntry[];
   sources: ScientificSource[];
+  resourceUnits?: string[];
 }
 
 export interface ZoneActivityNode {
@@ -189,13 +190,17 @@ export interface ZoneDefinition {
   summary: string;
   nodes: ZoneActivityNode[];
   narrativeBridge?: string;
+  artwork?: string;
+  resourceUnits?: string[];
 }
 
 export interface WorldDefinition {
   id: string;
+  grade?: string;
   title: string;
   subtitle: string;
   description: string;
+  artwork?: string;
   zones: ZoneDefinition[];
 }
 

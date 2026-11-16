@@ -1,8 +1,10 @@
 import React from 'react';
 import { Compass, Lock, MapPin, Sparkles } from 'lucide-react';
 import { ORIGENES_WORLD } from '../data/origenesWorld';
+import { WORLDS, worldArtById } from '../data/catalog';
+import type { WorldDefinition, ZoneDefinition } from '../engine/types';
 
-const ZONE_ARTWORKS: Record<string, string> = {
+const LEGACY_ZONE_ARTWORKS: Record<string, string> = {
   'zona-1': '/assets/art/zona1-cosmos.webp',
   'zona-2': '/assets/art/zona2-sistema-solar.webp',
   'zona-3': '/assets/art/zona3-pangea.webp',
@@ -10,21 +12,74 @@ const ZONE_ARTWORKS: Record<string, string> = {
 };
 
 interface TacticalOriginMapProps {
+  world?: WorldDefinition;
   exploredZones: string[];
   focusedZoneId: string;
   onSelectZone?: (zoneId: string) => void;
   compact?: boolean;
 }
 
+/**
+ * Calcula posiciones limpias en serpiente (S-curve) para cualquier cantidad
+ * de zonas (5 u 8) evitando que las medallas o etiquetas se solapen.
+ */
+function computeZoneLayout(zones: ZoneDefinition[]): { zone: ZoneDefinition; x: number; y: number }[] {
+  const n = zones.length;
+  if (n === 0) return [];
+  if (n <= 4) {
+    return zones.map((zone, idx) => ({
+      zone,
+      x: 16 + (idx * 68) / Math.max(1, n - 1),
+      y: idx % 2 === 0 ? 36 : 62,
+    }));
+  }
+
+  const topCount = Math.ceil(n / 2);
+  const bottomCount = n - topCount;
+
+  return zones.map((zone, idx) => {
+    if (idx < topCount) {
+      const x = topCount === 1 ? 50 : 13 + (idx * 74) / (topCount - 1);
+      const y = idx % 2 === 0 ? 24 : 31;
+      return { zone, x, y };
+    }
+    const bIdx = idx - topCount;
+    // Segunda fila recorre de derecha a izquierda para formar un camino continuo en S
+    const revIdx = bottomCount - 1 - bIdx;
+    const x = bottomCount === 1 ? 50 : 15 + (revIdx * 70) / (bottomCount - 1);
+    const y = bIdx % 2 === 0 ? 69 : 75;
+    return { zone, x, y };
+  });
+}
+
+function resolveWorld(explicitWorld: WorldDefinition | undefined, focusedZoneId: string): WorldDefinition {
+  if (explicitWorld) return explicitWorld;
+  for (const w of Object.values(WORLDS)) {
+    if (w.zones.some((z) => z.id === focusedZoneId)) {
+      return w;
+    }
+  }
+  return ORIGENES_WORLD;
+}
+
 export const TacticalOriginMap: React.FC<TacticalOriginMapProps> = ({
+  world,
   exploredZones,
   focusedZoneId,
   onSelectZone,
   compact = false,
 }) => {
-  const focusedZone =
-    ORIGENES_WORLD.zones.find((z) => z.id === focusedZoneId) ?? ORIGENES_WORLD.zones[0];
-  const isFocusedExplored = exploredZones.includes(focusedZone.id);
+  const currentWorld = resolveWorld(world, focusedZoneId);
+  const zones = currentWorld.zones;
+  const focusedZone = zones.find((z) => z.id === focusedZoneId) ?? zones[0];
+  const isFocusedExplored = focusedZone ? exploredZones.includes(focusedZone.id) : false;
+
+  const exploredInWorld = zones.filter((z) => exploredZones.includes(z.id)).length;
+  const layout = computeZoneLayout(zones);
+
+  const svgPoints = layout.map((p) => `${Math.round(p.x * 10)},${Math.round(p.y * 5.62)}`).join(' ');
+  const fallbackWorldArt =
+    currentWorld.artwork ?? worldArtById[currentWorld.id] ?? '/assets/art/mundo-6-origenes.webp';
 
   return (
     <div
@@ -32,7 +87,7 @@ export const TacticalOriginMap: React.FC<TacticalOriginMapProps> = ({
       style={{
         position: 'relative',
         overflow: 'hidden',
-        padding: compact ? 14 : 22,
+        padding: compact ? 12 : 20,
         borderColor: 'var(--border-gold)',
         background:
           'radial-gradient(circle at 50% 45%, rgba(18, 32, 58, 0.92), rgba(6, 10, 19, 0.98))',
@@ -44,21 +99,25 @@ export const TacticalOriginMap: React.FC<TacticalOriginMapProps> = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: compact ? 10 : 14,
+          marginBottom: compact ? 8 : 12,
           gap: 10,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Compass size={compact ? 16 : 20} color="#E8B86D" />
+          <Compass size={compact ? 15 : 19} color="#E8B86D" />
           <span
             className="font-mono"
-            style={{ fontSize: compact ? '0.72rem' : '0.84rem', color: 'var(--accent-gold)', letterSpacing: '0.08em' }}
+            style={{
+              fontSize: compact ? '0.68rem' : '0.82rem',
+              color: 'var(--accent-gold)',
+              letterSpacing: '0.06em',
+            }}
           >
-            MAPA DE EXPEDICIÓN · ORÍGENES ({exploredZones.length}/4 TERRITORIOS)
+            MAPA DE EXPEDICIÓN · {currentWorld.title.toUpperCase()} ({exploredInWorld}/{zones.length} TERRITORIOS)
           </span>
         </div>
-        <span className="badge-pill" style={{ fontSize: compact ? '0.68rem' : '0.76rem' }}>
-          Vista Estratégica
+        <span className="badge-pill" style={{ fontSize: compact ? '0.64rem' : '0.74rem' }}>
+          {currentWorld.grade ? `Grado ${currentWorld.grade}` : 'Vista Estratégica'}
         </span>
       </div>
 
@@ -83,45 +142,41 @@ export const TacticalOriginMap: React.FC<TacticalOriginMapProps> = ({
           backgroundColor: '#070D1A',
         }}
       >
-        {/* Curvas de nivel y rutas de expedición SVG */}
         <svg
           viewBox="0 0 1000 562"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
         >
-          {/* Curvas topográficas sutiles */}
-          <ellipse cx="220" cy="180" rx="170" ry="110" fill="none" stroke="rgba(56,189,248,0.1)" strokeWidth="1" />
-          <ellipse cx="520" cy="330" rx="210" ry="130" fill="none" stroke="rgba(232,184,109,0.1)" strokeWidth="1" />
-          <ellipse cx="800" cy="210" rx="165" ry="115" fill="none" stroke="rgba(52,211,153,0.1)" strokeWidth="1" />
+          <ellipse cx="240" cy="180" rx="180" ry="105" fill="none" stroke="rgba(56,189,248,0.09)" strokeWidth="1" />
+          <ellipse cx="520" cy="340" rx="220" ry="125" fill="none" stroke="rgba(232,184,109,0.09)" strokeWidth="1" />
+          <ellipse cx="790" cy="210" rx="170" ry="110" fill="none" stroke="rgba(52,211,153,0.09)" strokeWidth="1" />
 
-          {/* Camino de exploración entre las 4 zonas */}
-          <path
-            d="M 190 190 Q 320 290 410 315 T 640 345 T 820 195"
-            fill="none"
-            stroke="rgba(232, 184, 109, 0.48)"
-            strokeWidth="3"
-            strokeDasharray="10 8"
-          />
+          {svgPoints && (
+            <polyline
+              points={svgPoints}
+              fill="none"
+              stroke="rgba(232, 184, 109, 0.48)"
+              strokeWidth="3"
+              strokeDasharray="10 8"
+              strokeLinejoin="round"
+            />
+          )}
 
-          {/* Rosa de los vientos minimalista */}
-          <g transform="translate(925, 485)" opacity="0.55">
-            <circle cx="0" cy="0" r="28" fill="none" stroke="#E8B86D" strokeWidth="1" />
-            <path d="M 0 -24 L 5 -5 L 24 0 L 5 5 L 0 24 L -5 5 L -24 0 L -5 -5 Z" fill="#E8B86D" opacity="0.65" />
-            <text x="0" y="-32" textAnchor="middle" fill="#E8B86D" fontSize="10" fontFamily="JetBrains Mono">
+          <g transform="translate(948, 510)" opacity="0.55">
+            <circle cx="0" cy="0" r="22" fill="none" stroke="#E8B86D" strokeWidth="1" />
+            <path d="M 0 -18 L 4 -4 L 18 0 L 4 4 L 0 18 L -4 4 L -18 0 L -4 -4 Z" fill="#E8B86D" opacity="0.65" />
+            <text x="0" y="-25" textAnchor="middle" fill="#E8B86D" fontSize="9" fontFamily="JetBrains Mono">
               N
             </text>
           </g>
         </svg>
 
-        {/* Nodos territoriales (Zonas 1 a 4) */}
-        {[
-          { zone: ORIGENES_WORLD.zones[0], left: '19%', top: '34%' },
-          { zone: ORIGENES_WORLD.zones[1], left: '41%', top: '57%' },
-          { zone: ORIGENES_WORLD.zones[2], left: '64%', top: '61%' },
-          { zone: ORIGENES_WORLD.zones[3], left: '82%', top: '35%' },
-        ].map(({ zone, left, top }) => {
+        {/* Nodos territoriales dinámicos sin solapes */}
+        {layout.map(({ zone, x, y }) => {
           const explored = exploredZones.includes(zone.id);
-          const focused = focusedZoneId === zone.id;
-          const artSrc = ZONE_ARTWORKS[zone.id];
+          const focused = focusedZone?.id === zone.id;
+          const artSrc =
+            zone.artwork ?? LEGACY_ZONE_ARTWORKS[zone.id] ?? fallbackWorldArt;
+          const medalSize = compact ? (zones.length > 5 ? 42 : 52) : zones.length > 5 ? 74 : 92;
 
           return (
             <button
@@ -129,10 +184,11 @@ export const TacticalOriginMap: React.FC<TacticalOriginMapProps> = ({
               type="button"
               onClick={() => onSelectZone?.(zone.id)}
               disabled={!onSelectZone}
+              title={`Zona ${zone.number}: ${zone.title}`}
               style={{
                 position: 'absolute',
-                left,
-                top,
+                left: `${x}%`,
+                top: `${y}%`,
                 transform: 'translate(-50%, -50%)',
                 background: 'transparent',
                 border: 'none',
@@ -140,28 +196,26 @@ export const TacticalOriginMap: React.FC<TacticalOriginMapProps> = ({
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: compact ? 4 : 8,
+                gap: compact ? 3 : 6,
                 cursor: onSelectZone ? 'pointer' : 'default',
-                zIndex: focused ? 5 : 3,
+                zIndex: focused ? 6 : 3,
               }}
               aria-label={`Zona ${zone.number}: ${zone.title}`}
             >
-              {/* Medallón territorial con ilustración + niebla de guerra */}
               <div
                 style={{
                   position: 'relative',
-                  width: compact ? 64 : 112,
-                  height: compact ? 64 : 112,
+                  width: medalSize,
+                  height: medalSize,
                   borderRadius: '50%',
                   overflow: 'hidden',
-                  border: `3px solid ${focused ? '#E8B86D' : explored ? zone.accentColor : 'rgba(148,163,184,0.3)'}`,
+                  border: `2px solid ${focused ? '#FDE68A' : explored ? zone.accentColor : 'rgba(148,163,184,0.35)'}`,
                   boxShadow: focused
-                    ? `0 0 28px ${zone.accentColor}88`
+                    ? `0 0 22px ${zone.accentColor}99`
                     : explored
-                    ? '0 10px 24px rgba(0,0,0,0.6)'
+                    ? '0 6px 16px rgba(0,0,0,0.65)'
                     : 'none',
                   background: '#0F172A',
-                  transition: 'transform 0.2s ease',
                 }}
               >
                 <img
@@ -171,7 +225,7 @@ export const TacticalOriginMap: React.FC<TacticalOriginMapProps> = ({
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                    filter: explored ? 'none' : 'grayscale(100%) brightness(0.25) blur(3px)',
+                    filter: explored ? 'none' : 'grayscale(100%) brightness(0.25) blur(2px)',
                   }}
                 />
                 {!explored && (
@@ -185,30 +239,32 @@ export const TacticalOriginMap: React.FC<TacticalOriginMapProps> = ({
                       background: 'rgba(6, 10, 19, 0.52)',
                     }}
                   >
-                    <Lock size={compact ? 16 : 24} color="#94A3B8" />
+                    <Lock size={compact ? 12 : 18} color="#94A3B8" />
                   </div>
                 )}
               </div>
 
-              {/* Etiqueta limpia ("menos es más") */}
               <div
                 style={{
-                  padding: compact ? '3px 8px' : '5px 12px',
+                  maxWidth: compact ? 96 : 168,
+                  padding: compact ? '2px 5px' : '4px 9px',
                   borderRadius: 2,
                   background: focused ? '#E8B86D' : '#0D1526',
                   border: `2px solid ${focused ? '#FDE68A' : 'rgba(232,184,109,0.4)'}`,
                   boxShadow: '2px 2px 0 #04070E',
                   color: focused ? '#060A13' : '#F8FAFC',
-                  fontSize: compact ? '0.68rem' : '0.84rem',
+                  fontSize: compact ? '0.58rem' : '0.74rem',
                   fontWeight: 700,
                   whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 5,
+                  gap: 4,
                 }}
               >
-                {focused && <MapPin size={compact ? 10 : 13} />}
-                <span>
+                {focused && <MapPin size={compact ? 9 : 11} style={{ flexShrink: 0 }} />}
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {zone.number}. {zone.title}
                 </span>
               </div>
@@ -218,29 +274,32 @@ export const TacticalOriginMap: React.FC<TacticalOriginMapProps> = ({
       </div>
 
       {/* Pie de lectura rápida del territorio enfocado */}
-      {!compact && (
+      {!compact && focusedZone && (
         <div
           style={{
-            marginTop: 14,
+            marginTop: 12,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: 12,
-            padding: '12px 16px',
-            borderRadius: 10,
+            padding: '10px 14px',
+            borderRadius: 2,
             background: 'rgba(255,255,255,0.03)',
             border: '1px solid var(--border-subtle)',
           }}
         >
           <div>
-            <div className="font-mono" style={{ fontSize: '0.76rem', color: focusedZone.accentColor }}>
+            <div className="font-mono" style={{ fontSize: '0.74rem', color: focusedZone.accentColor }}>
               TERRITORIO ACTUAL · ZONA {focusedZone.number}
+              {focusedZone.resourceUnits?.length
+                ? ` · UNIDADES DRIVE: ${focusedZone.resourceUnits.join(', ')}`
+                : ''}
             </div>
-            <div className="font-display" style={{ fontSize: '1.45rem', fontWeight: 700 }}>
+            <div className="font-display" style={{ fontSize: '1.4rem', fontWeight: 700 }}>
               {isFocusedExplored ? focusedZone.title : 'Territorio cubierto por la niebla'}
             </div>
-            <div style={{ color: 'var(--text-secondary)', fontSize: '0.96rem' }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.92rem' }}>
               {isFocusedExplored
                 ? focusedZone.subtitle
                 : 'El Game Master revelará este territorio cuando comience su exploración.'}
@@ -248,7 +307,7 @@ export const TacticalOriginMap: React.FC<TacticalOriginMapProps> = ({
           </div>
 
           {focusedZone.narrativeBridge && isFocusedExplored && (
-            <div style={{ maxWidth: 420, color: '#FDE68A', fontSize: '0.92rem', display: 'flex', gap: 8, alignItems: 'center' }}>
+            <div style={{ maxWidth: 420, color: '#FDE68A', fontSize: '0.9rem', display: 'flex', gap: 8, alignItems: 'center' }}>
               <Sparkles size={18} style={{ flexShrink: 0 }} />
               <span>{focusedZone.narrativeBridge}</span>
             </div>
