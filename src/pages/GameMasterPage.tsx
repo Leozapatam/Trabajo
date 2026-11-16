@@ -5,12 +5,9 @@ import {
   BarChart3,
   BookOpen,
   Calendar,
-  Check,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  Copy,
-  ExternalLink,
   Eye,
   EyeOff,
   FolderOpen,
@@ -20,16 +17,13 @@ import {
   MonitorPlay,
   Pause,
   Play,
-  Plus,
   Radio,
   Square,
-  Trash2,
   Users,
 } from 'lucide-react';
 import { getMission, MISSIONS_LIST } from '../data/catalog';
 import { ORIGENES_WORLD } from '../data/origenesWorld';
 import {
-  addResourceItem,
   changeSceneState,
   createInitialSessionState,
   getActiveStudentsCount,
@@ -37,20 +31,18 @@ import {
   getTodayIsoDate,
   loadSessionState,
   recordAttendanceSnapshot,
-  removeResourceItem,
   saveAndBroadcastSession,
   subscribeToNewerSession,
   switchClassroomRoster,
-  toggleResourceUsed,
 } from '../engine/sessionStore';
 import type {
   ActiveEventBanner,
   ProjectorViewMode,
-  ResourceItem,
   SessionState,
 } from '../engine/types';
 import { TitleBackdrop } from '../components/TitleBackdrop';
 import { DiskStatusBadge } from '../components/gm/DiskStatusBadge';
+import { ResourceBank } from '../components/gm/ResourceBank';
 import { StudentArena } from '../components/gm/StudentArena';
 import { requestDiskBackup } from '../engine/diskSync';
 import { GRADE_GROUPS } from '../engine/grades';
@@ -93,13 +85,6 @@ export const GameMasterPage: React.FC = () => {
   const [session, setSession] = useState<SessionState>(() => loadSessionState());
   const [decisionText, setDecisionText] = useState('');
   const [attendanceSavedToast, setAttendanceSavedToast] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  const [resTitle, setResTitle] = useState('');
-  const [resUrl, setResUrl] = useState('');
-  const [resType, setResType] = useState<ResourceItem['type']>('diapositivas');
-  const [resZoneId, setResZoneId] = useState<string>(session.focusedZoneId || 'zona-1');
-  const [resFilterCurrentZone, setResFilterCurrentZone] = useState(false);
 
   const [guideSubTab, setGuideSubTab] = useState<'guion' | 'ritmo' | 'glosario'>('guion');
 
@@ -234,27 +219,6 @@ export const GameMasterPage: React.FC = () => {
     window.setTimeout(() => setAttendanceSavedToast(false), 2500);
   };
 
-  const handleAddResource = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!resTitle.trim() || !resUrl.trim()) return;
-    commit((prev) =>
-      addResourceItem(prev, {
-        title: resTitle.trim(),
-        url: resUrl.trim(),
-        type: resType,
-        zoneId: resZoneId,
-      })
-    );
-    setResTitle('');
-    setResUrl('');
-  };
-
-  const handleCopyPath = (id: string, path: string) => {
-    navigator.clipboard?.writeText(path).catch(() => {});
-    setCopiedId(id);
-    window.setTimeout(() => setCopiedId(null), 1800);
-  };
-
   const handleRecordDecision = (e: React.FormEvent) => {
     e.preventDefault();
     if (!decisionText.trim()) return;
@@ -272,10 +236,6 @@ export const GameMasterPage: React.FC = () => {
     }));
     setDecisionText('');
   };
-
-  const visibleResources = resFilterCurrentZone
-    ? session.resources.filter((r) => r.zoneId === session.focusedZoneId)
-    : session.resources;
 
   const savedDatesCount = Object.keys(session.attendanceByDate).length;
 
@@ -353,7 +313,7 @@ export const GameMasterPage: React.FC = () => {
             className={`retro-tab${mainTab === 'recursos' ? ' is-active' : ''}`}
             onClick={() => setMainTab('recursos')}
           >
-            <FolderOpen size={16} /> Banco de Recursos ({session.resources.length})
+            <FolderOpen size={16} /> Banco de Recursos
           </button>
         </nav>
 
@@ -1006,174 +966,8 @@ export const GameMasterPage: React.FC = () => {
           </div>
         )}
 
-        {/* ==================== TAB 3: BANCO DE RECURSOS (GOOGLE DRIVE) ==================== */}
-        {mainTab === 'recursos' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 16, alignItems: 'start' }}>
-            <section className="editorial-card" style={{ padding: 20 }}>
-              <h2 className="font-display" style={{ fontSize: '1.6rem', margin: '0 0 8px' }}>
-                Agregar al Banco de Recursos
-              </h2>
-              <p style={{ margin: '0 0 14px', fontSize: '0.86rem', color: 'var(--text-secondary)' }}>
-                Carpeta base conectada: <code>G:\Mi unidad\1. 💼 Trabajo\1. Clases\Banco de Recursos</code>
-              </p>
-
-              <form onSubmit={handleAddResource} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <input
-                  type="text"
-                  placeholder="Nombre del recurso (ej. Diapositivas Big Bang)"
-                  value={resTitle}
-                  onChange={(e) => setResTitle(e.target.value)}
-                  style={{
-                    background: '#0F172A',
-                    color: '#F8FAFC',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: 6,
-                    padding: '8px 10px',
-                    fontSize: '0.88rem',
-                  }}
-                />
-                <input
-                  type="text"
-                  placeholder="Ruta local (G:\...) o enlace web de Drive (https://...)"
-                  value={resUrl}
-                  onChange={(e) => setResUrl(e.target.value)}
-                  style={{
-                    background: '#0F172A',
-                    color: '#F8FAFC',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: 6,
-                    padding: '8px 10px',
-                    fontSize: '0.88rem',
-                  }}
-                />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  <select
-                    value={resType}
-                    onChange={(e) => setResType(e.target.value as ResourceItem['type'])}
-                    style={{
-                      background: '#0F172A',
-                      color: '#F8FAFC',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: 6,
-                      padding: '8px',
-                    }}
-                  >
-                    <option value="diapositivas">Diapositivas</option>
-                    <option value="documento">Guía / PDF</option>
-                    <option value="video">Video</option>
-                    <option value="actividad">Actividad</option>
-                  </select>
-                  <select
-                    value={resZoneId}
-                    onChange={(e) => setResZoneId(e.target.value)}
-                    style={{
-                      background: '#0F172A',
-                      color: '#F8FAFC',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: 6,
-                      padding: '8px',
-                    }}
-                  >
-                    {ORIGENES_WORLD.zones.map((z) => (
-                      <option key={z.id} value={z.id}>
-                        Z{z.number}: {z.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <button type="submit" className="btn btn-primary">
-                  <Plus size={16} /> Guardar recurso
-                </button>
-              </form>
-            </section>
-
-            <section className="editorial-card" style={{ padding: 20 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
-                <h2 className="font-display" style={{ fontSize: '1.6rem', margin: 0 }}>
-                  Inventario ({visibleResources.length})
-                </h2>
-                <button
-                  type="button"
-                  className={resFilterCurrentZone ? 'btn btn-teal' : 'btn btn-ghost'}
-                  style={{ padding: '6px 12px', fontSize: '0.8rem' }}
-                  onClick={() => setResFilterCurrentZone((v) => !v)}
-                >
-                  {resFilterCurrentZone ? 'Mostrando zona actual' : 'Filtrar por zona actual'}
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 540, overflowY: 'auto' }}>
-                {visibleResources.map((r) => {
-                  const z = ORIGENES_WORLD.zones.find((zn) => zn.id === r.zoneId);
-                  const isWeb = r.url.startsWith('http://') || r.url.startsWith('https://');
-                  return (
-                    <div
-                      key={r.id}
-                      style={{
-                        padding: 12,
-                        borderRadius: 8,
-                        border: '1px solid var(--border-subtle)',
-                        background: r.used ? 'rgba(52, 211, 153, 0.06)' : 'rgba(255,255,255,0.03)',
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                        <strong style={{ fontSize: '0.94rem', textDecoration: r.used ? 'line-through' : 'none' }}>
-                          {r.title}
-                        </strong>
-                        <span className="font-mono" style={{ fontSize: '0.7rem', color: 'var(--accent-teal)' }}>
-                          {r.type.toUpperCase()}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '4px 0 8px' }}>
-                        Zona {z?.number ?? 1}: {z?.title ?? 'Orígenes'}
-                      </div>
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        {isWeb ? (
-                          <a
-                            href={r.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-teal"
-                            style={{ padding: '4px 10px', fontSize: '0.76rem' }}
-                          >
-                            <ExternalLink size={12} /> Abrir enlace
-                          </a>
-                        ) : (
-                          <button
-                            type="button"
-                            className="btn btn-teal"
-                            style={{ padding: '4px 10px', fontSize: '0.76rem' }}
-                            onClick={() => handleCopyPath(r.id, r.url)}
-                          >
-                            {copiedId === r.id ? <Check size={12} /> : <Copy size={12} />}
-                            {copiedId === r.id ? 'Ruta copiada' : 'Copiar ruta'}
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          className="btn btn-ghost"
-                          style={{ padding: '4px 10px', fontSize: '0.76rem' }}
-                          onClick={() => commit((prev) => toggleResourceUsed(prev, r.id))}
-                        >
-                          {r.used ? 'Usado ✓' : 'Marcar usado'}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-ghost"
-                          style={{ padding: '4px 8px', fontSize: '0.76rem', color: '#FB7185' }}
-                          onClick={() => commit((prev) => removeResourceItem(prev, r.id))}
-                          aria-label={`Eliminar ${r.title}`}
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          </div>
-        )}
+        {/* ==================== TAB 3: BANCO DE RECURSOS (GOOGLE DRIVE EN VIVO) ==================== */}
+        {mainTab === 'recursos' && <ResourceBank session={session} commit={commit} />}
       </div>
     </div>
   );

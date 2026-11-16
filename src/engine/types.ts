@@ -246,6 +246,14 @@ export interface ActiveEventBanner {
   kind: 'cosmos' | 'debate' | 'cuaderno';
 }
 
+export interface ResourceUsageEntry {
+  resourceId: string;
+  title: string;
+  date: string;
+  classroom: string;
+  period: AcademicPeriod;
+}
+
 export interface SessionState {
   schemaVersion?: number;
   sessionId: string;
@@ -258,6 +266,7 @@ export interface SessionState {
   period: AcademicPeriod;
   missionId: string;
   resources: ResourceItem[];
+  resourceLog?: ResourceUsageEntry[];
   attendanceByDate: Record<string, Record<string, AttendanceStatus>>;
   /** Periodo académico al que pertenece cada fecha con asistencia guardada */
   periodByDate?: Record<string, AcademicPeriod>;
