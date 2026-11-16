@@ -7,7 +7,11 @@ import { ClassSummaryScreen } from '../components/clase/ClassSummaryScreen';
 import { GroupColumn, type FloatFx } from '../components/clase/GroupColumn';
 import { Inventory, INVENTORY_TABS, type InventoryTab } from '../components/clase/Inventory';
 import { SpecialClassBrief } from '../components/clase/SpecialClassBrief';
-import { SceneNotes } from '../components/clase/SceneNotes';
+import { EntryActivityCard, ENTRY_EVENT_ID } from '../components/clase/EntryActivityCard';
+import { EvidenceCheck } from '../components/clase/EvidenceCheck';
+import { GameHud } from '../components/clase/GameHud';
+import { NotesDrawer } from '../components/clase/NotesDrawer';
+import { TopicMap } from '../components/clase/TopicMap';
 import { KIND_LABEL, YearPlanWindow } from '../components/clase/YearPlanWindow';
 import { DiskStatusBadge } from '../components/gm/DiskStatusBadge';
 import { MISSIONS_LIST, worldArtById, worldsByGrade } from '../data/catalog';
@@ -17,6 +21,15 @@ import {
   resumeClassProgress,
   type ClassSummary,
 } from '../engine/classFlow';
+import {
+  buildNotebook,
+  changeHearts,
+  changeStars,
+  claimStarReward,
+  getEntryActivity,
+  getHeartsLeft,
+  getNotebookHolder,
+} from '../engine/classGame';
 import { requestDiskBackup } from '../engine/diskSync';
 import {
   changeSceneState,
@@ -115,9 +128,14 @@ export const ClassPage: React.FC = () => {
   const [scoreAction, setScoreAction] = useState<ScoreAction>('aporte');
   const [floats, setFloats] = useState<Record<string, FloatFx>>({});
   const [toast, setToast] = useState<Toast | null>(null);
-  const [inventory, setInventory] = useState<InventoryTab | null>(manageOnly ? 'exploradores' : null);
+  const [inventory, setInventory] = useState<InventoryTab | null>(manageOnly ? 'mapa' : null);
+  const [notesOpen, setNotesOpen] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
-  const [closing, setClosing] = useState<{ summary: ClassSummary; backup: string | null | undefined } | null>(null);
+  const [closing, setClosing] = useState<{
+    summary: ClassSummary;
+    backup: string | null | undefined;
+    finished: PlannedClass | null;
+  } | null>(null);
   const [clock, setClock] = useState(() => new Date());
   const fxCounter = useRef(0);
 
@@ -128,6 +146,8 @@ export const ClassPage: React.FC = () => {
   const doneClasses = getClassPlanProgress(session)?.done ?? {};
   /** Introducción, examen o cierre sin misión: se muestra la guía de esa clase */
   const specialClass = currentClass && !currentClass.missionId ? currentClass : null;
+  const entryActivity = useMemo(() => getEntryActivity(plan, missions, currentClass), [plan, missions, currentClass]);
+  const notebookClassIds = useMemo(() => new Set(buildNotebook(plan, missions).map((e) => e.cls.id)), [plan, missions]);
 
   const commit = useCallback((updater: (prev: SessionState) => SessionState, force = false) => {
     setSession((prev) => {
@@ -228,6 +248,33 @@ export const ClassPage: React.FC = () => {
     );
   };
 
+  // Tres llamados de atención apagan los corazones: el proyector anuncia la tarea extensa
+  const heartAction = (lost: 1 | -1) => {
+    const left = getHeartsLeft(session);
+    commit((prev) => {
+      const next = changeHearts(prev, lost);
+      if (getHeartsLeft(next) === 0 && getHeartsLeft(prev) > 0) {
+        return {
+          ...next,
+          activeEventBanner: { id: 'ev-tarea', title: 'Tarea extensa', subtitle: 'Se apagaron los 3 corazones del grupo.', kind: 'cuaderno' },
+        };
+      }
+      if (lost === -1 && prev.activeEventBanner?.id === 'ev-tarea') return { ...next, activeEventBanner: null };
+      return next;
+    });
+    if (lost === 1 && left === 1) showToast('Sin corazones: tarea extensa para el grupo');
+    else if (lost === 1 && left > 1) showToast(`Llamado de atención · quedan ${left - 1} corazones`);
+  };
+
+  const starAction = (delta: 1 | -1) => commit((prev) => changeStars(prev, delta));
+  const claimReward = () => {
+    commit((prev) => ({
+      ...claimStarReward(prev),
+      activeEventBanner: { id: 'ev-recompensa', title: 'Recompensa', subtitle: '¡El grupo llenó sus 5 estrellas!', kind: 'debate' },
+    }));
+    showToast('Recompensa cobrada: las estrellas vuelven a cero');
+  };
+
   const openProjector = () => window.open('/projector', 'expedicion6-projector', 'noopener,noreferrer');
 
   const closeClass = () => {
@@ -242,7 +289,11 @@ export const ClassPage: React.FC = () => {
       activeEventBanner: null,
     }));
     setInventory(null);
-    setClosing({ summary: { ...summary, plannedClass: finished ? `Clase ${finished.number} de ${CLASSES_PER_YEAR} · ${finished.title}` : undefined }, backup: undefined });
+    setClosing({
+      summary: { ...summary, plannedClass: finished ? `Clase ${finished.number} de ${CLASSES_PER_YEAR} · ${finished.title}` : undefined },
+      backup: undefined,
+      finished,
+    });
     // Respaldo con nombre, después de que el cierre quede guardado
     window.setTimeout(() => {
       void requestDiskBackup(`cierre-${session.classroomName}`).then((backup) =>
@@ -252,7 +303,7 @@ export const ClassPage: React.FC = () => {
   };
 
   // Los atajos leen siempre la última versión de las acciones
-  const actions = { goToScene, revealHint, openProjector, sceneIndex, inventory, closing, toast, commit, planOpen };
+  const actions = { goToScene, revealHint, openProjector, sceneIndex, inventory, closing, toast, commit, planOpen, notesOpen, scene };
   const actionsRef = useRef(actions);
   actionsRef.current = actions;
   useEffect(() => {
@@ -291,7 +342,10 @@ export const ClassPage: React.FC = () => {
       else if (e.key === 'ArrowLeft') a.goToScene(a.sceneIndex - 1);
       else if (key === 'h') a.revealHint();
       else if (key === 'p') a.openProjector();
-      else if (key === 'i' || e.key === 'Tab') setInventory('exploradores');
+      else if (key === 'i' || e.key === 'Tab') setInventory('mapa');
+      else if (key === 'n') {
+        if (a.scene) setNotesOpen((o) => !o);
+      } else if (e.key === 'Escape' && a.notesOpen) setNotesOpen(false);
       else if (key === 'c') setPlanOpen(true);
       else if (e.key >= '1' && e.key <= '4') setScoreAction(SCORE_ACTIONS[Number(e.key) - 1].key);
       else return;
@@ -323,6 +377,7 @@ export const ClassPage: React.FC = () => {
             </span>
           )}
         </div>
+        {session.classStarted && <GameHud session={session} onHeart={heartAction} onStar={starAction} onClaim={claimReward} />}
         <div className="clase__hud-right">
           <span className="clase__hud-clock">
             {clock.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' })} · P{session.period}
@@ -380,7 +435,47 @@ export const ClassPage: React.FC = () => {
               }`}
             />
           )}
-          <SceneNotes scene={scene} hintsShown={hintsShown} />
+          <section className="clase__now">
+            <span className="clase__now-kicker">
+              {mission.title} · escena {sceneIndex + 1} de {mission.scenes.length}
+            </span>
+            <h1 className="clase__title">{scene.title}</h1>
+            <p className="notes__question">{scene.promptQuestion}</p>
+            <button type="button" className="clase__notes-btn" onClick={() => setNotesOpen(true)}>
+              <kbd>N</kbd> Notas de orador
+            </button>
+          </section>
+          {entryActivity && sceneIndex === (currentClass?.sceneStart ?? 0) && (
+            <EntryActivityCard
+              activity={entryActivity}
+              holder={getNotebookHolder(session)}
+              projected={session.activeEventBanner?.id === ENTRY_EVENT_ID}
+              onProject={() =>
+                commit((prev) => ({
+                  ...prev,
+                  activeEventBanner:
+                    prev.activeEventBanner?.id === ENTRY_EVENT_ID
+                      ? null
+                      : { id: ENTRY_EVENT_ID, title: 'Al llegar', subtitle: entryActivity.prompt, kind: 'cuaderno' },
+                }))
+              }
+            />
+          )}
+          {currentClass && (
+            <section className="clase__map">
+              <span className="clase__now-kicker">MAPA DEL PERIODO {currentClass.period}</span>
+              <TopicMap
+                session={session}
+                commit={commit}
+                plan={plan}
+                missions={missions}
+                period={currentClass.period}
+                current={currentClass}
+                done={doneClasses}
+                onSelectClass={selectClass}
+              />
+            </section>
+          )}
           </div>
         ) : (
           <article className="clase__script">
@@ -436,7 +531,10 @@ export const ClassPage: React.FC = () => {
         <button type="button" className="clase__act is-plan" onClick={() => setPlanOpen(true)}>
           <kbd>C</kbd> Clases
         </button>
-        <button type="button" className="clase__act is-inventory" onClick={() => setInventory('exploradores')}>
+        <button type="button" className="clase__act" onClick={() => setInventory('cuaderno')}>
+          Cuaderno
+        </button>
+        <button type="button" className="clase__act is-inventory" onClick={() => setInventory('mapa')}>
           <kbd>I</kbd> Inventario
         </button>
       </footer>
@@ -467,7 +565,13 @@ export const ClassPage: React.FC = () => {
           onClose={() => setInventory(null)}
           mission={mission}
           missions={missions}
-          world={world}
+          plan={plan}
+          current={currentClass}
+          done={doneClasses}
+          onSelectClass={(cls) => {
+            selectClass(cls);
+            setInventory(null);
+          }}
           onSelectMission={selectMission}
           onGoToScene={goToScene}
         />
@@ -492,6 +596,29 @@ export const ClassPage: React.FC = () => {
           backupName={closing.backup}
           onHome={() => navigate('/')}
           onAulas={() => navigate('/aulas')}
+        >
+          {(() => {
+            const m = missions.find((x) => x.id === closing.finished?.missionId);
+            return m && closing.finished?.kind === 'mision' ? (
+              <EvidenceCheck
+                session={session}
+                commit={commit}
+                mission={m}
+                classId={closing.finished.id}
+                hasNotebook={notebookClassIds.has(closing.finished.id)}
+              />
+            ) : null;
+          })()}
+        </ClassSummaryScreen>
+      )}
+
+      {notesOpen && scene && mission && (
+        <NotesDrawer
+          scene={scene}
+          sceneIndex={sceneIndex}
+          sceneCount={mission.scenes.length}
+          hintsShown={hintsShown}
+          onClose={() => setNotesOpen(false)}
         />
       )}
     </div>

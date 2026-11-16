@@ -1,0 +1,122 @@
+/* Corazones y estrellas del grupo (pantalla de clase y proyector) */
+.game-hud {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.game-hud__hearts,
+.game-hud__stars {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 10px;
+  background: rgba(8, 12, 22, 0.66);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.game-hud__hearts:disabled,
+.game-hud__stars:disabled {
+  cursor: default;
+}
+.game-hud__hearts:not(:disabled):hover,
+.game-hud__stars:not(:disabled):hover {
+  border-color: rgba(253, 230, 138, 0.5);
+}
+.game-hud__hearts:not(:disabled):active,
+.game-hud__stars:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.game-hud__heart {
+  color: rgba(148, 163, 184, 0.35);
+  transition: color 0.25s, transform 0.25s;
+}
+.game-hud__heart.is-on {
+  color: #f43f5e;
+  filter: drop-shadow(0 0 6px rgba(244, 63, 94, 0.55));
+  animation: hud-beat 2.4s ease-in-out infinite;
+}
+.game-hud__hearts.is-out {
+  border-color: rgba(244, 63, 94, 0.6);
+  animation: hud-shake 0.45s ease-in-out 2;
+}
+
+.game-hud__star-slot {
+  position: relative;
+  display: grid;
+}
+.game-hud__star {
+  color: rgba(148, 163, 184, 0.35);
+  transition: color 0.25s;
+}
+.game-hud__star.is-on {
+  color: #fbbf24;
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.55));
+  animation: hud-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* La estrella que se está llenando: barrita debajo */
+.game-hud__star-fill {
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  height: 3px;
+  border-radius: 2px;
+  background: #fbbf24;
+}
+.game-hud__stars.is-full {
+  border-color: rgba(251, 191, 36, 0.8);
+  animation: hud-glow 1.6s ease-in-out infinite;
+}
+
+.game-hud__tag {
+  margin-left: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #fda4af;
+}
+.game-hud__tag.is-gold {
+  color: #fde68a;
+}
+
+.game-hud.is-lg .game-hud__hearts,
+.game-hud.is-lg .game-hud__stars {
+  padding: 8px 14px;
+  gap: 6px;
+}
+.game-hud.is-lg .game-hud__tag {
+  font-size: 0.9rem;
+}
+
+@keyframes hud-beat {
+  0%, 100% { transform: scale(1); }
+  8% { transform: scale(1.12); }
+  16% { transform: scale(1); }
+}
+@keyframes hud-pop {
+  from { transform: scale(0.4); }
+}
+@keyframes hud-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+@keyframes hud-glow {
+  50% { box-shadow: 0 0 18px rgba(251, 191, 36, 0.45); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-hud__heart.is-on,
+  .game-hud__star.is-on,
+  .game-hud__hearts.is-out,
+  .game-hud__stars.is-full {
+    animation: none;
+  }
+}

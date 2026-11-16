@@ -17,6 +17,7 @@ import {
 } from '../engine/sessionStore';
 import type { SessionState } from '../engine/types';
 import { CosmicBackdrop } from '../components/CosmicBackdrop';
+import { GameHud } from '../components/clase/GameHud';
 import { SceneVisualStage } from '../components/SceneVisualStage';
 import { TacticalOriginMap } from '../components/TacticalOriginMap';
 import { TitleBackdrop } from '../components/TitleBackdrop';
@@ -81,6 +82,8 @@ export const ProjectorPage: React.FC = () => {
             </span>
           )}
         </div>
+
+        {session.classStarted && <GameHud session={session} size="lg" />}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           {session.status === 'paused' && (

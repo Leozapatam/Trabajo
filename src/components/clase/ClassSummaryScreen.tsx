@@ -11,6 +11,8 @@ interface ClassSummaryScreenProps {
   backupName: string | null | undefined;
   onHome: () => void;
   onAulas: () => void;
+  /** Avance del tema y cuaderno de la clase que se cierra */
+  children?: React.ReactNode;
 }
 
 function nameList(names: string[]): string {
@@ -25,6 +27,7 @@ export const ClassSummaryScreen: React.FC<ClassSummaryScreenProps> = ({
   backupName,
   onHome,
   onAulas,
+  children,
 }) => {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -117,6 +120,8 @@ export const ClassSummaryScreen: React.FC<ClassSummaryScreenProps> = ({
           )}
         </section>
       </div>
+
+      {children}
 
       <p className="resumen__backup" role="status">
         {backupName === undefined

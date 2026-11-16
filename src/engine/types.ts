@@ -278,9 +278,30 @@ export interface TeacherProfile {
   pensionAge?: number;
 }
 
+export type EvidenceStatus = 'pendiente' | 'en-curso' | 'lograda';
+export type NotebookHolder = 'estudiantes' | 'profe';
+
+/** Capa de juego de un aula (ver engine/classGame.ts) */
+export interface ClassroomGame {
+  /** Clase en la que se apagaron los corazones; al cambiar de clase se encienden */
+  heartsClassId?: string;
+  heartsLost: number;
+  /** Las estrellas cuentan los aportes desde este instante (ms) */
+  starsSince: number;
+  /** Puntos dados o quitados a mano en la barra de estrellas */
+  bonusPoints: number;
+  rewardsWon: number;
+  /** misiónId#índice → estado de la evidencia */
+  evidence?: Record<string, EvidenceStatus>;
+  notebooksHeldBy?: NotebookHolder;
+  /** Clase de la ruta → fecha en que se copió en el cuaderno */
+  notebookDone?: Record<string, string>;
+}
+
 export interface SessionState {
   schemaVersion?: number;
   teacherProfile?: TeacherProfile;
+  gameByClassroom?: Record<string, ClassroomGame>;
   sessionId: string;
   active: boolean;
   classStarted: boolean;

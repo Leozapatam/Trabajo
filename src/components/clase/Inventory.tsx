@@ -2,22 +2,24 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ClassSettings } from '../gm/ClassSettings';
 import { ResourceBank } from '../gm/ResourceBank';
 import { StudentArena } from '../gm/StudentArena';
-import { TacticalOriginMap } from '../TacticalOriginMap';
 import { confirmAttendance } from '../../engine/sessionStore';
+import type { PlannedClass } from '../../engine/yearPlan';
+import { NotebookPanel } from './NotebookPanel';
+import { TopicMap } from './TopicMap';
 import type {
   ActiveEventBanner,
   MissionDefinition,
   ProjectorViewMode,
   SessionState,
-  WorldDefinition,
 } from '../../engine/types';
 
-export type InventoryTab = 'exploradores' | 'recursos' | 'mapa' | 'misiones' | 'bitacora' | 'ajustes';
+export type InventoryTab = 'mapa' | 'recursos' | 'cuaderno' | 'exploradores' | 'misiones' | 'bitacora' | 'ajustes';
 
 export const INVENTORY_TABS: { key: InventoryTab; label: string }[] = [
-  { key: 'exploradores', label: 'Exploradores' },
-  { key: 'recursos', label: 'Recursos' },
   { key: 'mapa', label: 'Mapa' },
+  { key: 'recursos', label: 'Recursos' },
+  { key: 'cuaderno', label: 'Cuaderno' },
+  { key: 'exploradores', label: 'Exploradores' },
   { key: 'misiones', label: 'Misiones' },
   { key: 'bitacora', label: 'Bitácora' },
   { key: 'ajustes', label: 'Ajustes' },
@@ -32,7 +34,7 @@ const PROJECTOR_MODES: { key: ProjectorViewMode; label: string }[] = [
 const QUICK_EVENTS: ActiveEventBanner[] = [
   { id: 'ev-cuaderno', title: 'Cuaderno de Campo', subtitle: 'Escriban su idea en el cuaderno con sus propias palabras.', kind: 'cuaderno' },
   { id: 'ev-debate', title: 'Participación', subtitle: 'Levanten la mano para compartir qué piensan y por qué.', kind: 'debate' },
-  { id: 'ev-cosmos', title: 'Mapa de Expedición', subtitle: 'Observemos en qué territorio del viaje estamos hoy.', kind: 'cosmos' },
+  { id: 'ev-cosmos', title: 'Mapa de Expedición', subtitle: 'Observemos en qué tema del mapa estamos hoy.', kind: 'cosmos' },
 ];
 
 interface InventoryProps {
@@ -43,7 +45,10 @@ interface InventoryProps {
   onClose: () => void;
   mission: MissionDefinition | null;
   missions: MissionDefinition[];
-  world: WorldDefinition | undefined;
+  plan: PlannedClass[];
+  current: PlannedClass | null;
+  done: Record<string, string>;
+  onSelectClass: (cls: PlannedClass) => void;
   onSelectMission: (missionId: string) => void;
   onGoToScene: (index: number) => void;
 }
@@ -60,12 +65,16 @@ export const Inventory: React.FC<InventoryProps> = ({
   onClose,
   mission,
   missions,
-  world,
+  plan,
+  current,
+  done,
+  onSelectClass,
   onSelectMission,
   onGoToScene,
 }) => {
   const [note, setNote] = useState('');
   const [attendanceSaved, setAttendanceSaved] = useState(false);
+  const [mapPeriod, setMapPeriod] = useState<number>(current?.period ?? session.period);
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -87,13 +96,6 @@ export const Inventory: React.FC<InventoryProps> = ({
     }));
     setNote('');
   };
-
-  const toggleFog = (zoneId: string) =>
-    commit((prev) => {
-      const explored = prev.exploredZones.includes(zoneId);
-      const next = explored ? prev.exploredZones.filter((z) => z !== zoneId) : [...prev.exploredZones, zoneId];
-      return { ...prev, exploredZones: next, focusedZoneId: zoneId };
-    });
 
   return (
     <div className="inv" role="dialog" aria-modal="true" aria-label="Inventario de la clase">
@@ -156,45 +158,37 @@ export const Inventory: React.FC<InventoryProps> = ({
                   );
                 })}
               </div>
-              {world && (
-                <>
-                  <h3 className="inv__label">TERRITORIOS A LA VISTA</h3>
-                  <div className="inv__chips">
-                    {world.zones.map((z) => {
-                      const explored = session.exploredZones.includes(z.id);
-                      return (
-                        <button
-                          key={z.id}
-                          type="button"
-                          className={`inv__chip${explored ? ' is-active' : ''}`}
-                          onClick={() => toggleFog(z.id)}
-                          title={z.title}
-                        >
-                          {z.number}. {explored ? 'Visible' : 'Niebla'}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
             </div>
-            {world ? (
-              <TacticalOriginMap
-                world={world}
-                exploredZones={session.exploredZones}
-                focusedZoneId={session.focusedZoneId}
-                onSelectZone={(zoneId) =>
-                  commit((prev) => ({
-                    ...prev,
-                    focusedZoneId: zoneId,
-                    exploredZones: prev.exploredZones.includes(zoneId) ? prev.exploredZones : [...prev.exploredZones, zoneId],
-                  }))
-                }
+            <div className="inv__topics">
+              <div className="inv__chips">
+                {[1, 2, 3].map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    className={`inv__chip${mapPeriod === p ? ' is-active' : ''}`}
+                    onClick={() => setMapPeriod(p)}
+                  >
+                    Periodo {p}
+                  </button>
+                ))}
+              </div>
+              <TopicMap
+                session={session}
+                commit={commit}
+                plan={plan}
+                missions={missions}
+                period={mapPeriod}
+                current={current}
+                done={done}
+                onSelectClass={onSelectClass}
+                detailed
               />
-            ) : (
-              <p className="inv__empty">Esta aula todavía no tiene un mundo cargado.</p>
-            )}
+            </div>
           </div>
+        )}
+
+        {tab === 'cuaderno' && (
+          <NotebookPanel session={session} commit={commit} plan={plan} missions={missions} current={current} />
         )}
 
         {tab === 'misiones' && (

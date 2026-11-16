@@ -15,10 +15,13 @@ Para proyectar sin mostrar tu guion, notas ni respuestas:
 2. **Elige tu aula.** ← → cambian de grado, Enter entra.
 3. **¿Con quién contamos para esta sesión?** Todos llegan como presentes: toca a quien falta (Presente → Ausente → Excusa). **COMENZAR** o Enter guarda la lista e inicia la clase.
 4. **En clase.**
-   - Izquierda: la pregunta de la escena y tus notas en tres pasos: **Narra** (lo que ve el grupo) → **Dialoga** (tu guion) → **Cuaderno**.
+   - Arriba: **3 corazones** (llamados de atención al grupo en esta clase; clic apaga uno, clic derecho lo devuelve; sin corazones el proyector anuncia la tarea extensa) y **5 estrellas** (cada 5 puntos de aporte del grupo encienden una; llenas, clic para cobrar la recompensa).
+   - Izquierda: la escena y su pregunta. Las **notas de orador** (Narra → Dialoga → Cuaderno) se abren con el botón o la tecla `N`.
+   - Desde la segunda clase del año: **Al llegar · cuaderno**, una actividad de entrada que puedes proyectar.
+   - Debajo, el **mapa del periodo**: cada tema con su barra, sus evidencias (clic: pendiente → en curso → lograda) y sus clases.
    - Derecha: el grupo. Clic aplica la acción elegida; clic derecho da −1 (interrupción).
    - Abajo: Anterior, Pista, Siguiente.
-5. **Cerrar clase.** Muestra el resumen del día (asistencia, aportes, recursos) y guarda un respaldo.
+5. **Cerrar clase.** Muestra el resumen del día (asistencia, aportes, recursos), te pide marcar las evidencias que se trabajaron y si copiaron en el cuaderno, y guarda un respaldo.
 
 **Solo gestionar** hace el mismo recorrido de aulas, pero abre el inventario sin iniciar clase ni pedir lista.
 
@@ -29,6 +32,7 @@ Para proyectar sin mostrar tu guion, notas ni respuestas:
 | `←` `→` | Escena anterior / siguiente |
 | `H` | Mostrar la siguiente pista |
 | `1` `2` `3` `4` | Acción de puntaje: +1 Aporte, +2 Aporte extra, −1 Interrupción, −2 Impide la clase |
+| `N` | Abrir o cerrar las notas de orador |
 | `C` | Ruta del año: ver y elegir cualquiera de las 78 clases |
 | `Ctrl + Z` | Deshacer el último punto |
 | `P` | Abrir la ventana del proyector |
@@ -36,9 +40,10 @@ Para proyectar sin mostrar tu guion, notas ni respuestas:
 
 ## 4. El inventario
 
-- **Exploradores:** notas del periodo, alertas de inasistencia y asistencia del día.
+- **Mapa:** qué muestra el proyector, avisos para el grupo y los temas de cada periodo con sus evidencias completas.
 - **Recursos:** tu Banco de Recursos; presenta diapositivas y reproduce videos sin salir de la app.
-- **Mapa:** qué muestra el proyector, avisos para el grupo y territorios a la vista.
+- **Cuaderno:** quién tiene los cuadernos (ellos o tú) y todo lo que se copia en el año, como checklist.
+- **Exploradores:** notas del periodo, alertas de inasistencia y asistencia del día.
 - **Misiones:** elegir la misión del grado y saltar entre escenas. Cada aula recuerda por dónde iba.
 - **Bitácora:** notas de la clase y glosario de la misión.
 - **Ajustes:** fecha, grado, periodo y escala de notas.
