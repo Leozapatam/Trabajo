@@ -3,6 +3,7 @@ import { MUNDO_7_WORLD, MISIONES_7_LIST } from './mundo7';
 import { MUNDO_8_WORLD, MISIONES_8_LIST } from './mundo8';
 import { MUNDO_9_WORLD, MISIONES_9_LIST } from './mundo9';
 import { MUNDO_10_WORLD, MISIONES_10_LIST } from './mundo10';
+import { MUNDO_11_WORLD, MISIONES_11_LIST } from './mundo11';
 import { MISION_00 } from './mision00';
 import { MISION_001 } from './mision001';
 import type { MissionDefinition, WorldDefinition } from '../engine/types';
@@ -13,10 +14,10 @@ export const worldsByGrade: Record<string, WorldDefinition[]> = {
   '8°': [MUNDO_8_WORLD],
   '9°': [MUNDO_9_WORLD],
   '10°': [MUNDO_10_WORLD],
-  '11°': [],
+  '11°': [MUNDO_11_WORLD],
   '6°–7°': [ORIGENES_WORLD, MUNDO_7_WORLD],
   '8°–9°': [MUNDO_8_WORLD, MUNDO_9_WORLD],
-  '10°–11°': [MUNDO_10_WORLD],
+  '10°–11°': [MUNDO_10_WORLD, MUNDO_11_WORLD],
 };
 
 export const worldArtById: Record<string, string> = {
@@ -25,7 +26,17 @@ export const worldArtById: Record<string, string> = {
   [MUNDO_8_WORLD.id]: '/assets/art/mundo-8-revoluciones.webp',
   [MUNDO_9_WORLD.id]: '/assets/art/mundo-9-sigloxx.webp',
   [MUNDO_10_WORLD.id]: '/assets/art/mundo-10-geopolitica.webp',
+  [MUNDO_11_WORLD.id]: '/assets/art/mundo-11-globalizacion.webp',
 };
+
+export const EXTRA_ROTATION_BACKGROUNDS: string[] = [
+  '/assets/art/fondo-01-prehistoria.webp',
+  '/assets/art/fondo-02-mundo-antiguo.webp',
+  '/assets/art/fondo-03-edad-media.webp',
+  '/assets/art/fondo-04-conquista-colonia.webp',
+  '/assets/art/fondo-05-independencias.webp',
+  '/assets/art/fondo-06-colombia-siglo-xx.webp',
+];
 
 export const WORLDS: Record<string, WorldDefinition> = {
   [ORIGENES_WORLD.id]: ORIGENES_WORLD,
@@ -33,6 +44,7 @@ export const WORLDS: Record<string, WorldDefinition> = {
   [MUNDO_8_WORLD.id]: MUNDO_8_WORLD,
   [MUNDO_9_WORLD.id]: MUNDO_9_WORLD,
   [MUNDO_10_WORLD.id]: MUNDO_10_WORLD,
+  [MUNDO_11_WORLD.id]: MUNDO_11_WORLD,
 };
 
 export const MISSIONS_LIST: MissionDefinition[] = [
@@ -43,6 +55,7 @@ export const MISSIONS_LIST: MissionDefinition[] = [
   ...MISIONES_8_LIST,
   ...MISIONES_9_LIST,
   ...MISIONES_10_LIST,
+  ...MISIONES_11_LIST,
 ];
 
 export const MISSIONS: Record<string, MissionDefinition> = Object.fromEntries(
