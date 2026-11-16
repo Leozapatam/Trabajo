@@ -1,0 +1,657 @@
+/* Antesala de la clase: elegir aula y llamar a lista.
+   Sin tarjetas ni formularios: la ilustración manda y la interfaz flota encima,
+   como el inventario de un juego de aventuras. */
+
+.aulas,
+.roll {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  display: grid;
+  padding: clamp(14px, 2.6vw, 34px) clamp(18px, 4vw, 56px) 12px;
+  background: #060a13;
+  color: #f8fafc;
+}
+
+.aulas {
+  grid-template-rows: auto 1fr auto auto;
+}
+
+.roll {
+  grid-template-rows: auto 1fr auto;
+}
+
+/* --- Ilustración a pantalla completa --- */
+.aulas__art {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+.aulas__art img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.07);
+  transition: opacity 0.7s ease, transform 9s ease-out;
+}
+
+/* Al entrar a un aula la imagen aparece y se aleja despacio */
+.aulas__art img.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.aulas__shade,
+.roll__shade {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.aulas__shade {
+  background:
+    linear-gradient(270deg, rgba(6, 10, 19, 0.88) 0%, rgba(6, 10, 19, 0.55) 32%, rgba(6, 10, 19, 0) 60%),
+    linear-gradient(0deg, rgba(6, 10, 19, 0.94) 0%, rgba(6, 10, 19, 0.45) 24%, rgba(6, 10, 19, 0) 46%),
+    linear-gradient(180deg, rgba(6, 10, 19, 0.6) 0%, rgba(6, 10, 19, 0) 16%);
+}
+
+.aulas > .breeze,
+.roll > .breeze {
+  z-index: 1;
+}
+
+.aulas__top,
+.aulas__detail,
+.aulas__strip,
+.aulas__hint,
+.roll__main {
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Barra superior --- */
+.aulas__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.aulas__back {
+  padding: 7px 12px;
+  background: rgba(6, 10, 19, 0.4);
+  border: 1px solid rgba(253, 230, 138, 0.4);
+  color: #fde68a;
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  cursor: pointer;
+}
+
+.aulas__back:hover,
+.aulas__back:focus-visible {
+  background: rgba(232, 184, 109, 0.2);
+  outline: none;
+}
+
+.aulas__heading {
+  font-family: var(--font-pixel);
+  font-size: clamp(0.6rem, 1vw, 0.78rem);
+  letter-spacing: 0.14em;
+  color: #fde68a;
+  text-shadow: 2px 2px 0 #04070e;
+}
+
+.aulas__when {
+  font-size: 0.86rem;
+  color: rgba(226, 232, 240, 0.8);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+}
+
+.aulas__when::first-letter {
+  text-transform: uppercase;
+}
+
+.aulas__heading-world {
+  margin-left: 14px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.5em;
+  letter-spacing: 0;
+  color: #f8fafc;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9);
+}
+
+/* Símbolo de grado y guion fuera de la fuente pixel (ver GradeLabel) */
+.grade-label__deg {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.62em;
+  vertical-align: 0.55em;
+  margin-left: 0.04em;
+}
+
+.grade-label__dash {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  margin: 0 0.12em;
+}
+
+/* --- Aula seleccionada --- */
+.aulas__detail {
+  justify-self: end;
+  align-self: center;
+  max-width: min(560px, 46vw);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: 8px;
+  animation: aulas-detail-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.aulas__kicker {
+  font-family: var(--font-pixel);
+  font-size: 0.55rem;
+  letter-spacing: 0.22em;
+  color: #7dd3fc;
+  text-shadow: 2px 2px 0 #04070e;
+}
+
+.aulas__grade {
+  margin: 4px 0 0;
+  font-family: var(--font-pixel);
+  font-size: clamp(3.2rem, 8vw, 6.6rem);
+  line-height: 1;
+  color: #f8fafc;
+  text-shadow: 5px 5px 0 #060a13, 9px 9px 0 rgba(232, 184, 109, 0.45);
+  white-space: nowrap;
+}
+
+/* "10°–11°" tiene siete caracteres: en la fuente pixel cada uno mide 1em */
+.aulas__grade.is-long {
+  font-size: clamp(1.9rem, 4.4vw, 3.6rem);
+}
+
+.aulas__world {
+  margin: 8px 0 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(1.7rem, 3.2vw, 2.7rem);
+  line-height: 1.05;
+  color: #fde68a;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+}
+
+.aulas__tagline {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+  font-weight: 300;
+  color: rgba(248, 250, 252, 0.9);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9);
+}
+
+.aulas__stats {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px 18px;
+  font-size: 0.86rem;
+  color: rgba(226, 232, 240, 0.8);
+}
+
+.aulas__stats strong {
+  font-family: var(--font-pixel);
+  font-size: 0.82rem;
+  color: #fde68a;
+  margin-right: 4px;
+}
+
+.aulas__enter {
+  margin-top: 14px;
+  padding: 13px 20px;
+  background: rgba(232, 184, 109, 0.14);
+  border: 2px solid #e8b86d;
+  box-shadow: 0 0 0 2px #060a13, 4px 4px 0 #04070e;
+  color: #fde68a;
+  font-family: var(--font-pixel);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, transform 0.08s ease;
+}
+
+.aulas__enter:hover,
+.aulas__enter:focus-visible {
+  background: #e8b86d;
+  color: #060a13;
+  outline: none;
+}
+
+.aulas__enter:active {
+  transform: translate(2px, 2px);
+}
+
+.aulas__enter span,
+.roll__start span {
+  display: inline-block;
+  animation: aulas-nudge 1.1s ease-in-out infinite;
+}
+
+/* --- Tira de aulas (ranuras de inventario) --- */
+.aulas__strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(6px, 0.9vw, 12px);
+  margin: 0 calc(-1 * clamp(18px, 4vw, 56px));
+  padding: 20px 16px 16px;
+  background: rgba(6, 10, 19, 0.5);
+  border-top: 1px solid rgba(253, 230, 138, 0.25);
+  backdrop-filter: blur(6px);
+}
+
+.aulas__slot {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(64px, 7.4vw, 108px);
+  aspect-ratio: 1;
+  padding: 0;
+  background-color: #0b1324;
+  background-size: cover;
+  background-position: 22% center;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  color: #f8fafc;
+  cursor: pointer;
+  filter: saturate(0.6) brightness(0.62);
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), filter 0.16s ease, border-color 0.16s ease;
+}
+
+.aulas__slot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(6, 10, 19, 0.88) 0%, rgba(6, 10, 19, 0) 58%);
+}
+
+.aulas__slot.is-active {
+  transform: translateY(-9px) scale(1.12);
+  filter: none;
+  border-color: #fde68a;
+  box-shadow: 0 0 22px rgba(232, 184, 109, 0.5), 4px 4px 0 #04070e;
+  z-index: 1;
+  outline: none;
+}
+
+/* Esquinas del cursor de selección, latiendo */
+.aulas__slot.is-active::after {
+  --c: #fde68a;
+  content: '';
+  position: absolute;
+  inset: -8px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--c), var(--c)) top left / 14px 3px no-repeat,
+    linear-gradient(var(--c), var(--c)) top left / 3px 14px no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / 14px 3px no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / 3px 14px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / 14px 3px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / 3px 14px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / 14px 3px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / 3px 14px no-repeat;
+  animation: aulas-cursor 0.9s ease-in-out infinite alternate;
+}
+
+.aulas__slot-grade {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  font-family: var(--font-pixel);
+  font-size: clamp(0.5rem, 0.8vw, 0.72rem);
+  text-shadow: 2px 2px 0 #04070e;
+  white-space: nowrap;
+}
+
+.aulas__slot-count {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  color: #fde68a;
+  text-shadow: 1px 1px 0 #04070e;
+}
+
+.aulas__slot.is-empty .aulas__slot-count {
+  color: rgba(226, 232, 240, 0.5);
+}
+
+.aulas__divider {
+  width: 2px;
+  height: 56px;
+  margin: 0 6px;
+  background: linear-gradient(180deg, transparent, rgba(253, 230, 138, 0.55), transparent);
+}
+
+.aulas__hint {
+  padding-top: 10px;
+  text-align: center;
+  font-size: 0.72rem;
+  color: rgba(226, 232, 240, 0.5);
+}
+
+/* ================= Llamado a lista ================= */
+
+/* El aula queda desenfocada detrás, como al abrir el inventario */
+.roll .aulas__art img {
+  filter: blur(3px) brightness(0.85);
+  transform: scale(1.05);
+  transition: none;
+}
+
+.roll__shade {
+  background: linear-gradient(180deg, rgba(6, 10, 19, 0.82) 0%, rgba(6, 10, 19, 0.6) 42%, rgba(6, 10, 19, 0.9) 100%);
+}
+
+.roll__main {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2vh, 18px);
+}
+
+.roll__question {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(1.8rem, 3.6vw, 3rem);
+  line-height: 1.05;
+  text-align: center;
+  color: #f8fafc;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
+  animation: aulas-detail-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.roll__counts {
+  display: flex;
+  gap: clamp(14px, 3vw, 34px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.roll__count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-pixel);
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  color: rgba(226, 232, 240, 0.75);
+  text-shadow: 2px 2px 0 #04070e;
+}
+
+.roll__count strong {
+  font-size: 1.15rem;
+  font-weight: 400;
+}
+
+.roll__count.is-presente strong {
+  color: #6ee7b7;
+}
+
+.roll__count.is-ausente strong {
+  color: #fb7185;
+}
+
+.roll__count.is-excusa strong {
+  color: #fde68a;
+}
+
+.roll__count.is-zero {
+  opacity: 0.4;
+}
+
+.roll__grid {
+  width: 100%;
+  /* Caben 4 filas (44 estudiantes) sin scroll en 1366×768 */
+  max-height: calc(100vh - 312px);
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  align-content: start;
+  gap: 10px 8px;
+  padding: 10px 6px 6px;
+}
+
+.roll__tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px 6px;
+  background: rgba(8, 14, 28, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  animation: roll-pop 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: background 0.12s ease, border-color 0.12s ease, opacity 0.15s ease;
+}
+
+.roll__tile:hover,
+.roll__tile:focus-visible {
+  background: rgba(232, 184, 109, 0.14);
+  border-color: #fde68a;
+  box-shadow: 0 0 0 1px #fde68a, 0 0 16px rgba(232, 184, 109, 0.3);
+  outline: none;
+}
+
+.roll__slot {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-pixel);
+  font-size: 0.64rem;
+  color: #052e1b;
+  background: #34d399;
+  border: 2px solid #a7f3d0;
+  box-shadow: 3px 3px 0 #04070e, 0 0 14px rgba(52, 211, 153, 0.35);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.roll__name {
+  font-size: 0.76rem;
+  line-height: 1.18;
+  /* Siempre dos renglones: todas las fichas miden lo mismo */
+  min-height: 2.36em;
+  text-align: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+
+.roll__tag {
+  position: absolute;
+  top: -8px;
+  right: 5px;
+  padding: 2px 5px;
+  font-family: var(--font-pixel);
+  font-size: 0.42rem;
+  text-transform: uppercase;
+  background: #0b1324;
+  border: 1px solid currentColor;
+}
+
+/* Ausente: la ranura se apaga */
+.roll__tile.is-ausente .roll__slot {
+  background: transparent;
+  color: rgba(251, 113, 133, 0.75);
+  border: 2px dashed rgba(251, 113, 133, 0.7);
+  box-shadow: none;
+}
+
+.roll__tile.is-ausente .roll__name {
+  color: rgba(226, 232, 240, 0.5);
+  text-decoration: line-through;
+}
+
+.roll__tile.is-ausente .roll__tag {
+  color: #fb7185;
+}
+
+.roll__tile.is-excusa .roll__slot {
+  background: #e8b86d;
+  color: #3b2506;
+  border-color: #fde68a;
+  box-shadow: 3px 3px 0 #04070e, 0 0 14px rgba(232, 184, 109, 0.35);
+}
+
+.roll__tile.is-excusa .roll__tag {
+  color: #fde68a;
+}
+
+.roll__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.roll__hint {
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.6);
+}
+
+.roll__start {
+  padding: 15px 28px;
+  background: linear-gradient(180deg, #f3cf8e, #d99f45);
+  border: 2px solid #fde68a;
+  box-shadow: 0 0 0 2px #060a13, 5px 5px 0 #04070e, 0 0 26px rgba(232, 184, 109, 0.4);
+  color: #1c1203;
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.roll__start:hover,
+.roll__start:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #060a13, 5px 5px 0 #04070e, 0 0 38px rgba(253, 230, 138, 0.7);
+}
+
+.roll__start:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 2px #060a13, 2px 2px 0 #04070e;
+}
+
+.roll__secondary {
+  padding: 10px 16px;
+  background: rgba(6, 10, 19, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #f8fafc;
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.roll__secondary:hover,
+.roll__secondary:focus-visible {
+  border-color: #fde68a;
+  color: #fde68a;
+  outline: none;
+}
+
+.roll__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  color: rgba(226, 232, 240, 0.85);
+}
+
+.roll__empty p {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+/* --- Animaciones --- */
+@keyframes aulas-detail-in {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+}
+
+@keyframes aulas-cursor {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.07);
+  }
+}
+
+@keyframes aulas-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes roll-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.92);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aulas__art img {
+    transition: opacity 0.2s ease;
+    transform: none;
+  }
+  .aulas__detail,
+  .roll__question,
+  .roll__tile,
+  .aulas__slot.is-active::after,
+  .aulas__enter span,
+  .roll__start span {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .aulas__detail {
+    max-width: 100%;
+  }
+  .aulas__strip {
+    flex-wrap: wrap;
+  }
+}

@@ -599,6 +599,30 @@ export function markAttendance(state: SessionState, studentId: string, status: A
   return recordAttendanceSnapshot({ ...state, students });
 }
 
+/** Confirma la lista del día: lo que no se marcó queda Presente */
+export function confirmAttendance(state: SessionState): SessionState {
+  return recordAttendanceSnapshot({
+    ...state,
+    students: state.students.map((s) => ({ ...s, attendanceToday: getAttendanceOnClassDate(state, s.id) })),
+  });
+}
+
+/** Deja a todos los activos como Presentes en la fecha de clase */
+export function markAllPresent(state: SessionState): SessionState {
+  return recordAttendanceSnapshot({
+    ...state,
+    students: state.students.map((s) => ({ ...s, attendanceToday: 'presente' as const })),
+  });
+}
+
+/** Última fecha con asistencia guardada para un grupo ("YYYY-MM-DD"), o null si nunca tuvo clase */
+export function getLastClassDate(state: SessionState, groupId: string): string | null {
+  const ids = new Set(getGroupRoster(state, groupId).map((s) => s.id));
+  if (ids.size === 0) return null;
+  const dates = Object.keys(state.attendanceByDate).sort().reverse();
+  return dates.find((date) => Object.keys(state.attendanceByDate[date]).some((id) => ids.has(id))) ?? null;
+}
+
 export function addStudentsFromText(state: SessionState, rawNames: string): SessionState {
   const names = rawNames
     .split(/[\n,;]+/)

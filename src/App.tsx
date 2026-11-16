@@ -4,6 +4,8 @@ import { LandingPage } from './pages/LandingPage';
 
 // La portada carga de inmediato; las demás pantallas se descargan al entrar
 const GameMasterPage = lazy(() => import('./pages/GameMasterPage').then((m) => ({ default: m.GameMasterPage })));
+const AulasPage = lazy(() => import('./pages/AulasPage').then((m) => ({ default: m.AulasPage })));
+const RollCallPage = lazy(() => import('./pages/RollCallPage').then((m) => ({ default: m.RollCallPage })));
 const GroupsPage = lazy(() => import('./pages/GroupsPage').then((m) => ({ default: m.GroupsPage })));
 const ProjectorPage = lazy(() => import('./pages/ProjectorPage').then((m) => ({ default: m.ProjectorPage })));
 
@@ -22,6 +24,8 @@ export const App: React.FC = () => {
       <Suspense fallback={<Loading />}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/aulas" element={<AulasPage />} />
+          <Route path="/lista" element={<RollCallPage />} />
           <Route path="/grupos" element={<GroupsPage />} />
           <Route path="/game-master" element={<GameMasterPage />} />
           <Route path="/projector" element={<ProjectorPage />} />

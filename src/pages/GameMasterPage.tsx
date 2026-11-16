@@ -24,12 +24,11 @@ import { getMission, MISSIONS_LIST } from '../data/catalog';
 import { ORIGENES_WORLD } from '../data/origenesWorld';
 import {
   changeSceneState,
+  confirmAttendance,
   createInitialSessionState,
   getActiveStudentsCount,
-  getAttendanceOnClassDate,
   getTodayIsoDate,
   loadSessionState,
-  recordAttendanceSnapshot,
   saveAndBroadcastSession,
   subscribeToNewerSession,
 } from '../engine/sessionStore';
@@ -206,13 +205,7 @@ export const GameMasterPage: React.FC = () => {
   };
 
   const handleSaveAttendanceToday = () => {
-    // Confirma la lista del día: lo no marcado queda Presente
-    commit((prev) =>
-      recordAttendanceSnapshot({
-        ...prev,
-        students: prev.students.map((s) => ({ ...s, attendanceToday: getAttendanceOnClassDate(prev, s.id) })),
-      })
-    );
+    commit(confirmAttendance);
     setAttendanceSavedToast(true);
     window.setTimeout(() => setAttendanceSavedToast(false), 2500);
   };

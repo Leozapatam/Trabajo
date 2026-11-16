@@ -4,12 +4,10 @@ import { CalendarDays } from 'lucide-react';
 import { CalendarPanel } from '../components/overlay/CalendarPanel';
 import { GameWindow } from '../components/overlay/GameWindow';
 import { TitleBackdrop } from '../components/TitleBackdrop';
-import { getGradeGroup, GRADE_GROUPS } from '../engine/grades';
 import {
   getTodayIsoDate,
   loadSessionState,
   saveAndBroadcastSession,
-  switchClassroomRoster,
 } from '../engine/sessionStore';
 import type { AcademicPeriod } from '../engine/types';
 import '../styles/title-menu.css';
@@ -17,8 +15,8 @@ import '../styles/title-menu.css';
 /** Semiventanas que se abren desde los botones redondos de la portada */
 type Panel = 'calendario';
 
-type MenuRow = 'nueva' | 'gestionar' | 'grupos' | 'grado' | 'periodo' | 'fecha';
-const ROWS: MenuRow[] = ['nueva', 'gestionar', 'grupos', 'grado', 'periodo', 'fecha'];
+type MenuRow = 'empezar' | 'gestionar' | 'grupos' | 'periodo' | 'fecha';
+const ROWS: MenuRow[] = ['empezar', 'gestionar', 'grupos', 'periodo', 'fecha'];
 
 function shiftDate(iso: string, days: number): string {
   const [y, m, d] = iso.split('-').map(Number);
@@ -33,32 +31,19 @@ export const LandingPage: React.FC = () => {
   const [initial] = useState(loadSessionState);
 
   const [classDate, setClassDate] = useState<string>(initial.classDate || getTodayIsoDate());
-  const [classroomName, setClassroomName] = useState<string>(initial.classroomName);
   const [period, setPeriod] = useState<AcademicPeriod>(initial.period || 1);
-  const [cursor, setCursor] = useState<MenuRow>('nueva');
+  const [cursor, setCursor] = useState<MenuRow>('empezar');
   const [panel, setPanel] = useState<Panel | null>(null);
   const closePanel = useCallback(() => setPanel(null), []);
 
+  // El aula se elige en la pantalla siguiente; aquí solo se fija la fecha y el periodo
   const enter = (startClass: boolean) => {
-    const current = loadSessionState();
-    const switched = switchClassroomRoster(current, current.schoolYear, classroomName);
-    saveAndBroadcastSession({
-      ...switched,
-      classDate,
-      period,
-      classStarted: startClass,
-      active: startClass,
-      status: startClass ? 'running' : 'idle',
-      ...(startClass ? { projectorMode: 'intro' as const } : {}),
-    });
-    navigate(startClass ? '/game-master' : '/game-master?tab=estudiantes');
+    saveAndBroadcastSession({ ...loadSessionState(), classDate, period });
+    navigate(startClass ? '/aulas' : '/aulas?modo=gestion');
   };
 
   const changeValue = (row: MenuRow, dir: 1 | -1) => {
-    if (row === 'grado') {
-      const idx = GRADE_GROUPS.findIndex((g) => g.id === classroomName);
-      setClassroomName(GRADE_GROUPS[(idx + dir + GRADE_GROUPS.length) % GRADE_GROUPS.length].id);
-    } else if (row === 'periodo') {
+    if (row === 'periodo') {
       setPeriod((p) => (((p - 1 + dir + 3) % 3) + 1) as AcademicPeriod);
     } else if (row === 'fecha') {
       setClassDate((d) => shiftDate(d, dir));
@@ -66,7 +51,7 @@ export const LandingPage: React.FC = () => {
   };
 
   const activate = (row: MenuRow) => {
-    if (row === 'nueva') enter(true);
+    if (row === 'empezar') enter(true);
     else if (row === 'gestionar') enter(false);
     else if (row === 'grupos') navigate('/grupos');
     else changeValue(row, 1);
@@ -99,7 +84,6 @@ export const LandingPage: React.FC = () => {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const grade = getGradeGroup(classroomName);
   const rawDate = new Date(`${classDate}T12:00:00`).toLocaleDateString('es-CO', {
     weekday: 'long',
     day: 'numeric',
@@ -158,8 +142,8 @@ export const LandingPage: React.FC = () => {
 
       <nav aria-label="Menú principal" style={{ position: 'relative', zIndex: 2, alignSelf: 'end', justifySelf: 'end', display: 'grid' }}>
         <ul className="title-menu">
-          <li {...itemProps('nueva', 0.15, true)} onClick={() => enter(true)}>
-            Empezar nueva clase
+          <li {...itemProps('empezar', 0.15, true)} onClick={() => enter(true)}>
+            Empezar
           </li>
           <li {...itemProps('gestionar', 0.25, true)} onClick={() => enter(false)}>
             Solo gestionar
@@ -168,7 +152,6 @@ export const LandingPage: React.FC = () => {
             Gestión de grupos
           </li>
           <li aria-hidden="true" className="title-menu__divider" />
-          <li {...itemProps('grado', 0.4)}>{stepper('grado', 'Grado', `${grade.id} ${grade.label}`)}</li>
           <li {...itemProps('periodo', 0.5)}>{stepper('periodo', 'Periodo', `${period}`)}</li>
           <li {...itemProps('fecha', 0.6)}>
             {stepper('fecha', 'Fecha', dateLabel)}

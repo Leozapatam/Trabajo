@@ -92,3 +92,27 @@ describe('Gestión de grupos (matrícula fuera del tablero)', () => {
     expect(state.students.map((x) => x.name)).toEqual(['Ana']);
   });
 });
+
+describe('Llamado a lista antes de empezar', () => {
+  it('confirma presentes por defecto, permite reiniciar y recuerda la última clase de cada aula', async () => {
+    const { confirmAttendance, markAllPresent, markAttendance, getLastClassDate, enrollStudents } = await import('../sessionStore');
+    let s = addStudentsFromText({ ...createInitialSessionState(), classDate: '2026-03-02' }, 'Ana, Beto, Carla');
+    const [ana, beto] = s.students;
+    expect(getLastClassDate(s, '6°')).toBeNull();
+
+    s = markAttendance(s, beto.id, 'ausente');
+    s = confirmAttendance(s);
+    expect(s.attendanceByDate['2026-03-02'][ana.id]).toBe('presente');
+    expect(s.attendanceByDate['2026-03-02'][beto.id]).toBe('ausente');
+
+    s = markAllPresent(s);
+    expect(Object.values(s.attendanceByDate['2026-03-02'])).toEqual(['presente', 'presente', 'presente']);
+    expect(s.students[1].attendanceHistory.ausentes).toBe(0);
+
+    s = confirmAttendance({ ...s, classDate: '2026-03-09' });
+    expect(getLastClassDate(s, '6°')).toBe('2026-03-09');
+    // Un aula con estudiantes pero sin clases todavía
+    s = enrollStudents(s, '9°', 'Dora').state;
+    expect(getLastClassDate(s, '9°')).toBeNull();
+  });
+});
