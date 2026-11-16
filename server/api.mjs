@@ -49,8 +49,9 @@ function readBody(req) {
 
 /** Datos de este PC; la primera vez trae los que estaban en Documentos */
 function createDefaultStore() {
-  const { dataDir, mirrorDir } = resolvePaths();
-  if (migrateLegacyData(dataDir)) console.log(`Datos copiados de Documentos a ${dataDir}`);
+  const { dataDir, mirrorDir, dataDirIsDefault } = resolvePaths();
+  // Una carpeta elegida a mano (variable o archivo del PC) nunca recibe copias automáticas
+  if (dataDirIsDefault && migrateLegacyData(dataDir)) console.log(`Datos copiados de Documentos a ${dataDir}`);
   return createDataStore({ dataDir, mirrorDir });
 }
 

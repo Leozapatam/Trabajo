@@ -29,6 +29,7 @@ describe('Rutas de cada PC', () => {
     expect(p.dataDir).toBe(join(clases, 'Expedicion6-Datos'));
     expect(p.socialesDir).toBe(join(clases, 'Banco de Recursos', 'Ciencias Sociales'));
     expect(p.mirrorDir).toBeNull();
+    expect(p.dataDirIsDefault).toBe(true);
   });
 
   it('las variables de entorno mandan sobre el archivo', () => {
@@ -36,6 +37,7 @@ describe('Rutas de cada PC', () => {
     writeFileSync(configFile, JSON.stringify({ clasesDir: join(dir, 'A'), dataDir: join(dir, 'datosA') }));
     const p = resolvePaths({ env: { EXPEDICION6_DATA_DIR: join(dir, 'datosB') }, configFile, exists: () => false });
     expect(p.dataDir).toBe(join(dir, 'datosB'));
+    expect(p.dataDirIsDefault).toBe(false);
     // Datos fuera de Drive: los respaldos se copian también a Drive
     expect(p.mirrorDir).toBe(join(dir, 'A', 'Expedicion6-Respaldos'));
   });

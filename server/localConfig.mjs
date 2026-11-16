@@ -55,6 +55,8 @@ export function resolvePaths({ env = process.env, configFile = LOCAL_CONFIG_FILE
   const clasesDir = env.CS_CLASES_DIR || config.clasesDir || detectClasesDir(exists);
   const dataDir =
     env.EXPEDICION6_DATA_DIR || config.dataDir || (clasesDir ? join(clasesDir, DATA_FOLDER_NAME) : LEGACY_DATA_DIR);
+  /** Solo la carpeta elegida automáticamente en Drive recibe el traslado desde Documentos */
+  const dataDirIsDefault = !env.EXPEDICION6_DATA_DIR && !config.dataDir;
   const dataInDrive = !!clasesDir && dataDir.startsWith(clasesDir);
 
   let mirrorDir = env.EXPEDICION6_MIRROR_DIR ?? config.mirrorDir;
@@ -70,6 +72,7 @@ export function resolvePaths({ env = process.env, configFile = LOCAL_CONFIG_FILE
     configFile,
     clasesDir,
     dataDir,
+    dataDirIsDefault,
     mirrorDir: mirrorDir || null,
     socialesDir: bancoDir ? join(bancoDir, 'Ciencias Sociales') : null,
     generalesDir: bancoDir ? join(bancoDir, 'Generales') : null,

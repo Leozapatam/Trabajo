@@ -1,0 +1,4 @@
+# Scripts de Windows con saltos de linea de Windows en cualquier clon
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.vbs text eol=crlf
