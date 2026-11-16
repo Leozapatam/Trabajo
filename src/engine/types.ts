@@ -13,6 +13,20 @@ export type RecognitionCategory =
 
 export type AttendanceStatus = 'presente' | 'ausente' | 'excusa';
 
+export type AcademicPeriod = 1 | 2 | 3;
+
+/** Un +1 / -1 otorgado en clase. Las notas por periodo se calculan a partir de este registro. */
+export interface PointEvent {
+  id: string;
+  category: RecognitionCategory;
+  delta: number;
+  period: AcademicPeriod;
+  date: string;
+  ts: number;
+  /** Saldo trasladado desde el formato v1 (sin historial) */
+  migrated?: boolean;
+}
+
 export interface ResourceItem {
   id: string;
   title: string;
@@ -203,7 +217,9 @@ export interface StudentState {
     ausentes: number;
     excusas: number;
   };
+  /** Totales del periodo activo; se recalculan desde `pointLog` */
   points: Record<RecognitionCategory, number>;
+  pointLog?: PointEvent[];
   badges: string[];
 }
 
@@ -231,6 +247,7 @@ export interface ActiveEventBanner {
 }
 
 export interface SessionState {
+  schemaVersion?: number;
   sessionId: string;
   active: boolean;
   classStarted: boolean;
@@ -238,10 +255,12 @@ export interface SessionState {
   status: 'idle' | 'running' | 'paused' | 'completed';
   schoolYear: string;
   classroomName: string;
-  period: 1 | 2 | 3;
+  period: AcademicPeriod;
   missionId: string;
   resources: ResourceItem[];
   attendanceByDate: Record<string, Record<string, AttendanceStatus>>;
+  /** Periodo académico al que pertenece cada fecha con asistencia guardada */
+  periodByDate?: Record<string, AcademicPeriod>;
   gradeConfig: {
     baseGrade: number;
     stepPerPoint: number;

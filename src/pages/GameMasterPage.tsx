@@ -165,6 +165,7 @@ export const GameMasterPage: React.FC = () => {
         resources: prev.resources,
         students: prev.students,
         attendanceByDate: prev.attendanceByDate,
+        periodByDate: prev.periodByDate,
         gradeConfig: prev.gradeConfig,
         rostersByClassroom: prev.rostersByClassroom,
         projectorMode: 'scene',

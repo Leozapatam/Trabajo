@@ -1,5 +1,7 @@
+import { calculatePeriodGrade, getAttendanceSummary, sumPointLog } from './grading';
 import type {
   AttendanceStatus,
+  PointEvent,
   RecognitionCategory,
   ResourceItem,
   SceneDefinition,
@@ -11,6 +13,9 @@ import type {
 
 export const SESSION_STORAGE_KEY = 'expedicion6.session.v1';
 export const SESSION_CHANNEL_NAME = 'expedicion6-session';
+export const SESSION_SCHEMA_VERSION = 2;
+/** Prefijo de copias del JSON que no se pudo leer; nunca se sobrescriben */
+export const CORRUPT_BACKUP_PREFIX = 'expedicion6.session.corrupt.';
 
 const EMPTY_POINTS: Record<RecognitionCategory, number> = {
   investigacion: 0,
@@ -170,6 +175,7 @@ export function createInitialSessionState(
   defaultTimerSeconds = 180
 ): SessionState {
   return {
+    schemaVersion: SESSION_SCHEMA_VERSION,
     sessionId: `ses-${Date.now().toString(36)}`,
     active: false,
     classStarted: false,
@@ -181,6 +187,7 @@ export function createInitialSessionState(
     missionId,
     resources: DEFAULT_RESOURCES.map((r) => ({ ...r })),
     attendanceByDate: {},
+    periodByDate: {},
     gradeConfig: {
       baseGrade: 3.5,
       stepPerPoint: 0.1,
@@ -218,59 +225,113 @@ export function createInitialSessionState(
   };
 }
 
+function preserveCorruptRaw(raw: string) {
+  try {
+    window.localStorage.setItem(`${CORRUPT_BACKUP_PREFIX}${Date.now()}`, raw);
+  } catch {
+    // Sin espacio: al menos no se sobrescribe en esta lectura
+  }
+}
+
+/**
+ * v1 guardaba solo totales sin historial. Se convierten en un "saldo inicial"
+ * del periodo activo para no perder puntos ya otorgados.
+ */
+function normalizeStudent(s: StudentState, period: 1 | 2 | 3, date: string): StudentState {
+  const points = {
+    investigacion: s.points?.investigacion ?? 0,
+    participacion: s.points?.participacion ?? 0,
+    comportamiento: s.points?.comportamiento ?? 0,
+    actitudinal: s.points?.actitudinal ?? 0,
+  };
+  const pointLog: PointEvent[] = Array.isArray(s.pointLog)
+    ? s.pointLog
+    : (Object.keys(points) as RecognitionCategory[])
+        .filter((cat) => points[cat] !== 0)
+        .map((cat) => ({
+          id: `pt-mig-${s.id}-${cat}`,
+          category: cat,
+          delta: points[cat],
+          period,
+          date,
+          ts: 0,
+          migrated: true,
+        }));
+  return {
+    ...s,
+    attendanceToday: s.attendanceToday ?? 'presente',
+    attendanceHistory: s.attendanceHistory ?? { presentes: 0, ausentes: 0, excusas: 0 },
+    points,
+    pointLog,
+  };
+}
+
+export function migrateSessionState(parsed: SessionState): SessionState {
+  const period = parsed.period === 2 || parsed.period === 3 ? parsed.period : 1;
+  const date = parsed.classDate ?? getTodayIsoDate();
+  const rosters: Record<string, StudentState[]> = {};
+  for (const [key, list] of Object.entries(parsed.rostersByClassroom ?? {})) {
+    rosters[key] = Array.isArray(list) ? list.map((s) => normalizeStudent(s, period, date)) : [];
+  }
+  return syncCurrentPeriodPoints({
+    ...createInitialSessionState(),
+    ...parsed,
+    schemaVersion: SESSION_SCHEMA_VERSION,
+    classStarted: parsed.classStarted ?? false,
+    classDate: date,
+    schoolYear: parsed.schoolYear ?? '2026',
+    classroomName: parsed.classroomName ?? '6°A',
+    period,
+    resources:
+      Array.isArray(parsed.resources) && parsed.resources.length > 0
+        ? parsed.resources
+        : DEFAULT_RESOURCES.map((r) => ({ ...r })),
+    attendanceByDate: parsed.attendanceByDate ?? {},
+    periodByDate: parsed.periodByDate ?? {},
+    gradeConfig: parsed.gradeConfig ?? { baseGrade: 3.5, stepPerPoint: 0.1 },
+    rostersByClassroom: rosters,
+    students: Array.isArray(parsed.students)
+      ? parsed.students.map((s) => normalizeStudent(s, period, date))
+      : [],
+    projectorMode: parsed.projectorMode ?? 'intro',
+    exploredZones: Array.isArray(parsed.exploredZones) ? parsed.exploredZones : ['zona-1'],
+    focusedZoneId: parsed.focusedZoneId ?? 'zona-1',
+    activeEventBanner: parsed.activeEventBanner ?? null,
+  });
+}
+
 export function loadSessionState(): SessionState {
   if (typeof window === 'undefined') {
     return createInitialSessionState();
   }
+  let raw: string | null = null;
   try {
-    const raw = window.localStorage.getItem(SESSION_STORAGE_KEY);
+    raw = window.localStorage.getItem(SESSION_STORAGE_KEY);
     if (!raw) return createInitialSessionState();
     const parsed = JSON.parse(raw) as SessionState;
     if (!parsed || typeof parsed.activeSceneIndex !== 'number') {
+      preserveCorruptRaw(raw);
       return createInitialSessionState();
     }
-    const normalizedStudents: StudentState[] = Array.isArray(parsed.students)
-      ? parsed.students.map((s) => ({
-          ...s,
-          attendanceToday: s.attendanceToday ?? 'presente',
-          attendanceHistory: s.attendanceHistory ?? { presentes: 0, ausentes: 0, excusas: 0 },
-          points: {
-            investigacion: s.points?.investigacion ?? 0,
-            participacion: s.points?.participacion ?? 0,
-            comportamiento: s.points?.comportamiento ?? 0,
-            actitudinal: s.points?.actitudinal ?? 0,
-          },
-        }))
-      : [];
-
-    return {
-      ...createInitialSessionState(),
-      ...parsed,
-      classStarted: parsed.classStarted ?? false,
-      classDate: parsed.classDate ?? getTodayIsoDate(),
-      schoolYear: parsed.schoolYear ?? '2026',
-      classroomName: parsed.classroomName ?? '6°A',
-      period: parsed.period === 2 || parsed.period === 3 ? parsed.period : 1,
-      resources:
-        Array.isArray(parsed.resources) && parsed.resources.length > 0
-          ? parsed.resources
-          : DEFAULT_RESOURCES.map((r) => ({ ...r })),
-      attendanceByDate: parsed.attendanceByDate ?? {},
-      gradeConfig: parsed.gradeConfig ?? { baseGrade: 3.5, stepPerPoint: 0.1 },
-      rostersByClassroom: parsed.rostersByClassroom ?? {},
-      students: normalizedStudents,
-      projectorMode: parsed.projectorMode ?? 'intro',
-      exploredZones: Array.isArray(parsed.exploredZones) ? parsed.exploredZones : ['zona-1'],
-      focusedZoneId: parsed.focusedZoneId ?? 'zona-1',
-      activeEventBanner: parsed.activeEventBanner ?? null,
-    };
+    return migrateSessionState(parsed);
   } catch {
+    if (raw) preserveCorruptRaw(raw);
     return createInitialSessionState();
   }
 }
 
+/** Mantiene `student.points` = totales del periodo activo, derivados de `pointLog` */
+export function syncCurrentPeriodPoints(state: SessionState): SessionState {
+  return {
+    ...state,
+    students: state.students.map((s) =>
+      Array.isArray(s.pointLog) ? { ...s, points: sumPointLog(s.pointLog, state.period) } : s
+    ),
+  };
+}
+
 export function saveAndBroadcastSession(state: SessionState): SessionState {
-  const next: SessionState = { ...state, updatedAt: Date.now() };
+  const next: SessionState = { ...syncCurrentPeriodPoints(state), updatedAt: Date.now() };
   if (typeof window !== 'undefined') {
     try {
       window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(next));
@@ -500,6 +561,7 @@ export function addStudentsFromText(state: SessionState, rawNames: string): Sess
     attendanceToday: 'presente',
     attendanceHistory: { presentes: 0, ausentes: 0, excusas: 0 },
     points: { ...EMPTY_POINTS },
+    pointLog: [],
     badges: [],
   }));
 
@@ -529,26 +591,35 @@ export function setStudentAttendance(
   };
 }
 
+/**
+ * Guarda la asistencia del día. Es idempotente: guardar dos veces la misma
+ * fecha reemplaza el registro, y el historial se recalcula desde `attendanceByDate`.
+ */
 export function recordAttendanceSnapshot(state: SessionState): SessionState {
   const dateKey = state.classDate || getTodayIsoDate();
   const dayMap: Record<string, AttendanceStatus> = {};
+  for (const s of state.students) {
+    if (s.active) dayMap[s.id] = s.attendanceToday;
+  }
+  const attendanceByDate = { ...state.attendanceByDate, [dateKey]: dayMap };
+  const periodByDate = { ...state.periodByDate, [dateKey]: state.period };
   const nextStudents = state.students.map((s) => {
-    if (!s.active) return s;
-    dayMap[s.id] = s.attendanceToday;
-    const h = { ...s.attendanceHistory };
-    if (s.attendanceToday === 'presente') h.presentes += 1;
-    if (s.attendanceToday === 'ausente') h.ausentes += 1;
-    if (s.attendanceToday === 'excusa') h.excusas += 1;
-    return { ...s, attendanceHistory: h };
+    const summary = getAttendanceSummary({ attendanceByDate, periodByDate }, s.id);
+    return {
+      ...s,
+      attendanceHistory: {
+        presentes: summary.presentes,
+        ausentes: summary.ausentes,
+        excusas: summary.excusas,
+      },
+    };
   });
 
   return {
     ...state,
     students: nextStudents,
-    attendanceByDate: {
-      ...state.attendanceByDate,
-      [dateKey]: dayMap,
-    },
+    attendanceByDate,
+    periodByDate,
   };
 }
 
@@ -562,15 +633,50 @@ export function awardStudentPoints(
     ...state,
     students: state.students.map((s) => {
       if (s.id !== studentId) return s;
+      const event: PointEvent = {
+        id: `pt-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+        category,
+        delta,
+        period: state.period,
+        date: state.classDate || getTodayIsoDate(),
+        ts: Date.now(),
+      };
       return {
         ...s,
         points: {
           ...s.points,
           [category]: s.points[category] + delta,
         },
+        pointLog: [...(s.pointLog ?? []), event],
       };
     }),
   };
+}
+
+/** Deshace el último +1/-1 de la clase (o de un estudiante concreto) */
+export function undoLastPointEvent(state: SessionState, studentId?: string): SessionState {
+  let target: { studentId: string; event: PointEvent } | null = null;
+  for (const s of state.students) {
+    if (studentId && s.id !== studentId) continue;
+    const last = s.pointLog?.[s.pointLog.length - 1];
+    if (last && !last.migrated && (!target || last.ts >= target.event.ts)) {
+      target = { studentId: s.id, event: last };
+    }
+  }
+  if (!target) return state;
+  const { studentId: sid, event } = target;
+  return syncCurrentPeriodPoints({
+    ...state,
+    students: state.students.map((s) =>
+      s.id === sid ? { ...s, pointLog: (s.pointLog ?? []).filter((e) => e.id !== event.id) } : s
+    ),
+  });
+}
+
+/** Nota del periodo activo, calculada desde el historial cuando existe */
+export function calculateCurrentPeriodGrade(state: SessionState, student: StudentState): number {
+  if (!Array.isArray(student.pointLog)) return calculateStudentGrade(student, state.gradeConfig);
+  return calculatePeriodGrade(student, state.period, state.gradeConfig);
 }
 
 export function addResourceItem(

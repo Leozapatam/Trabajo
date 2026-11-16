@@ -27,3 +27,26 @@ Ambos agentes trabajan sobre la misma carpeta local y sincronizan mediante `git 
 - Antes de pedirle cambios a uno de los dos, hacer `git pull` o confirmar qué archivos va a tocar.
 - Antigravity trabaja principalmente en `src/pages/`, `src/components/`, `src/data/` y `public/assets/`.
 - Claude Code trabaja principalmente en `src/engine/`, scripts de exportación/escaneo en `scripts/` y pruebas en `src/engine/__tests__/`.
+
+---
+
+## 3. Mapa de propiedad de archivos (acordado 2026-11-15)
+
+| Claude Code | Antigravity |
+|---|---|
+| `src/engine/**` y `src/engine/__tests__/**` | `src/pages/ProjectorPage.tsx`, `WorldMapPage.tsx`, `ExplorerPage.tsx` |
+| `server/**`, `scripts/**`, `launcher/**` | `src/components/*` existentes y nuevos componentes visuales |
+| `src/pages/GameMasterPage.tsx` y `src/components/gm/**` (lógica y estructura) | `src/data/**` (mundos, misiones, escenas) |
+| `src/hooks/**` (lógica de portada y panel) | `public/assets/**`, `src/styles/theme.css` |
+| `vite.config.ts`, `docs/expedicion6/DATA_*.md` | Aspecto visual de `LandingPage.tsx` (la lógica vive en un hook) |
+
+**Zonas compartidas (avisar antes de tocar):** `package.json`, `package-lock.json`, `src/engine/types.ts` (solo cambios aditivos), `src/App.tsx`.
+
+**Al hacer commit:** usar `git add <rutas propias>`, nunca `git add -A`, porque ambos agentes comparten la misma carpeta local.
+
+## 4. Reglas de evaluación (SIE I.E.R. Boyacá)
+
+- Periodos: **I = 30 %, II = 35 %, III = 35 %** (13, 13 y 14 semanas).
+- Escala: Superior 4.6–5.0 · Alto 4.0–4.5 · Básico 3.0–3.9 · Bajo 1.0–2.9 (no aprobatorio).
+- Inasistencia sin excusa ≥ 25 % puede llevar a reprobar el área: el sistema alerta desde el 15 %.
+- Componentes del SIE: Actitudinal 25 % (auto 40 % + hetero 60 %), Cognitivo 35 % (prueba de periodo = 30 % del componente), Procedimental 40 %.
