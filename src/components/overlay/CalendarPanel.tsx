@@ -1,151 +1,276 @@
-import React, { useState } from 'react';
-import { ExternalLink, Moon, Settings, Sun } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ExternalLink, RefreshCw, Settings } from 'lucide-react';
 
-/** El ID del calendario se guarda solo en este PC (nunca en el código ni en GitHub) */
-const CALENDAR_ID_KEY = 'cs.googleCalendarId';
-const CALENDAR_DARK_KEY = 'cs.googleCalendarDark';
+/** Evento tal como lo entrega /api/agenda */
+interface AgendaEvent {
+  id: string;
+  title: string;
+  location: string;
+  allDay: boolean;
+  /** Todo el día: "YYYY-MM-DD"; con hora: instante ISO */
+  start: string;
+  end: string;
+}
 
-type CalendarView = 'AGENDA' | 'WEEK' | 'MONTH';
+type AgendaResponse =
+  | { configured: false }
+  | { configured: true; fetchedAt: number; events: AgendaEvent[] };
 
-const VIEWS: { key: CalendarView; label: string }[] = [
-  { key: 'AGENDA', label: 'Agenda' },
-  { key: 'WEEK', label: 'Semana' },
-  { key: 'MONTH', label: 'Mes' },
+const RANGES = [
+  { days: 1, label: 'Hoy' },
+  { days: 7, label: '7 días' },
+  { days: 14, label: '14 días' },
 ];
 
-function readStored(key: string): string {
-  try {
-    return window.localStorage.getItem(key) ?? '';
-  } catch {
-    return '';
-  }
+function dayKey(d: Date): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
-function writeStored(key: string, value: string) {
-  try {
-    window.localStorage.setItem(key, value);
-  } catch {
-    // Sin almacenamiento: se pedirá de nuevo la próxima vez
-  }
+function eventDayKey(ev: AgendaEvent): string {
+  return ev.allDay ? ev.start.slice(0, 10) : dayKey(new Date(ev.start));
 }
 
-function embedUrl(calendarId: string, view: CalendarView): string {
-  const params = new URLSearchParams({
-    src: calendarId,
-    ctz: 'America/Bogota',
-    mode: view,
-    hl: 'es',
-    showTitle: '0',
-    showPrint: '0',
-    showTabs: '0',
-    showCalendars: '0',
-    showTz: '0',
-    wkst: '2',
-  });
-  return `https://calendar.google.com/calendar/embed?${params.toString()}`;
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' });
 }
 
-/** Agenda de Google Calendar dentro de la semiventana, para ordenarse antes de clase */
+function dayTitle(key: string, today: string): string {
+  const date = new Date(`${key}T12:00:00`);
+  const label = date.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'short' });
+  const tomorrow = dayKey(new Date(new Date(`${today}T12:00:00`).getTime() + 86400000));
+  if (key === today) return `HOY · ${label}`;
+  if (key === tomorrow) return `MAÑANA · ${label}`;
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+async function api<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, init);
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.error ?? `Error ${res.status}`);
+  return body as T;
+}
+
+/**
+ * Agenda del docente dibujada por el juego a partir de la dirección secreta iCal de Google Calendar.
+ * El servidor local la descarga: no hay que iniciar sesión ni abrir otra ventana.
+ */
 export const CalendarPanel: React.FC = () => {
-  const [calendarId, setCalendarId] = useState(() => readStored(CALENDAR_ID_KEY));
-  const [draft, setDraft] = useState(calendarId);
-  const [editing, setEditing] = useState(!calendarId);
-  const [view, setView] = useState<CalendarView>('AGENDA');
-  const [dark, setDark] = useState(() => readStored(CALENDAR_DARK_KEY) !== '0');
+  const [data, setData] = useState<AgendaResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState(7);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [now, setNow] = useState(() => new Date());
 
-  const save = (e: React.FormEvent) => {
+  const load = useCallback(async (force = false) => {
+    setLoading(true);
+    setError(null);
+    try {
+      setData(await api<AgendaResponse>(`/api/agenda?dias=${days}${force ? '&refrescar=1' : ''}`));
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }, [days]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  // Reloj para marcar AHORA / SIGUIENTE
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(new Date()), 30000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const saveUrl = async (e: React.FormEvent) => {
     e.preventDefault();
-    const id = draft.trim();
-    if (!id) return;
-    writeStored(CALENDAR_ID_KEY, id);
-    setCalendarId(id);
+    setSaving(true);
+    setError(null);
+    try {
+      await api('/api/agenda/config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: draft }),
+      });
+      setDraft('');
+      setEditing(false);
+      await load(true);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const disconnect = async () => {
+    await api('/api/agenda/config', { method: 'DELETE' }).catch(() => {});
     setEditing(false);
+    await load();
   };
 
-  const toggleDark = () => {
-    setDark((d) => {
-      writeStored(CALENDAR_DARK_KEY, d ? '0' : '1');
-      return !d;
-    });
-  };
+  if (loading && !data) {
+    return <p style={{ margin: 'auto', color: 'var(--text-muted)' }}>Cargando agenda…</p>;
+  }
 
-  if (editing) {
+  if (!data && error) {
     return (
-      <form onSubmit={save} style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 520, margin: 'auto' }}>
-        <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-          Escribe el correo de tu cuenta de Google para ver tu calendario principal aquí, o el ID de otro calendario
-          (Google Calendar → Configuración → Integrar el calendario).
+      <div style={{ margin: 'auto', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 460 }}>
+        <p style={{ margin: 0, color: '#FCA5A5' }}>{error}</p>
+        <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.84rem' }}>
+          La agenda necesita el servidor local: abre la app con el acceso directo «Ciencias Sociales».
         </p>
+        <button type="button" className="btn" onClick={() => load(true)} style={{ alignSelf: 'center' }}>
+          <RefreshCw size={14} /> Reintentar
+        </button>
+      </div>
+    );
+  }
+
+  if (data && (!data.configured || editing)) {
+    return (
+      <form onSubmit={saveUrl} style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 620, margin: 'auto' }}>
+        <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+          Conecta tu Google Calendar una sola vez, sin iniciar sesión aquí:
+        </p>
+        <ol style={{ margin: 0, paddingLeft: 22, color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.92rem' }}>
+          <li>
+            En Google Calendar abre <strong>⚙ Configuración</strong>.
+          </li>
+          <li>
+            A la izquierda, en <strong>Configuración de mis calendarios</strong>, elige tu calendario.
+          </li>
+          <li>
+            Baja hasta <strong>Integrar el calendario</strong> y copia la <strong>Dirección secreta en formato iCal</strong>.
+          </li>
+          <li>Pégala aquí abajo.</li>
+        </ol>
         <input
           className="game-window__input"
-          type="text"
+          type="url"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="tucorreo@gmail.com"
-          aria-label="Correo o ID del calendario"
+          placeholder="https://calendar.google.com/calendar/ical/…/private-…/basic.ics"
+          aria-label="Dirección secreta en formato iCal"
           autoFocus
         />
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <button type="submit" className="btn btn-primary" disabled={!draft.trim()}>
-            Guardar
+        {error && <span style={{ color: '#FCA5A5', fontSize: '0.86rem' }}>{error}</span>}
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          <button type="submit" className="btn btn-primary" disabled={!draft.trim() || saving}>
+            {saving ? 'Comprobando…' : 'Conectar agenda'}
           </button>
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Se guarda solo en este computador.</span>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => window.open('https://calendar.google.com/calendar/r/settings', 'google-calendar')}
+          >
+            <ExternalLink size={14} /> Abrir configuración de Google
+          </button>
+          {data.configured && (
+            <>
+              <button type="button" className="btn btn-ghost" onClick={() => setEditing(false)}>
+                Cancelar
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={disconnect} style={{ color: '#FCA5A5' }}>
+                Desconectar agenda
+              </button>
+            </>
+          )}
         </div>
+        <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
+          La dirección es privada: se guarda solo en este computador (Documentos\Expedicion6-Datos) y nunca se publica.
+        </span>
       </form>
     );
   }
+
+  if (!data || !data.configured) return null;
+
+  const today = dayKey(now);
+  const groups = new Map<string, AgendaEvent[]>();
+  for (let i = 0; i < days; i++) {
+    groups.set(dayKey(new Date(new Date(`${today}T12:00:00`).getTime() + i * 86400000)), []);
+  }
+  for (const ev of data.events) groups.get(eventDayKey(ev))?.push(ev);
+
+  const timedToday = (groups.get(today) ?? []).filter((e) => !e.allDay);
+  const current = timedToday.find((e) => new Date(e.start) <= now && now < new Date(e.end));
+  const upcoming = timedToday.find((e) => new Date(e.start) > now);
 
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
         <div className="game-window__tabs" role="tablist">
-          {VIEWS.map((v) => (
+          {RANGES.map((r) => (
             <button
-              key={v.key}
+              key={r.days}
               type="button"
               role="tab"
-              aria-selected={view === v.key}
-              className={`game-window__tab${view === v.key ? ' is-active' : ''}`}
-              onClick={() => setView(v.key)}
+              aria-selected={days === r.days}
+              className={`game-window__tab${days === r.days ? ' is-active' : ''}`}
+              onClick={() => setDays(r.days)}
             >
-              {v.label}
+              {r.label}
             </button>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          <button type="button" className="btn btn-ghost" onClick={toggleDark} title="Cambiar colores del calendario">
-            {dark ? <Sun size={14} /> : <Moon size={14} />} {dark ? 'Claro' : 'Noche'}
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+            Actualizada {formatTime(new Date(data.fetchedAt).toISOString())}
+          </span>
+          <button type="button" className="btn btn-ghost" onClick={() => load(true)} title="Actualizar" disabled={loading}>
+            <RefreshCw size={14} />
           </button>
           <button
             type="button"
             className="btn btn-ghost"
             onClick={() => window.open('https://calendar.google.com/calendar/r', 'google-calendar')}
-            title="Abrir Google Calendar completo para crear o editar eventos"
+            title="Crear o mover eventos en Google Calendar"
           >
             <ExternalLink size={14} /> Editar en Google
           </button>
-          <button type="button" className="btn btn-ghost" onClick={() => setEditing(true)} title="Cambiar de calendario">
+          <button type="button" className="btn btn-ghost" onClick={() => setEditing(true)} title="Cambiar o desconectar">
             <Settings size={14} />
           </button>
         </div>
       </div>
-      <iframe
-        key={`${calendarId}-${view}`}
-        title="Google Calendar"
-        src={embedUrl(calendarId, view)}
-        style={{
-          flex: 1,
-          width: '100%',
-          border: '2px solid rgba(232, 184, 109, 0.35)',
-          borderRadius: 2,
-          background: dark ? '#0b1220' : '#fff',
-          // Modo noche: invierte el calendario claro de Google para que combine con el juego
-          filter: dark ? 'invert(0.9) hue-rotate(180deg) saturate(0.9)' : 'none',
-        }}
-      />
-      <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-        Si no ves tus eventos, inicia sesión en Google en este navegador una vez (botón «Editar en Google»).
-      </span>
+
+      {error && <span style={{ color: '#FCA5A5', fontSize: '0.84rem' }}>{error}</span>}
+
+      <div className="agenda-list">
+        {[...groups.entries()].map(([key, evs]) => (
+          <section key={key} className="agenda-day">
+            <h3 className={`agenda-day__title${key === today ? ' is-today' : ''}`}>{dayTitle(key, today)}</h3>
+            {evs.length === 0 ? (
+              <p className="agenda-empty">Sin eventos · día libre para la expedición</p>
+            ) : (
+              evs.map((ev) => {
+                const past = !ev.allDay && new Date(ev.end) <= now;
+                const tag = ev === current ? 'AHORA' : ev === upcoming ? 'SIGUIENTE' : null;
+                return (
+                  <div
+                    key={ev.id}
+                    className={`agenda-event${past ? ' is-past' : ''}${tag === 'AHORA' ? ' is-now' : ''}${tag === 'SIGUIENTE' ? ' is-next' : ''}`}
+                  >
+                    <span className="agenda-event__time">
+                      {ev.allDay ? 'Todo el día' : `${formatTime(ev.start)} – ${formatTime(ev.end)}`}
+                    </span>
+                    <span className="agenda-event__title">
+                      {ev.title}
+                      {ev.location && <span className="agenda-event__place"> · {ev.location}</span>}
+                    </span>
+                    {tag && <span className="agenda-event__tag">{tag}</span>}
+                  </div>
+                );
+              })
+            )}
+          </section>
+        ))}
+      </div>
     </>
   );
 };

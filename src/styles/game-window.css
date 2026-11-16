@@ -192,3 +192,101 @@
   outline: none;
   border-color: #e8b86d;
 }
+
+/* Agenda dibujada por el juego */
+.agenda-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-right: 4px;
+}
+
+.agenda-day__title {
+  margin: 0 0 6px;
+  /* La fuente pixel no tiene Ñ ni mayúsculas con tilde */
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: rgba(226, 232, 240, 0.65);
+  text-transform: uppercase;
+}
+
+.agenda-day__title.is-today {
+  color: #fde68a;
+  text-shadow: 2px 2px 0 #04070e;
+}
+
+.agenda-empty {
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  font-style: italic;
+  color: rgba(148, 163, 184, 0.7);
+}
+
+.agenda-event {
+  display: grid;
+  grid-template-columns: 9.5em 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  margin-bottom: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid rgba(232, 184, 109, 0.4);
+  border-radius: 2px;
+}
+
+.agenda-event.is-past {
+  opacity: 0.45;
+}
+
+.agenda-event.is-now {
+  background: rgba(232, 184, 109, 0.14);
+  border-left-color: #e8b86d;
+  box-shadow: 0 0 18px rgba(232, 184, 109, 0.2);
+}
+
+.agenda-event.is-next {
+  border-left-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.agenda-event__time {
+  font-size: 0.84rem;
+  color: rgba(253, 230, 138, 0.85);
+  font-variant-numeric: tabular-nums;
+}
+
+.agenda-event__title {
+  color: #f8fafc;
+  font-size: 0.95rem;
+}
+
+.agenda-event__place {
+  color: rgba(148, 163, 184, 0.85);
+  font-size: 0.85rem;
+}
+
+.agenda-event__tag {
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  padding: 4px 7px;
+  border: 1px solid currentColor;
+  color: #fde68a;
+}
+
+.agenda-event.is-next .agenda-event__tag {
+  color: #7dd3fc;
+}
+
+@media (max-width: 640px) {
+  .agenda-event {
+    grid-template-columns: 1fr auto;
+  }
+  .agenda-event__time {
+    grid-column: 1 / -1;
+  }
+}
