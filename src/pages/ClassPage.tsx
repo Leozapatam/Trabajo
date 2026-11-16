@@ -6,7 +6,9 @@ import { GradeLabel } from '../components/aulas/GradeLabel';
 import { ClassSummaryScreen } from '../components/clase/ClassSummaryScreen';
 import { CATEGORIES, GroupColumn, type FloatFx } from '../components/clase/GroupColumn';
 import { Inventory, INVENTORY_TABS, type InventoryTab } from '../components/clase/Inventory';
+import { SpecialClassBrief } from '../components/clase/SpecialClassBrief';
 import { VotingBlock } from '../components/clase/VotingBlock';
+import { KIND_LABEL, YearPlanWindow } from '../components/clase/YearPlanWindow';
 import { DiskStatusBadge } from '../components/gm/DiskStatusBadge';
 import { MISSIONS_LIST, worldArtById, worldsByGrade } from '../data/catalog';
 import {
@@ -25,7 +27,16 @@ import {
   subscribeToNewerSession,
   undoLastPointEvent,
 } from '../engine/sessionStore';
-import type { ProjectorViewMode, RecognitionCategory, SessionState, StudentState } from '../engine/types';
+import type { MissionDefinition, ProjectorViewMode, RecognitionCategory, SessionState, StudentState } from '../engine/types';
+import {
+  buildYearPlan,
+  CLASSES_PER_YEAR,
+  completePlannedClass,
+  getClassPlanProgress,
+  getCurrentPlannedClass,
+  selectPlannedClass,
+  type PlannedClass,
+} from '../engine/yearPlan';
 import '../styles/aulas.css';
 import '../styles/clase.css';
 
@@ -57,11 +68,24 @@ function resumeForAula(state: SessionState): SessionState {
     state,
     missions.map((m) => m.id)
   );
+  // Si la clase en curso de la ruta es de otra misión, se abre en su primera escena
+  const current = getCurrentPlannedClass(resumed, buildYearPlan(missions));
+  if (current?.missionId && current.missionId !== resumed.missionId) {
+    return openPlannedMission(resumed, missions, current);
+  }
   if (resumed === state) return state;
   const mission = missions.find((m) => m.id === resumed.missionId);
   if (!mission) return resumed;
   const index = Math.min(resumed.activeSceneIndex, mission.scenes.length - 1);
   return changeSceneState(resumed, index, mission.scenes[index], mission.scenes.length);
+}
+
+/** Pone la misión de una clase de la ruta en su primera escena */
+function openPlannedMission(state: SessionState, missions: MissionDefinition[], cls: PlannedClass): SessionState {
+  const mission = missions.find((m) => m.id === cls.missionId);
+  if (!mission) return state;
+  const index = Math.min(cls.sceneStart ?? 0, mission.scenes.length - 1);
+  return changeSceneState({ ...state, missionId: mission.id }, index, mission.scenes[index], mission.scenes.length);
 }
 
 function isTyping(target: EventTarget | null): boolean {
@@ -93,12 +117,18 @@ export const ClassPage: React.FC = () => {
   const [floats, setFloats] = useState<Record<string, FloatFx>>({});
   const [toast, setToast] = useState<Toast | null>(null);
   const [inventory, setInventory] = useState<InventoryTab | null>(manageOnly ? 'exploradores' : null);
+  const [planOpen, setPlanOpen] = useState(false);
   const [closing, setClosing] = useState<{ summary: ClassSummary; backup: string | null | undefined } | null>(null);
   const [clock, setClock] = useState(() => new Date());
   const fxCounter = useRef(0);
 
   const aula = getAula(session.classroomName);
   const { worlds, missions } = useMemo(() => missionsForAula(aula.id), [aula.id]);
+  const plan = useMemo(() => buildYearPlan(missions), [missions]);
+  const currentClass = getCurrentPlannedClass(session, plan);
+  const doneClasses = getClassPlanProgress(session)?.done ?? {};
+  /** Introducción, examen o cierre sin misión: se muestra la guía de esa clase */
+  const specialClass = currentClass && !currentClass.missionId ? currentClass : null;
 
   const commit = useCallback((updater: (prev: SessionState) => SessionState, force = false) => {
     setSession((prev) => {
@@ -127,7 +157,7 @@ export const ClassPage: React.FC = () => {
 
   const mission = missions.find((m) => m.id === session.missionId) ?? null;
   const sceneIndex = mission ? Math.min(session.activeSceneIndex, mission.scenes.length - 1) : 0;
-  const scene = mission?.scenes[sceneIndex] ?? null;
+  const scene = specialClass ? null : (mission?.scenes[sceneIndex] ?? null);
   const world = worlds.find((w) => w.id === mission?.worldId) ?? worlds[0];
   const zone = world?.zones.find((z) => z.id === mission?.zoneId);
   const art =
@@ -139,7 +169,7 @@ export const ClassPage: React.FC = () => {
   };
 
   const goToScene = (index: number) => {
-    if (!mission) return;
+    if (!mission || specialClass) return;
     const clamped = Math.max(0, Math.min(mission.scenes.length - 1, index));
     if (clamped === sceneIndex) return;
     commit((prev) => ({
@@ -156,6 +186,18 @@ export const ClassPage: React.FC = () => {
       focusedZoneId: next.zoneId,
       exploredZones: prev.exploredZones.includes(next.zoneId) ? prev.exploredZones : [...prev.exploredZones, next.zoneId],
     }));
+  };
+
+  const selectClass = (cls: PlannedClass) => {
+    setPlanOpen(false);
+    commit((prev) => {
+      let next = selectPlannedClass(prev, cls.id);
+      // La clase define el periodo en que se registran puntos y asistencia
+      if (next.period !== cls.period) next = { ...next, period: cls.period };
+      if (cls.missionId) return { ...openPlannedMission(next, missions, cls), projectorMode: 'scene' as const };
+      return { ...next, projectorMode: 'intro' as const };
+    });
+    if (cls.period !== session.period) showToast(`Periodo cambiado a ${cls.period}`);
   };
 
   const revealHint = () => {
@@ -195,8 +237,9 @@ export const ClassPage: React.FC = () => {
 
   const closeClass = () => {
     const summary = getClassSummary(session);
+    const finished = currentClass;
     commit((prev) => ({
-      ...prev,
+      ...completePlannedClass(prev, plan, prev.classDate),
       active: false,
       classStarted: false,
       status: 'completed',
@@ -204,7 +247,7 @@ export const ClassPage: React.FC = () => {
       activeEventBanner: null,
     }));
     setInventory(null);
-    setClosing({ summary, backup: undefined });
+    setClosing({ summary: { ...summary, plannedClass: finished ? `Clase ${finished.number} de ${CLASSES_PER_YEAR} · ${finished.title}` : undefined }, backup: undefined });
     // Respaldo con nombre, después de que el cierre quede guardado
     window.setTimeout(() => {
       void requestDiskBackup(`cierre-${session.classroomName}`).then((backup) =>
@@ -214,13 +257,14 @@ export const ClassPage: React.FC = () => {
   };
 
   // Los atajos leen siempre la última versión de las acciones
-  const actions = { goToScene, revealHint, toggleReveal, openProjector, sceneIndex, inventory, closing, toast, commit };
+  const actions = { goToScene, revealHint, toggleReveal, openProjector, sceneIndex, inventory, closing, toast, commit, planOpen };
   const actionsRef = useRef(actions);
   actionsRef.current = actions;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const a = actionsRef.current;
-      if (a.closing) return;
+      // La ruta del año maneja sus propias teclas (Esc la cierra)
+      if (a.closing || a.planOpen) return;
       const key = e.key.toLowerCase();
 
       if (a.inventory) {
@@ -255,6 +299,7 @@ export const ClassPage: React.FC = () => {
       else if (key === 'p') a.openProjector();
       else if (key === 'v') a.commit((prev) => (prev.voting.options.length ? toggleVotingOpen(prev) : prev));
       else if (key === 'i' || e.key === 'Tab') setInventory('exploradores');
+      else if (key === 'c') setPlanOpen(true);
       else if (e.key >= '1' && e.key <= '4') setCategory(CATEGORIES[Number(e.key) - 1].key);
       else return;
       e.preventDefault();
@@ -279,7 +324,7 @@ export const ClassPage: React.FC = () => {
             AULA <GradeLabel grades={aula.grades} />
           </span>
           <span className="clase__hud-world">{world ? worldDisplayName(world) : aula.world}</span>
-          {zone && (
+          {zone && !specialClass && (
             <span className="clase__hud-zone">
               Territorio {zone.number} de {world?.zones.length} · {zone.title}
             </span>
@@ -322,11 +367,27 @@ export const ClassPage: React.FC = () => {
       </header>
 
       <main className="clase__main">
-        {scene && mission ? (
+        {specialClass ? (
+          <div className="clase__col">
+            {currentClass && (
+              <ClassPlanButton cls={currentClass} onOpen={() => setPlanOpen(true)} />
+            )}
+            <SpecialClassBrief cls={specialClass} plan={plan} missions={missions} session={session} />
+          </div>
+        ) : scene && mission ? (
+          <div className="clase__col">
+          {currentClass && (
+            <ClassPlanButton
+              cls={currentClass}
+              onOpen={() => setPlanOpen(true)}
+              detail={`${mission.code} · escena ${sceneIndex + 1} de ${mission.scenes.length}${
+                currentClass.missionId === mission.id && currentClass.sceneStart !== undefined
+                  ? ` · esta clase: ${sceneRange(currentClass)}`
+                  : ''
+              }`}
+            />
+          )}
           <article key={scene.id} className="clase__script">
-            <span className="clase__kicker">
-              {mission.code} · ESCENA {sceneIndex + 1} DE {mission.scenes.length}
-            </span>
             <h1 className="clase__title">{scene.title}</h1>
             <p className="clase__question">{scene.promptQuestion}</p>
 
@@ -373,6 +434,7 @@ export const ClassPage: React.FC = () => {
               <p>{scene.teacherNotes.pedagogicalGoal}</p>
             </section>
           </article>
+          </div>
         ) : (
           <article className="clase__script">
             <span className="clase__kicker">SIN MISIONES</span>
@@ -401,18 +463,24 @@ export const ClassPage: React.FC = () => {
           type="button"
           className="clase__act is-primary"
           onClick={() => goToScene(sceneIndex + 1)}
-          disabled={!mission || sceneIndex >= mission.scenes.length - 1}
+          disabled={!scene || !mission || sceneIndex >= mission.scenes.length - 1}
         >
           Siguiente <kbd className="is-arrow">→</kbd>
         </button>
 
-        {mission && (
+        {mission && !specialClass && (
           <div className="clase__dots" aria-label="Escenas">
             {mission.scenes.map((s, i) => (
               <button
                 key={s.id}
                 type="button"
-                className={`clase__dot${i === sceneIndex ? ' is-active' : ''}${i < sceneIndex ? ' is-done' : ''}`}
+                className={`clase__dot${i === sceneIndex ? ' is-active' : ''}${i < sceneIndex ? ' is-done' : ''}${
+                  currentClass?.missionId === mission.id &&
+                  i >= (currentClass.sceneStart ?? 0) &&
+                  i <= (currentClass.sceneEnd ?? -1)
+                    ? ' in-class'
+                    : ''
+                }`}
                 onClick={() => goToScene(i)}
                 title={`${i + 1}. ${s.title}`}
                 aria-label={`Escena ${i + 1}: ${s.title}`}
@@ -421,6 +489,9 @@ export const ClassPage: React.FC = () => {
           </div>
         )}
 
+        <button type="button" className="clase__act is-plan" onClick={() => setPlanOpen(true)}>
+          <kbd>C</kbd> Clases
+        </button>
         <button type="button" className="clase__act is-inventory" onClick={() => setInventory('exploradores')}>
           <kbd>I</kbd> Inventario
         </button>
@@ -458,6 +529,17 @@ export const ClassPage: React.FC = () => {
         />
       )}
 
+      {planOpen && (
+        <YearPlanWindow
+          plan={plan}
+          current={currentClass}
+          done={doneClasses}
+          aulaLabel={aula.id}
+          onSelect={selectClass}
+          onClose={() => setPlanOpen(false)}
+        />
+      )}
+
       {closing && (
         <ClassSummaryScreen
           summary={closing.summary}
@@ -471,3 +553,21 @@ export const ClassPage: React.FC = () => {
     </div>
   );
 };
+
+function sceneRange(cls: PlannedClass): string {
+  const a = (cls.sceneStart ?? 0) + 1;
+  const b = (cls.sceneEnd ?? cls.sceneStart ?? 0) + 1;
+  return a === b ? `escena ${a}` : `escenas ${a}–${b}`;
+}
+
+/** Botón de la ruta del año: dice qué clase es y abre la lista de las 78 */
+const ClassPlanButton: React.FC<{ cls: PlannedClass; onOpen: () => void; detail?: string }> = ({ cls, onOpen, detail }) => (
+  <button type="button" className={`clase__planbtn is-${cls.kind}`} onClick={onOpen} title="Ver y elegir las clases del año (C)">
+    <span className="clase__planbtn-main">
+      CLASE {cls.number} DE {CLASSES_PER_YEAR} · SEMANA {cls.week} · PERIODO {cls.period}
+      <span className="clase__planbtn-kind">{KIND_LABEL[cls.kind]}</span>
+      <span aria-hidden="true">▾</span>
+    </span>
+    <span className="clase__planbtn-detail">{detail ?? cls.subtitle}</span>
+  </button>
+);

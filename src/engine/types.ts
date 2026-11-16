@@ -274,6 +274,8 @@ export interface SessionState {
   resourceLog?: ResourceUsageEntry[];
   /** Misión y escena en que va cada aula (clave: año-grado) */
   progressByClassroom?: Record<string, { missionId: string; sceneIndex: number }>;
+  /** Ruta del año de cada aula: clase en curso y clases dadas (id → fecha) */
+  classPlanByClassroom?: Record<string, { currentClassId: string; done: Record<string, string> }>;
   attendanceByDate: Record<string, Record<string, AttendanceStatus>>;
   /** Periodo académico al que pertenece cada fecha con asistencia guardada */
   periodByDate?: Record<string, AcademicPeriod>;

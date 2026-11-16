@@ -64,6 +64,8 @@ export interface ClassSummary {
   resourcesUsed: string[];
   /** Estudiantes con 15 % o más de fallas sin excusa en el periodo */
   absenceAlerts: { name: string; rate: number; risk: boolean }[];
+  /** Clase de la ruta del año que se acaba de dar (la llena la pantalla de clase) */
+  plannedClass?: string;
 }
 
 /** Resumen de la sesión de la fecha de clase, para la pantalla de cierre */

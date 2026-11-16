@@ -46,6 +46,7 @@ export const ClassSummaryScreen: React.FC<ClassSummaryScreenProps> = ({
       </span>
       <h1 className="resumen__title">Sesión completada</h1>
       <p className="resumen__date">{longDate(summary.date)}</p>
+      {summary.plannedClass && <p className="resumen__class">✓ {summary.plannedClass}</p>}
 
       <div className="resumen__stats">
         <div className="resumen__stat">
