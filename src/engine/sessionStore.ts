@@ -339,6 +339,8 @@ export function syncCurrentPeriodPoints(state: SessionState): SessionState {
 }
 
 export function saveAndBroadcastSession(state: SessionState): SessionState {
+  // `state.updatedAt` aún es el de la versión editada: el servidor rechaza bases viejas
+  const baseUpdatedAt = state.updatedAt;
   const next: SessionState = { ...syncCurrentPeriodPoints(state), updatedAt: Date.now() };
   if (typeof window !== 'undefined') {
     try {
@@ -346,7 +348,7 @@ export function saveAndBroadcastSession(state: SessionState): SessionState {
     } catch {
       // Sin cuota en localStorage: el disco conserva la copia
     }
-    scheduleDiskSave(next);
+    scheduleDiskSave(next, baseUpdatedAt);
     if ('BroadcastChannel' in window) {
       try {
         const channel = new BroadcastChannel(SESSION_CHANNEL_NAME);
@@ -391,6 +393,18 @@ export function subscribeToSession(onUpdate: (state: SessionState) => void): () 
       channel.close();
     }
   };
+}
+
+/**
+ * Para ventanas que también editan: aplica solo versiones más nuevas que la propia
+ * (cada ventana recibe además sus propios mensajes, que llegan con retraso).
+ */
+export function subscribeToNewerSession(
+  setState: (updater: (prev: SessionState) => SessionState) => void
+): () => void {
+  return subscribeToSession((incoming) =>
+    setState((prev) => ((incoming.updatedAt ?? 0) > (prev.updatedAt ?? 0) ? incoming : prev))
+  );
 }
 
 export function getTeamTotalPoints(team: TeamState): number {
@@ -607,6 +621,63 @@ export function addStudentsFromText(state: SessionState, rawNames: string): Sess
     ...state,
     students: [...state.students, ...newStudents],
   };
+}
+
+/** Lista de un grupo del año actual, esté o no abierto en el tablero */
+export function getGroupRoster(state: SessionState, groupId: string): StudentState[] {
+  const key = getClassroomKey(state.schoolYear, groupId);
+  if (key === getClassroomKey(state.schoolYear, state.classroomName)) return state.students;
+  return state.rostersByClassroom[key] ?? [];
+}
+
+function setGroupRoster(state: SessionState, groupId: string, list: StudentState[]): SessionState {
+  const key = getClassroomKey(state.schoolYear, groupId);
+  if (key === getClassroomKey(state.schoolYear, state.classroomName)) {
+    return { ...state, students: list, rostersByClassroom: { ...state.rostersByClassroom, [key]: list } };
+  }
+  return { ...state, rostersByClassroom: { ...state.rostersByClassroom, [key]: list } };
+}
+
+/**
+ * Matricula estudiantes en un grupo (un nombre por línea; se admite ";").
+ * Ignora nombres ya matriculados en ese grupo. Devuelve el estado y cuántos entraron.
+ */
+export function enrollStudents(
+  state: SessionState,
+  groupId: string,
+  rawNames: string
+): { state: SessionState; added: number; skipped: string[] } {
+  const roster = getGroupRoster(state, groupId);
+  const known = new Set(roster.map((s) => s.name.trim().toLocaleLowerCase('es')));
+  const skipped: string[] = [];
+  const names: string[] = [];
+  for (const raw of rawNames.split(/[\n;]+/)) {
+    const name = raw.trim().replace(/\s+/g, ' ');
+    if (!name) continue;
+    const norm = name.toLocaleLowerCase('es');
+    if (known.has(norm)) skipped.push(name);
+    else {
+      known.add(norm);
+      names.push(name);
+    }
+  }
+  if (names.length === 0) return { state, added: 0, skipped };
+  const created = addStudentsFromText({ ...state, students: [] }, names.join('\n')).students;
+  return { state: setGroupRoster(state, groupId, [...roster, ...created]), added: created.length, skipped };
+}
+
+/** Retira o reintegra a un estudiante de un grupo; sus notas y asistencia se conservan */
+export function setStudentEnrollment(
+  state: SessionState,
+  groupId: string,
+  studentId: string,
+  active: boolean
+): SessionState {
+  return setGroupRoster(
+    state,
+    groupId,
+    getGroupRoster(state, groupId).map((s) => (s.id === studentId ? { ...s, active } : s))
+  );
 }
 
 export function toggleStudentActive(state: SessionState, studentId: string): SessionState {

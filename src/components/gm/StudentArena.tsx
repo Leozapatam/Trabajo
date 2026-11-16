@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ClipboardCheck, Sparkles, UserMinus } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ClipboardCheck, Sparkles } from 'lucide-react';
 import { getAttendanceSummary, getPerformanceLevel, PERFORMANCE_LEVELS } from '../../engine/grading';
 import {
   awardStudentPoints,
   calculateCurrentPeriodGrade,
   getAttendanceOnClassDate,
   markAttendance,
-  toggleStudentActive,
   undoLastPointEvent,
 } from '../../engine/sessionStore';
 import type { AttendanceStatus, RecognitionCategory, SessionState, StudentState } from '../../engine/types';
 
-type ArenaMode = 'puntos' | 'asistencia' | 'retiros';
+type ArenaMode = 'puntos' | 'asistencia';
 
 const CATEGORIES: { key: RecognitionCategory; label: string }[] = [
   { key: 'investigacion', label: 'Investigación' },
@@ -35,7 +35,6 @@ const ATTENDANCE_LABEL: Record<AttendanceStatus, string> = {
 const MODES: { key: ArenaMode; label: string; hotkey: string; icon: React.ReactNode }[] = [
   { key: 'puntos', label: 'Puntos', hotkey: 'P', icon: <Sparkles size={15} /> },
   { key: 'asistencia', label: 'Asistencia', hotkey: 'A', icon: <ClipboardCheck size={15} /> },
-  { key: 'retiros', label: 'Retiros', hotkey: 'R', icon: <UserMinus size={15} /> },
 ];
 
 interface FloatFx {
@@ -126,27 +125,18 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
     );
   };
 
-  const toggleRetired = (student: StudentState) => {
-    commit((prev) => toggleStudentActive(prev, student.id));
-    showToast(`${student.name}: ${student.active ? 'retirado' : 'reintegrado'}`, () =>
-      commit((prev) => toggleStudentActive(prev, student.id))
-    );
-  };
-
   const handleTokenClick = (student: StudentState, e: React.MouseEvent) => {
-    if (mode === 'retiros') return toggleRetired(student);
-    if (!student.active) return;
     if (mode === 'asistencia') return cycleAttendance(student);
     award(student, e.shiftKey ? -1 : 1);
   };
 
   const handleTokenContextMenu = (student: StudentState, e: React.MouseEvent) => {
-    if (mode !== 'puntos' || !student.active) return;
+    if (mode !== 'puntos') return;
     e.preventDefault();
     award(student, -1);
   };
 
-  // Atajos: 1–4 categoría, P/A/R modo, Ctrl+Z deshacer
+  // Atajos: 1–4 categoría, P/A modo, Ctrl+Z deshacer
   const toastRef = useRef(toast);
   toastRef.current = toast;
   useEffect(() => {
@@ -175,7 +165,9 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const ordered = [...session.students].sort((a, b) => Number(b.active) - Number(a.active));
+  // Matrícula y retiros se gestionan en /grupos: aquí solo juegan los activos
+  const ordered = session.students.filter((s) => s.active);
+  const retiredCount = session.students.length - ordered.length;
   const dayMap = session.attendanceByDate[session.classDate];
   const absentToday = session.students.filter((s) => s.active && dayMap?.[s.id] === 'ausente').length;
 
@@ -198,6 +190,7 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
         <span className="font-mono" style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
           {session.classDate} · P{session.period} ·{' '}
           {dayMap ? `asistencia guardada · ${absentToday} ausentes` : 'asistencia sin marcar (todos presentes)'}
+          {retiredCount > 0 && ` · ${retiredCount} retirados fuera del tablero`}
         </span>
       </div>
 
@@ -223,15 +216,13 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
           Toca una ficha para cambiar Presente → Ausente → Excusa. Se guarda sola en la fecha {session.classDate}.
         </p>
       )}
-      {mode === 'retiros' && (
-        <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', margin: '0 0 14px' }}>
-          Toca una ficha para retirar o reintegrar al estudiante. Sus notas y asistencia se conservan.
-        </p>
-      )}
-
-      {session.students.length === 0 ? (
+      {ordered.length === 0 ? (
         <p style={{ color: 'var(--text-muted)', margin: 0 }}>
-          Este grado aún no tiene estudiantes. Pega la lista en el registro de arriba para empezar.
+          Este grupo no tiene estudiantes matriculados. Inscríbelos en{' '}
+          <Link to="/grupos" style={{ color: 'var(--accent-gold)' }}>
+            Gestión de grupos
+          </Link>
+          .
         </p>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 12 }}>
@@ -242,14 +233,14 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
             const absence = getAttendanceSummary(session, st.id, session.period);
             const fx = floats[st.id];
             const lvl = levelUps[st.id];
-            const stateClass = st.active ? `is-${status}` : 'is-retirado';
+            const stateClass = `is-${status}`;
             return (
               <div
                 key={st.id}
                 role="button"
                 tabIndex={0}
                 className={`gm-token ${stateClass}`}
-                style={{ cursor: !st.active && mode !== 'retiros' ? 'default' : 'pointer', userSelect: 'none' }}
+                style={{ cursor: 'pointer', userSelect: 'none' }}
                 onClick={(e) => handleTokenClick(st, e)}
                 onContextMenu={(e) => handleTokenContextMenu(st, e)}
                 onKeyDown={(e) => {
@@ -268,7 +259,7 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
                 <div className="gm-token__header">
                   <span className="gm-token__avatar">{initials(st.name)}</span>
                   <span className="gm-token__name">{st.name}</span>
-                  <span className="gm-token__status">{st.active ? ATTENDANCE_LABEL[status] : 'Retirado'}</span>
+                  <span className="gm-token__status">{ATTENDANCE_LABEL[status]}</span>
                 </div>
                 <div className="gm-token__grade-row" title={`Desempeño ${level.label}`}>
                   <div className="gm-token__grade-bar">
@@ -276,7 +267,7 @@ export const StudentArena: React.FC<StudentArenaProps> = ({ session, commit }) =
                   </div>
                   <span className="gm-token__grade-value">{grade.toFixed(1)}</span>
                 </div>
-                {st.active && absence.alert !== 'ok' && (
+                {absence.alert !== 'ok' && (
                   <span
                     className={absence.alert === 'riesgo' ? 'gm-alert-riesgo' : 'gm-alert-atencion'}
                     style={{ fontSize: '0.7rem', padding: '3px 7px' }}

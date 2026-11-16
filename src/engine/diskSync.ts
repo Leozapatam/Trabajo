@@ -5,7 +5,8 @@ import type { SessionState } from './types';
  * localStorage sigue siendo la caché inmediata; el disco es la fuente durable.
  */
 
-export type DiskStatus = 'desconocido' | 'guardando' | 'guardado' | 'sin-disco';
+/** `conflicto`: otra ventana u otro navegador guardó una versión más nueva en disco */
+export type DiskStatus = 'desconocido' | 'guardando' | 'guardado' | 'sin-disco' | 'conflicto';
 
 export interface DiskSyncInfo {
   status: DiskStatus;
@@ -17,6 +18,8 @@ const SAVE_DEBOUNCE_MS = 800;
 let info: DiskSyncInfo = { status: 'desconocido', savedAt: null };
 const listeners = new Set<(info: DiskSyncInfo) => void>();
 let pendingState: SessionState | null = null;
+/** `updatedAt` de la versión sobre la que se hizo el primer cambio pendiente */
+let pendingBase: number | undefined;
 let timer: ReturnType<typeof setTimeout> | null = null;
 
 function setInfo(next: Partial<DiskSyncInfo>) {
@@ -33,15 +36,20 @@ export function subscribeDiskSync(fn: (info: DiskSyncInfo) => void): () => void 
   return () => listeners.delete(fn);
 }
 
-async function putState(state: SessionState, keepalive = false): Promise<void> {
+async function putState(state: SessionState, baseUpdatedAt?: number, keepalive = false): Promise<void> {
+  if (info.status === 'conflicto') return; // no pisar la versión más nueva hasta recargar
   setInfo({ status: 'guardando' });
   try {
     const res = await fetch('/api/datos', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ state }),
+      body: JSON.stringify({ state, baseUpdatedAt }),
       keepalive,
     });
+    if (res.status === 409) {
+      setInfo({ status: 'conflicto' });
+      return;
+    }
     if (!res.ok) throw new Error(String(res.status));
     setInfo({ status: 'guardado', savedAt: Date.now() });
   } catch {
@@ -49,15 +57,16 @@ async function putState(state: SessionState, keepalive = false): Promise<void> {
   }
 }
 
-export function scheduleDiskSave(state: SessionState): void {
+export function scheduleDiskSave(state: SessionState, baseUpdatedAt?: number): void {
   if (typeof fetch === 'undefined') return;
+  if (!pendingState) pendingBase = baseUpdatedAt;
   pendingState = state;
   if (timer) clearTimeout(timer);
   timer = setTimeout(() => {
     timer = null;
     const toSave = pendingState;
     pendingState = null;
-    if (toSave) void putState(toSave);
+    if (toSave) void putState(toSave, pendingBase);
   }, SAVE_DEBOUNCE_MS);
 }
 
@@ -68,7 +77,7 @@ export function flushDiskSave(): void {
   timer = null;
   const toSave = pendingState;
   pendingState = null;
-  void putState(toSave, true);
+  void putState(toSave, pendingBase, true);
 }
 
 /** Guarda lo pendiente y luego crea un respaldo con nombre (p. ej. al cerrar la clase) */
@@ -78,7 +87,7 @@ export async function requestDiskBackup(label: string): Promise<string | null> {
     timer = null;
     const toSave = pendingState;
     pendingState = null;
-    await putState(toSave);
+    await putState(toSave, pendingBase);
   }
   try {
     const res = await fetch('/api/respaldo', {

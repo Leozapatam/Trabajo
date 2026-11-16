@@ -11,8 +11,8 @@ import {
 import type { AcademicPeriod } from '../engine/types';
 import '../styles/title-menu.css';
 
-type MenuRow = 'nueva' | 'gestionar' | 'grado' | 'periodo' | 'fecha';
-const ROWS: MenuRow[] = ['nueva', 'gestionar', 'grado', 'periodo', 'fecha'];
+type MenuRow = 'nueva' | 'gestionar' | 'grupos' | 'grado' | 'periodo' | 'fecha';
+const ROWS: MenuRow[] = ['nueva', 'gestionar', 'grupos', 'grado', 'periodo', 'fecha'];
 
 function shiftDate(iso: string, days: number): string {
   const [y, m, d] = iso.split('-').map(Number);
@@ -60,6 +60,7 @@ export const LandingPage: React.FC = () => {
   const activate = (row: MenuRow) => {
     if (row === 'nueva') enter(true);
     else if (row === 'gestionar') enter(false);
+    else if (row === 'grupos') navigate('/grupos');
     else changeValue(row, 1);
   };
 
@@ -138,10 +139,13 @@ export const LandingPage: React.FC = () => {
           <li {...itemProps('gestionar', 0.25, true)} onClick={() => enter(false)}>
             Solo gestionar
           </li>
+          <li {...itemProps('grupos', 0.3, true)} onClick={() => navigate('/grupos')}>
+            Gestión de grupos
+          </li>
           <li aria-hidden="true" className="title-menu__divider" />
-          <li {...itemProps('grado', 0.35)}>{stepper('grado', 'Grado', `${grade.id} ${grade.label}`)}</li>
-          <li {...itemProps('periodo', 0.45)}>{stepper('periodo', 'Periodo', `${period}`)}</li>
-          <li {...itemProps('fecha', 0.55)}>
+          <li {...itemProps('grado', 0.4)}>{stepper('grado', 'Grado', `${grade.id} ${grade.label}`)}</li>
+          <li {...itemProps('periodo', 0.5)}>{stepper('periodo', 'Periodo', `${period}`)}</li>
+          <li {...itemProps('fecha', 0.6)}>
             {stepper('fecha', 'Fecha', dateLabel)}
             <input
               type="date"

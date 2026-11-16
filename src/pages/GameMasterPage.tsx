@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -30,7 +30,6 @@ import { getMission, MISSIONS_LIST } from '../data/catalog';
 import { ORIGENES_WORLD } from '../data/origenesWorld';
 import {
   addResourceItem,
-  addStudentsFromText,
   changeSceneState,
   createInitialSessionState,
   getActiveStudentsCount,
@@ -40,6 +39,7 @@ import {
   recordAttendanceSnapshot,
   removeResourceItem,
   saveAndBroadcastSession,
+  subscribeToNewerSession,
   switchClassroomRoster,
   toggleResourceUsed,
 } from '../engine/sessionStore';
@@ -91,7 +91,6 @@ export const GameMasterPage: React.FC = () => {
   );
 
   const [session, setSession] = useState<SessionState>(() => loadSessionState());
-  const [bulkNames, setBulkNames] = useState('');
   const [decisionText, setDecisionText] = useState('');
   const [attendanceSavedToast, setAttendanceSavedToast] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -107,6 +106,9 @@ export const GameMasterPage: React.FC = () => {
   const mission = getMission(session.missionId);
   const scene = mission.scenes[session.activeSceneIndex] ?? mission.scenes[0];
   const activeStudentsCount = getActiveStudentsCount(session.students);
+
+  // Otra ventana del mismo navegador (portada, grupos) puede cambiar la sesión
+  useEffect(() => subscribeToNewerSession(setSession), []);
 
   const commit = (updater: (prev: SessionState) => SessionState) => {
     setSession((prev) => {
@@ -218,13 +220,6 @@ export const GameMasterPage: React.FC = () => {
       ...changeSceneState(prev, index, targetScene, mission.scenes.length),
       projectorMode: 'scene',
     }));
-  };
-
-  const handleAddStudents = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!bulkNames.trim()) return;
-    commit((prev) => addStudentsFromText(prev, bulkNames));
-    setBulkNames('');
   };
 
   const handleSaveAttendanceToday = () => {
@@ -996,26 +991,11 @@ export const GameMasterPage: React.FC = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleAddStudents} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <textarea
-                  rows={3}
-                  placeholder="Agregar estudiantes (uno por línea o separados por coma)..."
-                  value={bulkNames}
-                  onChange={(e) => setBulkNames(e.target.value)}
-                  style={{
-                    width: '100%',
-                    background: '#0F172A',
-                    color: '#F8FAFC',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: 6,
-                    padding: '8px 10px',
-                    fontSize: '0.86rem',
-                  }}
-                />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                    <Plus size={16} /> Agregar estudiantes
-                  </button>
+                  <Link to="/grupos" className="btn" style={{ flex: 1 }}>
+                    <Users size={16} /> Matricular o retirar en Gestión de grupos
+                  </Link>
                   {session.students.length > 0 && (
                     <button type="button" className="btn btn-teal" onClick={handleSaveAttendanceToday}>
                       <CheckCircle2 size={16} /> Guardar asistencia ({session.classDate})
@@ -1027,7 +1007,7 @@ export const GameMasterPage: React.FC = () => {
                     Asistencia del {session.classDate} guardada. ({savedDatesCount} fechas registradas).
                   </span>
                 )}
-              </form>
+              </div>
             </section>
 
             <StudentArena session={session} commit={commit} />

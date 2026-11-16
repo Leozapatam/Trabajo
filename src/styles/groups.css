@@ -1,0 +1,163 @@
+/* Gestión de grupos: matrícula y retiros por grado, con la estética de la portada */
+
+.groups-screen {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  padding: clamp(16px, 3vw, 40px) clamp(16px, 4vw, 56px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.groups-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.groups-title {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: clamp(1.1rem, 2.4vw, 1.9rem);
+  color: #f8fafc;
+  text-shadow: 3px 3px 0 #060a13, 5px 5px 0 rgba(232, 184, 109, 0.4);
+}
+
+.groups-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.groups-panel {
+  background: rgba(8, 14, 28, 0.88);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(232, 184, 109, 0.35);
+  box-shadow: 0 0 0 2px #060a13, 4px 4px 0 #04070e;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.groups-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.groups-list__item {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px 8px 28px;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: rgba(226, 232, 240, 0.7);
+  font: inherit;
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.groups-list__item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+
+.groups-list__item.is-active {
+  background: rgba(232, 184, 109, 0.12);
+  color: #fff;
+}
+
+.groups-list__item.is-active::before {
+  content: '➤';
+  position: absolute;
+  left: 8px;
+  color: #fde68a;
+  font-size: 0.8em;
+}
+
+.groups-list__count {
+  font-size: 0.78rem;
+  color: rgba(253, 230, 138, 0.75);
+  white-space: nowrap;
+}
+
+.groups-list__count.is-empty {
+  color: rgba(148, 163, 184, 0.6);
+  font-style: italic;
+}
+
+.groups-list__sep {
+  height: 1px;
+  margin: 8px 4px;
+  background: linear-gradient(90deg, rgba(253, 230, 138, 0.4), transparent);
+}
+
+.groups-input {
+  width: 100%;
+  background: #0f172a;
+  color: #f8fafc;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 9px 10px;
+  font: inherit;
+  font-size: 0.92rem;
+}
+
+.groups-roster {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 58vh;
+  overflow-y: auto;
+}
+
+.groups-roster__row {
+  display: grid;
+  grid-template-columns: 2.4em 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.groups-roster__row.is-retired {
+  opacity: 0.5;
+}
+
+.groups-roster__row.is-retired .groups-roster__name {
+  text-decoration: line-through;
+}
+
+.groups-roster__num {
+  font-family: var(--font-pixel);
+  font-size: 0.55rem;
+  color: rgba(148, 163, 184, 0.7);
+  text-align: right;
+}
+
+.groups-roster__chip {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 2px;
+  border: 1px solid currentColor;
+}
+
+@media (max-width: 760px) {
+  .groups-layout {
+    grid-template-columns: 1fr;
+  }
+}

@@ -105,10 +105,17 @@ export function createDataStore({ dataDir, mirrorDir = null, now = () => new Dat
     return (await readdir(backupDir)).some((f) => f.startsWith(day));
   }
 
-  async function write(state) {
+  /**
+   * `baseUpdatedAt`: versión sobre la que el cliente hizo el cambio. Si el disco ya
+   * tiene algo más nuevo (otra ventana u otro navegador), se rechaza para no pisarlo.
+   */
+  async function write(state, baseUpdatedAt) {
     if (!isValidSessionState(state)) throw new Error('Estado de sesión inválido');
     await mkdir(dataDir, { recursive: true });
     const previous = await read();
+    if (previous && typeof baseUpdatedAt === 'number' && baseUpdatedAt < (previous.updatedAt ?? 0)) {
+      throw Object.assign(new Error('Hay una versión más nueva guardada desde otra ventana'), { status: 409 });
+    }
     if (previous) {
       // Primer guardado del día, o un guardado que deja menos estudiantes: respaldo previo
       if (countStudents(state) < countStudents(previous)) await backup('antes-de-reducir-lista');

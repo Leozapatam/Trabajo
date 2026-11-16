@@ -126,3 +126,17 @@ describe('API local', () => {
     expect((await call(handler, 'GET', '/game-master')).status).toBe(0);
   });
 });
+
+describe('Protección entre ventanas', () => {
+  it('rechaza un guardado hecho sobre una versión más vieja que la del disco', async () => {
+    const store = createDataStore({ dataDir: dir, mirrorDir: null, now: () => clock });
+    await store.write(state([{ id: 'a' }], { updatedAt: 100 }));
+    await store.write(state([{ id: 'a' }, { id: 'b' }], { updatedAt: 200 }), 100);
+    // Otra ventana que todavía estaba en la versión 100 intenta guardar
+    await expect(store.write(state([{ id: 'a' }], { updatedAt: 300 }), 100)).rejects.toMatchObject({ status: 409 });
+    expect((await store.read()).students).toHaveLength(2);
+    // Sin base (clientes antiguos) o con base al día, se acepta
+    await store.write(state([{ id: 'a' }, { id: 'b' }, { id: 'c' }], { updatedAt: 400 }), 200);
+    expect((await store.read()).students).toHaveLength(3);
+  });
+});

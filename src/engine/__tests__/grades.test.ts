@@ -60,3 +60,35 @@ describe('Asistencia por fecha desde las fichas', () => {
     expect(nextDay.students[0].attendanceHistory.ausentes).toBe(1);
   });
 });
+
+describe('Gestión de grupos (matrícula fuera del tablero)', () => {
+  it('matricula en un grupo cerrado sin cambiar el grupo abierto y evita duplicados', async () => {
+    const { enrollStudents, getGroupRoster, setStudentEnrollment } = await import('../sessionStore');
+    let s = createInitialSessionState(); // abierto: 6°
+    const r1 = enrollStudents(s, '8°', 'Pérez Gómez Ana\n  López   Beto \n\n');
+    s = r1.state;
+    expect(r1.added).toBe(2);
+    expect(s.classroomName).toBe('6°');
+    expect(s.students).toHaveLength(0);
+    expect(getGroupRoster(s, '8°').map((x) => x.name)).toEqual(['Pérez Gómez Ana', 'López Beto']);
+
+    const r2 = enrollStudents(s, '8°', 'pérez gómez ana; Carla Ruiz');
+    expect(r2.added).toBe(1);
+    expect(r2.skipped).toEqual(['pérez gómez ana']);
+    s = r2.state;
+
+    const beto = getGroupRoster(s, '8°')[1];
+    s = setStudentEnrollment(s, '8°', beto.id, false);
+    expect(getGroupRoster(s, '8°').find((x) => x.id === beto.id)?.active).toBe(false);
+
+    // Al abrir 8° en el tablero aparece la lista matriculada
+    s = switchClassroomRoster(s, s.schoolYear, '8°');
+    expect(s.students).toHaveLength(3);
+  });
+
+  it('matricular en el grupo abierto actualiza la lista del tablero', async () => {
+    const { enrollStudents } = await import('../sessionStore');
+    const { state } = enrollStudents(createInitialSessionState(), '6°', 'Ana');
+    expect(state.students.map((x) => x.name)).toEqual(['Ana']);
+  });
+});

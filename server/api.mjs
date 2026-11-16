@@ -59,7 +59,7 @@ export function createApiHandler(store = createDataStore(resolveDataDirs())) {
       }
       if (url.pathname === '/api/datos' && req.method === 'PUT') {
         const body = JSON.parse(await readBody(req));
-        return sendJson(res, 200, { ok: true, ...(await store.write(body.state)) });
+        return sendJson(res, 200, { ok: true, ...(await store.write(body.state, body.baseUpdatedAt)) });
       }
       if (url.pathname === '/api/respaldo' && req.method === 'POST') {
         const body = JSON.parse((await readBody(req)) || '{}');

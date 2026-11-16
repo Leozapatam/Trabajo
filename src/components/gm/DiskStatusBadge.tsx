@@ -12,6 +12,19 @@ export const DiskStatusBadge: React.FC = () => {
   const [info, setInfo] = useState<DiskSyncInfo>(getDiskSyncInfo);
   useEffect(() => subscribeDiskSync(setInfo), []);
 
+  if (info.status === 'conflicto') {
+    return (
+      <button
+        type="button"
+        className="badge-pill"
+        style={{ color: '#FDE68A', borderColor: '#E8B86D', cursor: 'pointer', background: 'rgba(232,184,109,0.12)' }}
+        onClick={() => window.location.reload()}
+        title="Otra ventana o navegador guardó cambios más recientes. Recarga para trabajar sobre esa versión; el último cambio de esta ventana no se guardó."
+      >
+        <TriangleAlert size={13} /> Otra ventana guardó cambios · Recargar
+      </button>
+    );
+  }
   if (info.status === 'sin-disco') {
     return (
       <span

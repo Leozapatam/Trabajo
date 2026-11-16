@@ -21,19 +21,27 @@
 .title-logo__brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 5px 12px 5px 6px;
+  background: rgba(6, 10, 19, 0.55);
+  border: 1px solid rgba(253, 230, 138, 0.25);
+  border-radius: 999px;
   font-family: var(--font-pixel);
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
   color: #fde68a;
   text-shadow: 2px 2px 0 #04070e;
 }
 
 .title-logo__avatar {
-  width: 72px;
-  height: auto;
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 50%;
+  background: #1e293b;
   image-rendering: pixelated;
-  filter: drop-shadow(3px 3px 0 #04070e) drop-shadow(0 0 14px rgba(232, 184, 109, 0.45));
 }
 
 .title-logo__title {
