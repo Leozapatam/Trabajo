@@ -74,7 +74,8 @@ export function createApiHandler(
       // --- Agenda (Google Calendar vía iCal secreto) ---
       if (url.pathname === '/api/agenda' && req.method === 'GET') {
         const days = Number(url.searchParams.get('dias') ?? 7);
-        return sendJson(res, 200, await agenda.events({ days, force: url.searchParams.has('refrescar') }));
+        const from = url.searchParams.get('desde');
+        return sendJson(res, 200, await agenda.events({ days, from, force: url.searchParams.has('refrescar') }));
       }
       if (url.pathname === '/api/agenda/config' && req.method === 'PUT') {
         const body = JSON.parse((await readBody(req)) || '{}');

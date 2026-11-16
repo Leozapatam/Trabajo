@@ -100,6 +100,10 @@ describe('Agenda en el servidor', () => {
     expect(result.configured).toBe(true);
     expect(result.events.map((e: any) => e.title)).toContain('Sociales 6° (cambio de hora)');
 
+    // Semana del lunes 23 (desde=…): la clase movida de ese lunes y nada del 16
+    const week = await agenda.events({ from: '2026-11-23', days: 5 });
+    expect(week.events.map((e: any) => e.title)).toEqual(['Sociales 6° (cambio de hora)', 'Sociales 6°']);
+
     await agenda.disconnect();
     expect(await agenda.events()).toEqual({ configured: false });
   });

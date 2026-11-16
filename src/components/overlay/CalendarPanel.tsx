@@ -1,38 +1,24 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ExternalLink, RefreshCw, Settings } from 'lucide-react';
-
-/** Evento tal como lo entrega /api/agenda */
-interface AgendaEvent {
-  id: string;
-  title: string;
-  location: string;
-  allDay: boolean;
-  /** Todo el día: "YYYY-MM-DD"; con hora: instante ISO */
-  start: string;
-  end: string;
-}
+import { ChevronLeft, ChevronRight, ExternalLink, RefreshCw, Settings } from 'lucide-react';
+import { addDays, dayKey, formatTime, schoolWeekMonday, type AgendaEvent } from './agendaTime';
+import { WeekGrid } from './WeekGrid';
 
 type AgendaResponse =
   | { configured: false }
   | { configured: true; fetchedAt: number; events: AgendaEvent[] };
 
-const RANGES = [
-  { days: 1, label: 'Hoy' },
-  { days: 7, label: '7 días' },
-  { days: 14, label: '14 días' },
-];
+/** 'semana' = cuadrícula lunes a viernes; los números son listas de N días desde hoy */
+type View = 'semana' | 1 | 7 | 14;
 
-function dayKey(d: Date): string {
-  const p = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-}
+const VIEWS: { key: View; label: string }[] = [
+  { key: 'semana', label: 'Semana' },
+  { key: 1, label: 'Hoy' },
+  { key: 7, label: '7 días' },
+  { key: 14, label: '14 días' },
+];
 
 function eventDayKey(ev: AgendaEvent): string {
   return ev.allDay ? ev.start.slice(0, 10) : dayKey(new Date(ev.start));
-}
-
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' });
 }
 
 function dayTitle(key: string, today: string): string {
@@ -59,23 +45,27 @@ export const CalendarPanel: React.FC = () => {
   const [data, setData] = useState<AgendaResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [days, setDays] = useState(7);
+  const [view, setView] = useState<View>('semana');
+  const [weekOffset, setWeekOffset] = useState(0);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const [saving, setSaving] = useState(false);
   const [now, setNow] = useState(() => new Date());
 
+  const monday = schoolWeekMonday(new Date(), weekOffset);
+
   const load = useCallback(async (force = false) => {
     setLoading(true);
     setError(null);
+    const range = view === 'semana' ? `dias=5&desde=${monday}` : `dias=${view}`;
     try {
-      setData(await api<AgendaResponse>(`/api/agenda?dias=${days}${force ? '&refrescar=1' : ''}`));
+      setData(await api<AgendaResponse>(`/api/agenda?${range}${force ? '&refrescar=1' : ''}`));
     } catch (err) {
       setError((err as Error).message);
     } finally {
       setLoading(false);
     }
-  }, [days]);
+  }, [view, monday]);
 
   useEffect(() => {
     void load();
@@ -191,10 +181,9 @@ export const CalendarPanel: React.FC = () => {
   if (!data || !data.configured) return null;
 
   const today = dayKey(now);
+  const listDays = view === 'semana' ? 0 : view;
   const groups = new Map<string, AgendaEvent[]>();
-  for (let i = 0; i < days; i++) {
-    groups.set(dayKey(new Date(new Date(`${today}T12:00:00`).getTime() + i * 86400000)), []);
-  }
+  for (let i = 0; i < listDays; i++) groups.set(addDays(today, i), []);
   for (const ev of data.events) groups.get(eventDayKey(ev))?.push(ev);
 
   const timedToday = (groups.get(today) ?? []).filter((e) => !e.allDay);
@@ -205,18 +194,34 @@ export const CalendarPanel: React.FC = () => {
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
         <div className="game-window__tabs" role="tablist">
-          {RANGES.map((r) => (
+          {VIEWS.map((v) => (
             <button
-              key={r.days}
+              key={v.key}
               type="button"
               role="tab"
-              aria-selected={days === r.days}
-              className={`game-window__tab${days === r.days ? ' is-active' : ''}`}
-              onClick={() => setDays(r.days)}
+              aria-selected={view === v.key}
+              className={`game-window__tab${view === v.key ? ' is-active' : ''}`}
+              onClick={() => setView(v.key)}
             >
-              {r.label}
+              {v.label}
             </button>
           ))}
+          {view === 'semana' && (
+            <span className="week-nav">
+              <button type="button" className="btn btn-ghost" onClick={() => setWeekOffset((w) => w - 1)} aria-label="Semana anterior">
+                <ChevronLeft size={14} />
+              </button>
+              <span className="week-nav__label">{weekLabel(monday)}</span>
+              <button type="button" className="btn btn-ghost" onClick={() => setWeekOffset((w) => w + 1)} aria-label="Semana siguiente">
+                <ChevronRight size={14} />
+              </button>
+              {weekOffset !== 0 && (
+                <button type="button" className="btn btn-ghost" onClick={() => setWeekOffset(0)}>
+                  Esta semana
+                </button>
+              )}
+            </span>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
@@ -241,6 +246,9 @@ export const CalendarPanel: React.FC = () => {
 
       {error && <span style={{ color: '#FCA5A5', fontSize: '0.84rem' }}>{error}</span>}
 
+      {view === 'semana' ? (
+        <WeekGrid monday={monday} events={data.events} now={now} />
+      ) : (
       <div className="agenda-list">
         {[...groups.entries()].map(([key, evs]) => (
           <section key={key} className="agenda-day">
@@ -271,6 +279,13 @@ export const CalendarPanel: React.FC = () => {
           </section>
         ))}
       </div>
+      )}
     </>
   );
 };
+
+function weekLabel(monday: string): string {
+  const fmt = (key: string) =>
+    new Date(`${key}T12:00:00`).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }).replace('.', '');
+  return `${fmt(monday)} – ${fmt(addDays(monday, 4))}`;
+}

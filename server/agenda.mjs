@@ -110,12 +110,13 @@ export function createAgenda({ dataDir, fetchImpl = globalThis.fetch, now = () =
     return cache;
   }
 
-  /** Eventos desde el inicio de hoy durante `days` días */
-  async function events({ days = 7, force = false } = {}) {
+  /** Eventos durante `days` días desde `from` ("YYYY-MM-DD", hora local) o desde hoy */
+  async function events({ days = 7, force = false, from: fromDay = null } = {}) {
     const { agendaIcsUrl } = await readConfig();
     if (!agendaIcsUrl) return { configured: false };
     const { text, fetchedAt } = await download(agendaIcsUrl, force);
-    const from = now();
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(fromDay ?? '');
+    const from = match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : now();
     from.setHours(0, 0, 0, 0);
     const to = new Date(from.getTime() + Math.min(Math.max(days, 1), 31) * 86400000);
     return { configured: true, fetchedAt, events: parseIcsEvents(text, from, to) };
