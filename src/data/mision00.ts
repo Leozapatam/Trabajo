@@ -53,18 +53,18 @@ export const MISION_00: MissionDefinition = {
       id: 'm0-e0',
       index: 0,
       code: 'PANTALLA 1',
-      title: '¡Bienvenidos a Expedición 6!',
+      title: '¡Bienvenidos a Ciencias Sociales!',
       type: 'opening',
       participationMode: 'individual',
       participationLabel: 'Narración del profe · Escucha activa',
       narrative:
-        'Este año no vamos a abrir un libro para memorizar fechas aburridas. Vamos a viajar juntos por 8 grandes mundos, desde antes de que existiera la Tierra hasta las primeras civilizaciones.',
-      promptQuestion: '¿Qué es este juego?',
-      notebookPrompt: 'Abre tu cuaderno en una hoja limpia y escribe el título: EXPEDICIÓN 6.',
+        'Este año no vamos a abrir un libro para memorizar fechas aburridas. Vamos a viajar juntos por mundos de investigación, desde antes de que existiera la Tierra hasta las sociedades actuales.',
+      promptQuestion: '¿Cómo funciona nuestra clase?',
+      notebookPrompt: 'Abre tu cuaderno en una hoja limpia y escribe el título: CIENCIAS SOCIALES.',
       defaultTimerSeconds: 120,
       hints: ['Cada clase será una nueva pantalla de nuestra aventura.'],
       publicAnswerSummary:
-        'Expedición 6 es una historia continua: cada mundo tiene misiones y cada misión nos deja una pista nueva.',
+        'Ciencias Sociales es una historia continua: cada mundo tiene misiones y cada misión nos deja una pista nueva.',
       scientificFeedback: 'Todos empezamos en el mismo punto de partida, sin importar cuánto sepamos hoy.',
       teacherNotes: {
         pedagogicalGoal: 'Captar la atención desde el primer minuto con tono épico y sencillo.',
@@ -189,10 +189,10 @@ export const MISION_00: MissionDefinition = {
       hints: [],
       publicAnswerSummary:
         'Solo tu cuaderno, tu lápiz y mucha curiosidad para hacer preguntas.',
-      scientificFeedback: '¡Expedición 6 ha comenzado oficialmente!',
+      scientificFeedback: '¡El viaje por Ciencias Sociales ha comenzado oficialmente!',
       challengeData: {
         closingSynthesis: [
-          'El año escolar es una aventura por 8 mundos; el primero es ORÍGENES (5 a 6 clases).',
+          'El año escolar es una aventura por mundos de conocimiento; el primero de Sexto es ORÍGENES.',
           'Trabajamos de forma individual con cuaderno, escucha, preguntas y votaciones.',
           'Ganamos puntos por investigar, pensar, participar con respeto y descubrir.',
         ],

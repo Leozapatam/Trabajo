@@ -20,36 +20,25 @@ export const MISION_001: MissionDefinition = {
   ],
   curriculumRefs: [
     {
-      code: 'DBA 1 — Ciencias Sociales 6°',
-      source: 'MEN / Colombia Aprende (verificar paginación en PDF V2)',
+      code: 'DBA 1 — Ciencias Sociales 6° (I.E.R. Boyacá)',
+      source: 'Plan DBA depurado (src/data/dbaPlan.json)',
       statement:
         'Comprende que existen diversas explicaciones y teorías sobre el origen del universo en nuestra búsqueda por entender que hacemos parte de un mundo más amplio.',
       nature: 'directa',
       evidences: [
-        'Interpreta teorías científicas sobre el origen del universo (Big Bang).',
-        'Compara explicaciones científicas y relatos culturales valorando distintas perspectivas humanas.',
-        'Explica los componentes del Sistema Solar y su relación con la vida en la Tierra.',
+        'Compara teorías científicas, religiosas y mitos de culturas ancestrales sobre el origen del universo.',
+        'Interpreta diferentes teorías científicas sobre el origen del universo (Big Bang, inflacionaria, multiuniversos) para reconocer el cambio de paradigmas.',
       ],
     },
     {
-      code: 'DBA 2 — Ciencias Sociales 6°',
-      source: 'MEN / Colombia Aprende (verificar paginación en PDF V2)',
+      code: 'DBA 2 — Ciencias Sociales 6° (I.E.R. Boyacá)',
+      source: 'Plan DBA depurado (src/data/dbaPlan.json)',
       statement:
         'Comprende que la Tierra es un planeta en constante transformación cuyos cambios influyen en las formas del relieve terrestre y en la vida de las comunidades que la habitan.',
       nature: 'directa',
       evidences: [
-        'Explica la teoría de la deriva continental y la dinámica interna de la Tierra.',
-        'Reconoce que la configuración actual de continentes y relieve es resultado de procesos prolongados.',
-      ],
-    },
-    {
-      code: 'Puente Interdisciplinario — Astronomía y Geología',
-      source: 'Lineamientos Curriculares de Ciencias Sociales (MEN, enfoque problematizador)',
-      statement:
-        'Integración de evidencias astrofísicas (desplazamiento al rojo, CMB) y geológicas (tiempo profundo, Pangea) para fortalecer la argumentación basada en pruebas.',
-      nature: 'interdisciplinaria',
-      evidences: [
-        'Distingue observación, hipótesis, modelo y teoría científica en contexto histórico-espacial.',
+        'Describe las interacciones que se dan entre el relieve, el clima, las zonas bioclimáticas y las acciones humanas.',
+        'Argumenta a partir de evidencias los efectos de un sismo en la población y conoce las recomendaciones a seguir, en caso de un sismo.',
       ],
     },
   ],
@@ -549,7 +538,7 @@ export const MISION_001: MissionDefinition = {
         facilitationScript:
           'Revele la síntesis final, felicite a los equipos por sus reconocimientos (Investigación, Pensamiento, Cooperación, Descubrimiento) y cierre leyendo la pregunta puente.',
         whatToWatchFor:
-          'Invite a quienes deseen profundizar voluntariamente en casa desde el Modo Explorador, recordando que no es obligatorio ni requiere celular.',
+          'Recoja las preguntas finales de los estudiantes en sus cuadernos como puente para la siguiente misión.',
         adaptationShortSession: 'Lea los 3 puntos de síntesis y cierre con la pregunta puente.',
       },
     },
