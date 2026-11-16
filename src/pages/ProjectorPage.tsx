@@ -8,7 +8,7 @@ import {
   Sparkles,
   Users,
 } from 'lucide-react';
-import { getMission } from '../data/catalog';
+import { getMission, getWorld, worldArtById, worldsByGrade } from '../data/catalog';
 import {
   buildPublicProjectorView,
   getActiveStudentsCount,
@@ -19,6 +19,7 @@ import type { SessionState } from '../engine/types';
 import { CosmicBackdrop } from '../components/CosmicBackdrop';
 import { SceneVisualStage } from '../components/SceneVisualStage';
 import { TacticalOriginMap } from '../components/TacticalOriginMap';
+import { TitleBackdrop } from '../components/TitleBackdrop';
 
 export const ProjectorPage: React.FC = () => {
   const [session, setSession] = useState<SessionState>(() => loadSessionState());
@@ -32,9 +33,14 @@ export const ProjectorPage: React.FC = () => {
 
   const mission = getMission(session.missionId);
   const rawScene = mission.scenes[session.activeSceneIndex] ?? mission.scenes[0];
-  // Filtro estricto: nunca exponer notas privadas ni respuestas no reveladas
+  // Filtro estricto: nunca exponer nombres, notas ni respuestas no reveladas
   const publicScene = buildPublicProjectorView(session, rawScene);
   const activeStudents = getActiveStudentsCount(session.students);
+
+  const gradeWorlds = worldsByGrade[session.classroomName] ?? [];
+  const activeWorld = gradeWorlds[0] ?? getWorld(mission.worldId);
+  const hasWorldForGrade = gradeWorlds.length > 0;
+  const worldArt = worldArtById[activeWorld.id] ?? '/assets/art/mundo-6-origenes.jpg';
 
   const handleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -46,7 +52,7 @@ export const ProjectorPage: React.FC = () => {
 
   return (
     <div className="projector-root" style={{ zIndex: 1 }}>
-      <CosmicBackdrop />
+      {session.projectorMode === 'intro' ? <TitleBackdrop /> : <CosmicBackdrop />}
 
       {/* Cabecera Retro Epic Pixel Art 16:9 */}
       <header
@@ -62,7 +68,12 @@ export const ProjectorPage: React.FC = () => {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <span className="pixel-badge">
-            <Compass size={14} /> {mission.code} · {session.projectorMode === 'map' ? 'MAPA' : publicScene.code}
+            <Compass size={14} />{' '}
+            {session.projectorMode === 'intro'
+              ? `GRADO ${session.classroomName}`
+              : session.projectorMode === 'map'
+              ? `${activeWorld.title} · MAPA`
+              : `${mission.code} · ${publicScene.code}`}
           </span>
           {session.projectorMode === 'scene' && (
             <span className="badge-pill" style={{ color: 'var(--accent-teal)', borderColor: 'var(--border-teal)' }}>
@@ -93,7 +104,7 @@ export const ProjectorPage: React.FC = () => {
       {/* Aviso de evento rápido estilo videojuego */}
       {session.activeEventBanner && (
         <div
-          className="pixel-frame"
+          className="pixel-frame animate-title-enter"
           style={{
             position: 'relative',
             zIndex: 3,
@@ -110,91 +121,96 @@ export const ProjectorPage: React.FC = () => {
             <strong className="font-pixel" style={{ color: '#FDE68A', fontSize: '0.78rem' }}>
               {session.activeEventBanner.title}:
             </strong>{' '}
-            <span style={{ color: 'var(--text-primary)', fontSize: '1.05rem', marginLeft: 6 }}>
+            <span style={{ color: 'var(--text-primary)', fontSize: '1.08rem', marginLeft: 6 }}>
               {session.activeEventBanner.subtitle}
             </span>
           </div>
         </div>
       )}
 
-      {/* MODO 1: PANTALLA DE INICIO RETRO EPIC VIDEOJUEGO */}
+      {/* MODO 1: PANTALLA DE TÍTULO ÉPICA EN PROYECTOR */}
       {session.projectorMode === 'intro' && (
         <main
+          key="mode-intro"
+          className="animate-title-enter"
           style={{
             position: 'relative',
             zIndex: 2,
             flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
             alignItems: 'center',
-            textAlign: 'center',
-            gap: 20,
+            gap: 32,
+            maxWidth: 1360,
+            width: '100%',
+            margin: '0 auto',
           }}
         >
-          <span className="pixel-badge" style={{ borderColor: '#38BDF8', color: '#7DD3FC' }}>
-            <Sparkles size={14} /> CIENCIAS SOCIALES · AÑO {session.schoolYear} · {session.classroomName}
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <span className="pixel-badge" style={{ borderColor: '#38BDF8', color: '#7DD3FC', alignSelf: 'flex-start' }}>
+              <Sparkles size={14} /> CIENCIAS SOCIALES · I.E.R. BOYACÁ
+            </span>
 
-          <h1
-            className="font-pixel"
-            style={{
-              fontSize: 'clamp(2rem, 4.8vw, 4.1rem)',
-              margin: '6px 0',
-              lineHeight: 1.2,
-              color: '#F8FAFC',
-              textShadow: '4px 4px 0 #0D1526, 6px 6px 0 rgba(232, 184, 109, 0.35)',
-            }}
-          >
-            ORÍGENES
-          </h1>
-          <p
-            style={{
-              fontSize: 'clamp(1.2rem, 2.2vw, 1.8rem)',
-              color: 'var(--accent-gold)',
-              margin: 0,
-              fontWeight: 600,
-            }}
-          >
-            Del universo a la Tierra
-          </p>
+            <div className="font-mono" style={{ fontSize: '1.05rem', color: '#FDE68A', fontWeight: 700 }}>
+              GRADO {session.classroomName} · PERIODO {session.period}
+            </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, minmax(120px, 210px))',
-              gap: 14,
-              marginTop: 6,
-            }}
-          >
-            {[
-              { img: '/assets/art/zona1-cosmos.jpg', label: '1. El comienzo' },
-              { img: '/assets/art/zona2-sistema-solar.jpg', label: '2. Vecindario' },
-              { img: '/assets/art/zona3-pangea.jpg', label: '3. Planeta vivo' },
-              { img: '/assets/art/zona4-vida.jpg', label: '4. Umbral de vida' },
-            ].map((item) => (
-              <div key={item.label} className="pixel-frame" style={{ overflow: 'hidden', padding: 0 }}>
-                <img
-                  src={item.img}
-                  alt={item.label}
-                  style={{ width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', display: 'block' }}
-                />
-                <div style={{ padding: '8px 10px', fontSize: '0.88rem', fontWeight: 700, color: '#FDE68A' }}>
-                  {item.label}
-                </div>
-              </div>
-            ))}
+            <h1
+              className="font-pixel"
+              style={{
+                fontSize: 'clamp(2.2rem, 4.6vw, 4.2rem)',
+                margin: 0,
+                lineHeight: 1.15,
+                color: '#F8FAFC',
+                textShadow: '4px 4px 0 #060A13, 6px 6px 0 rgba(232, 184, 109, 0.38)',
+              }}
+            >
+              {hasWorldForGrade ? activeWorld.title : `GRADO ${session.classroomName}`}
+            </h1>
+
+            <p
+              className="font-display"
+              style={{
+                fontSize: 'clamp(1.35rem, 2.3vw, 2rem)',
+                color: 'var(--accent-gold)',
+                margin: 0,
+                fontStyle: 'italic',
+                textShadow: '0 2px 10px rgba(0,0,0,0.85)',
+              }}
+            >
+              {hasWorldForGrade
+                ? activeWorld.subtitle
+                : 'Narración, investigación y pensamiento histórico'}
+            </p>
+
+            <p className="font-pixel" style={{ fontSize: '0.72rem', color: 'var(--accent-teal)', marginTop: 12 }}>
+              LISTO PARA INICIAR LA CLASE
+            </p>
           </div>
 
-          <p className="font-pixel" style={{ fontSize: '0.72rem', color: 'var(--accent-teal)', marginTop: 10 }}>
-            PRESS START EN LA CONSOLA DEL GAME MASTER
-          </p>
+          <div className="pixel-frame" style={{ overflow: 'hidden', padding: 0 }}>
+            <img
+              src={hasWorldForGrade ? worldArt : '/assets/art/title-screen.jpg'}
+              alt={hasWorldForGrade ? activeWorld.title : `Grado ${session.classroomName}`}
+              style={{
+                width: '100%',
+                aspectRatio: '16 / 9',
+                objectFit: 'cover',
+                display: 'block',
+                imageRendering: 'pixelated',
+              }}
+            />
+          </div>
         </main>
       )}
 
       {/* MODO 2: MAPA TÁCTICO TIPO ESTRATEGIA */}
       {session.projectorMode === 'map' && (
-        <main style={{ position: 'relative', zIndex: 2, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <main
+          key="mode-map"
+          className="animate-title-enter"
+          style={{ position: 'relative', zIndex: 2, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+        >
           <TacticalOriginMap
             exploredZones={session.exploredZones}
             focusedZoneId={session.focusedZoneId}
@@ -204,7 +220,11 @@ export const ProjectorPage: React.FC = () => {
 
       {/* MODO 3: PANTALLAZO NARRATIVO / ESCENA ACTIVA */}
       {session.projectorMode === 'scene' && (
-        <main style={{ position: 'relative', zIndex: 2, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16 }}>
+        <main
+          key={`mode-scene-${publicScene.id}`}
+          className="animate-title-enter"
+          style={{ position: 'relative', zIndex: 2, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16 }}
+        >
           <div>
             <h1
               className="font-pixel"
@@ -308,7 +328,7 @@ export const ProjectorPage: React.FC = () => {
         </main>
       )}
 
-      {/* Pie de proyección: modo individual + año escolar */}
+      {/* Pie de proyección: sin nombres ni notas de estudiantes */}
       <footer
         style={{
           position: 'relative',
@@ -325,15 +345,15 @@ export const ProjectorPage: React.FC = () => {
       >
         <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
           <span className="badge-pill" style={{ color: '#FDE68A', borderColor: 'var(--border-gold)' }}>
-            Año {session.schoolYear} · {session.classroomName}
+            Año {session.schoolYear} · {session.classroomName} · Periodo {session.period}
           </span>
           <span className="badge-pill" style={{ color: '#7DD3FC', borderColor: 'var(--border-teal)' }}>
             <Users size={13} />{' '}
-            {activeStudents > 0 ? `${activeStudents} exploradores activos` : 'Modo Individual · Cuaderno'}
+            {activeStudents > 0 ? `${activeStudents} exploradores en clase` : 'Cuaderno de Campo'}
           </span>
         </div>
         <span className="font-pixel" style={{ fontSize: '0.64rem', color: 'var(--text-muted)' }}>
-          CIENCIAS SOCIALES
+          CIENCIAS SOCIALES · I.E.R. BOYACÁ
         </span>
       </footer>
     </div>
