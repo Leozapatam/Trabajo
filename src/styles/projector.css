@@ -1,0 +1,104 @@
+/* Proyector: toda la pantalla para la historia, HUD de videojuego en las esquinas */
+.projector-root {
+  padding: clamp(10px, 1.4vw, 22px) clamp(14px, 2vw, 32px) clamp(6px, 0.8vw, 12px);
+}
+
+.proj-hud {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 28px;
+  margin-bottom: 8px;
+}
+.proj-hud__side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.proj-hud__side.is-right {
+  justify-content: flex-end;
+}
+.proj-hud__pause {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border-color: #fb7185 !important;
+  color: #fecdd3 !important;
+}
+
+/* El botón de pantalla completa casi no se ve hasta que el mouse pasa por la esquina */
+.proj-hud__full {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(226, 232, 240, 0.6);
+  opacity: 0.25;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.proj-hud__full:hover,
+.proj-hud__full:focus-visible {
+  opacity: 1;
+}
+
+/* Corazones y estrellas pequeños, sin caja, como en un videojuego */
+.game-hud.is-sm .game-hud__hearts,
+.game-hud.is-sm .game-hud__stars {
+  padding: 0;
+  gap: 3px;
+  border: none;
+  background: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9));
+}
+.game-hud.is-sm .game-hud__hearts.is-out {
+  animation: hud-shake 0.45s ease-in-out 2;
+}
+.game-hud.is-sm .game-hud__stars.is-full {
+  animation: none;
+}
+.game-hud.is-sm .game-hud__heart,
+.game-hud.is-sm .game-hud__star {
+  color: rgba(226, 232, 240, 0.35);
+}
+.game-hud.is-sm .game-hud__heart.is-on {
+  color: #f43f5e;
+}
+.game-hud.is-sm .game-hud__star.is-on {
+  color: #fbbf24;
+}
+.game-hud.is-sm .game-hud__tag {
+  font-size: 0.6rem;
+}
+
+/* Pie discreto */
+.proj-foot {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 6px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(232, 184, 109, 0.18);
+  font-size: 0.72rem;
+  color: rgba(226, 232, 240, 0.5);
+}
+.proj-foot span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.proj-foot__brand {
+  margin-left: auto;
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+}

@@ -10,18 +10,20 @@ interface GameHudProps {
   onHeart?: (lost: 1 | -1) => void;
   onStar?: (delta: 1 | -1) => void;
   onClaim?: () => void;
-  size?: 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg';
+  /** En el proyector van separados: corazones a la izquierda, estrellas a la derecha */
+  show?: 'both' | 'hearts' | 'stars';
 }
 
 /**
  * Corazones del grupo (llamados de atención de la clase) y estrellas de participación.
  * Clic apaga un corazón o da una estrella; clic derecho lo deshace.
  */
-export const GameHud: React.FC<GameHudProps> = ({ session, onHeart, onStar, onClaim, size = 'md' }) => {
+export const GameHud: React.FC<GameHudProps> = ({ session, onHeart, onStar, onClaim, size = 'md', show = 'both' }) => {
   const hearts = getHeartsLeft(session);
   const stars = getStarProgress(session);
   const readOnly = !onHeart;
-  const icon = size === 'lg' ? 34 : 22;
+  const icon = size === 'lg' ? 34 : size === 'sm' ? 18 : 22;
 
   const right = (fn?: () => void) => (e: React.MouseEvent) => {
     e.preventDefault();
@@ -30,6 +32,7 @@ export const GameHud: React.FC<GameHudProps> = ({ session, onHeart, onStar, onCl
 
   return (
     <div className={`game-hud is-${size}`}>
+      {show !== 'stars' && (
       <button
         type="button"
         className={`game-hud__hearts${hearts === 0 ? ' is-out' : ''}`}
@@ -50,7 +53,9 @@ export const GameHud: React.FC<GameHudProps> = ({ session, onHeart, onStar, onCl
         ))}
         {hearts === 0 && <span className="game-hud__tag">TAREA EXTENSA</span>}
       </button>
+      )}
 
+      {show !== 'hearts' && (
       <button
         type="button"
         className={`game-hud__stars${stars.goalReached ? ' is-full' : ''}`}
@@ -85,6 +90,7 @@ export const GameHud: React.FC<GameHudProps> = ({ session, onHeart, onStar, onCl
         })}
         {stars.goalReached && <span className="game-hud__tag is-gold">¡RECOMPENSA!</span>}
       </button>
+      )}
     </div>
   );
 };

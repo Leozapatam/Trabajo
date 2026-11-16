@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Compass,
   Lightbulb,
   Maximize2,
   PauseCircle,
@@ -21,6 +20,7 @@ import { GameHud } from '../components/clase/GameHud';
 import { SceneVisualStage } from '../components/SceneVisualStage';
 import { TacticalOriginMap } from '../components/TacticalOriginMap';
 import { TitleBackdrop } from '../components/TitleBackdrop';
+import '../styles/projector.css';
 
 export const ProjectorPage: React.FC = () => {
   const [session, setSession] = useState<SessionState>(() => loadSessionState());
@@ -55,51 +55,25 @@ export const ProjectorPage: React.FC = () => {
     <div className="projector-root" style={{ zIndex: 1 }}>
       {session.projectorMode === 'intro' ? <TitleBackdrop /> : <CosmicBackdrop />}
 
-      {/* Cabecera Retro Epic Pixel Art 16:9 */}
-      <header
-        style={{
-          position: 'relative',
-          zIndex: 2,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: 16,
-          marginBottom: 14,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <span className="pixel-badge">
-            <Compass size={14} />{' '}
-            {session.projectorMode === 'intro'
-              ? `GRADO ${session.classroomName}`
-              : session.projectorMode === 'map'
-              ? `${activeWorld.title} · MAPA`
-              : `${mission.code} · ${publicScene.code}`}
+      {/* HUD de videojuego: corazones arriba a la izquierda, estrellas arriba a la derecha.
+          Sin número de misión, escena ni modos: el grupo solo ve la historia */}
+      <header className="proj-hud">
+        <div className="proj-hud__side">{session.classStarted && <GameHud session={session} show="hearts" size="sm" />}</div>
+        {session.status === 'paused' && (
+          <span className="pixel-badge proj-hud__pause">
+            <PauseCircle size={14} /> PAUSA
           </span>
-          {session.projectorMode === 'scene' && (
-            <span className="badge-pill" style={{ color: 'var(--accent-teal)', borderColor: 'var(--border-teal)' }}>
-              {publicScene.participationLabel}
-            </span>
-          )}
-        </div>
-
-        {session.classStarted && <GameHud session={session} size="lg" />}
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          {session.status === 'paused' && (
-            <span className="pixel-badge" style={{ borderColor: '#FB7185', color: '#FECDD3' }}>
-              <PauseCircle size={14} /> PAUSA
-            </span>
-          )}
+        )}
+        <div className="proj-hud__side is-right">
+          {session.classStarted && <GameHud session={session} show="stars" size="sm" />}
           <button
             type="button"
-            className="btn btn-ghost"
+            className="proj-hud__full"
             onClick={handleFullscreen}
             title="Pantalla completa"
             aria-label="Alternar pantalla completa"
-            style={{ padding: '8px 10px' }}
           >
-            <Maximize2 size={16} />
+            <Maximize2 size={14} />
           </button>
         </div>
       </header>
@@ -144,9 +118,7 @@ export const ProjectorPage: React.FC = () => {
             gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
             alignItems: 'center',
             gap: 32,
-            maxWidth: 1360,
             width: '100%',
-            margin: '0 auto',
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -332,33 +304,17 @@ export const ProjectorPage: React.FC = () => {
         </main>
       )}
 
-      {/* Pie de proyección: sin nombres ni notas de estudiantes */}
-      <footer
-        style={{
-          position: 'relative',
-          zIndex: 2,
-          marginTop: 14,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 12,
-          borderTop: '2px solid rgba(232, 184, 109, 0.25)',
-          paddingTop: 10,
-        }}
-      >
-        <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span className="badge-pill" style={{ color: '#FDE68A', borderColor: 'var(--border-gold)' }}>
-            Año {session.schoolYear} · {session.classroomName} · Periodo {session.period}
-          </span>
-          <span className="badge-pill" style={{ color: '#7DD3FC', borderColor: 'var(--border-teal)' }}>
-            <Users size={13} />{' '}
-            {activeStudents > 0 ? `${activeStudents} exploradores en clase` : 'Cuaderno de Campo'}
-          </span>
-        </div>
-        <span className="font-pixel" style={{ fontSize: '0.64rem', color: 'var(--text-muted)' }}>
-          CIENCIAS SOCIALES · I.E.R. BOYACÁ
+      {/* Pie de proyección, discreto: sin nombres ni notas de estudiantes */}
+      <footer className="proj-foot">
+        <span>
+          {session.classroomName} · Periodo {session.period}
         </span>
+        {activeStudents > 0 && (
+          <span>
+            <Users size={11} /> {activeStudents} exploradores
+          </span>
+        )}
+        <span className="proj-foot__brand">CIENCIAS SOCIALES · I.E.R. BOYACÁ</span>
       </footer>
     </div>
   );
