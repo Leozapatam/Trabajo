@@ -33,3 +33,12 @@ Se cambian con las variables `EXPEDICION6_DATA_DIR` y `EXPEDICION6_MIRROR_DIR` (
 
 - `npm run dev` — desarrollo (incluye la API).
 - `npm run build` y luego `npm run serve` — servidor de aula en `http://127.0.0.1:5176`.
+
+## Acceso directo de escritorio
+
+- `launcher\crear-acceso-directo.ps1` crea "Ciencias Sociales" en el Escritorio (icono: `launcher\ciencias-sociales.ico`).
+- Al hacer doble clic, `Ciencias-Sociales.vbs` ejecuta `Ciencias-Sociales.ps1` sin mostrar consola:
+  1. compila la app solo si cambió algo en `src/`, `public/` o `index.html` (si la compilación falla, abre la última versión buena);
+  2. arranca `server/index.mjs` en `127.0.0.1:5176` si no está corriendo;
+  3. abre Edge en modo aplicación.
+- Registros: `Documentos\Expedicion6-Datos\lanzador.log`, `servidor.log`, `servidor-errores.log`.
