@@ -2,6 +2,7 @@ import { ORIGENES_WORLD, MISIONES_6_ESQUELETO } from './origenesWorld';
 import { MUNDO_7_WORLD, MISIONES_7_LIST } from './mundo7';
 import { MUNDO_8_WORLD, MISIONES_8_LIST } from './mundo8';
 import { MUNDO_9_WORLD, MISIONES_9_LIST } from './mundo9';
+import { MUNDO_10_WORLD, MISIONES_10_LIST } from './mundo10';
 import { MISION_00 } from './mision00';
 import { MISION_001 } from './mision001';
 import type { MissionDefinition, WorldDefinition } from '../engine/types';
@@ -11,11 +12,11 @@ export const worldsByGrade: Record<string, WorldDefinition[]> = {
   '7°': [MUNDO_7_WORLD],
   '8°': [MUNDO_8_WORLD],
   '9°': [MUNDO_9_WORLD],
-  '10°': [],
+  '10°': [MUNDO_10_WORLD],
   '11°': [],
   '6°–7°': [ORIGENES_WORLD, MUNDO_7_WORLD],
   '8°–9°': [MUNDO_8_WORLD, MUNDO_9_WORLD],
-  '10°–11°': [],
+  '10°–11°': [MUNDO_10_WORLD],
 };
 
 export const worldArtById: Record<string, string> = {
@@ -23,6 +24,7 @@ export const worldArtById: Record<string, string> = {
   [MUNDO_7_WORLD.id]: '/assets/art/mundo-7-imperios.webp',
   [MUNDO_8_WORLD.id]: '/assets/art/mundo-8-revoluciones.webp',
   [MUNDO_9_WORLD.id]: '/assets/art/mundo-9-sigloxx.webp',
+  [MUNDO_10_WORLD.id]: '/assets/art/mundo-10-geopolitica.webp',
 };
 
 export const WORLDS: Record<string, WorldDefinition> = {
@@ -30,6 +32,7 @@ export const WORLDS: Record<string, WorldDefinition> = {
   [MUNDO_7_WORLD.id]: MUNDO_7_WORLD,
   [MUNDO_8_WORLD.id]: MUNDO_8_WORLD,
   [MUNDO_9_WORLD.id]: MUNDO_9_WORLD,
+  [MUNDO_10_WORLD.id]: MUNDO_10_WORLD,
 };
 
 export const MISSIONS_LIST: MissionDefinition[] = [
@@ -39,6 +42,7 @@ export const MISSIONS_LIST: MissionDefinition[] = [
   ...MISIONES_7_LIST,
   ...MISIONES_8_LIST,
   ...MISIONES_9_LIST,
+  ...MISIONES_10_LIST,
 ];
 
 export const MISSIONS: Record<string, MissionDefinition> = Object.fromEntries(
