@@ -58,6 +58,8 @@ import type {
   SessionState,
 } from '../engine/types';
 import { CosmicBackdrop } from '../components/CosmicBackdrop';
+import { DiskStatusBadge } from '../components/gm/DiskStatusBadge';
+import { requestDiskBackup } from '../engine/diskSync';
 import { TacticalOriginMap } from '../components/TacticalOriginMap';
 
 const CATEGORY_LABELS: { key: RecognitionCategory; label: string; color: string }[] = [
@@ -191,6 +193,10 @@ export const GameMasterPage: React.FC = () => {
       projectorMode: 'intro',
       activeEventBanner: null,
     }));
+    // Respaldo con nombre al terminar cada clase, después de que el cierre se guarde
+    window.setTimeout(() => {
+      void requestDiskBackup(`cierre-${session.classroomName}`);
+    }, 0);
   };
 
   const handleSetProjectorMode = (mode: ProjectorViewMode) => {
@@ -313,6 +319,7 @@ export const GameMasterPage: React.FC = () => {
             <span className="badge-pill" style={{ color: session.classStarted ? '#6EE7B7' : '#94A3B8' }}>
               {session.classStarted ? 'En clase' : 'Solo gestión'} · {session.classDate} · {session.classroomName} · P{session.period}
             </span>
+            <DiskStatusBadge />
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>

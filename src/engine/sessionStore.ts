@@ -1,4 +1,5 @@
 import { calculatePeriodGrade, getAttendanceSummary, sumPointLog } from './grading';
+import { scheduleDiskSave } from './diskSync';
 import type {
   AttendanceStatus,
   PointEvent,
@@ -336,8 +337,9 @@ export function saveAndBroadcastSession(state: SessionState): SessionState {
     try {
       window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(next));
     } catch {
-      // Ignorar errores de cuota
+      // Sin cuota en localStorage: el disco conserva la copia
     }
+    scheduleDiskSave(next);
     if ('BroadcastChannel' in window) {
       try {
         const channel = new BroadcastChannel(SESSION_CHANNEL_NAME);
