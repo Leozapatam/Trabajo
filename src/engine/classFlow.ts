@@ -122,3 +122,47 @@ export function getClassSummary(state: SessionState): ClassSummary {
     absenceAlerts,
   };
 }
+
+// ---------- Votación a mano alzada ----------
+
+/** Suma o resta un voto contado a mano (nunca baja de cero) */
+export function adjustVote(state: SessionState, optionId: string, delta: number): SessionState {
+  return {
+    ...state,
+    voting: {
+      ...state.voting,
+      options: state.voting.options.map((o) =>
+        o.id === optionId ? { ...o, votes: Math.max(0, o.votes + delta) } : o
+      ),
+    },
+  };
+}
+
+/** Muestra u oculta la votación en el proyector (al mostrarla, el proyector pasa a la escena) */
+export function toggleVotingOpen(state: SessionState): SessionState {
+  const open = !state.voting.open;
+  return {
+    ...state,
+    voting: { ...state.voting, open },
+    projectorMode: open ? 'scene' : state.projectorMode,
+  };
+}
+
+export function resetVotes(state: SessionState): SessionState {
+  return { ...state, voting: { ...state.voting, options: state.voting.options.map((o) => ({ ...o, votes: 0 })) } };
+}
+
+/** Para escenas sin opciones propias: una votación rápida de Sí / No sobre la pregunta dada */
+export function startQuickVote(state: SessionState, question: string): SessionState {
+  return {
+    ...state,
+    voting: {
+      open: false,
+      question,
+      options: [
+        { id: 'voto-si', label: 'Sí', votes: 0 },
+        { id: 'voto-no', label: 'No', votes: 0 },
+      ],
+    },
+  };
+}

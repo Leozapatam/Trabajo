@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { getClassSummary, rememberClassProgress, resumeClassProgress } from '../classFlow';
+import {
+  adjustVote,
+  getClassSummary,
+  rememberClassProgress,
+  resetVotes,
+  resumeClassProgress,
+  startQuickVote,
+  toggleVotingOpen,
+} from '../classFlow';
 import {
   addStudentsFromText,
   awardStudentPoints,
@@ -92,5 +100,23 @@ describe('Varios grados el mismo día', () => {
     // Un aula sin estudiantes tampoco borra nada
     s = confirmAttendance(switchClassroomRoster(s, s.schoolYear, '9°'));
     expect(Object.keys(s.attendanceByDate['2026-03-02'])).toHaveLength(4);
+  });
+});
+
+describe('Votación a mano alzada', () => {
+  it('cuenta votos sin bajar de cero, se muestra en el proyector y se reinicia', () => {
+    let s = startQuickVote(createInitialSessionState(), '¿La Tierra es más joven que el Sol?');
+    expect(s.voting.options.map((o) => o.label)).toEqual(['Sí', 'No']);
+    expect(s.voting.open).toBe(false);
+
+    s = adjustVote(adjustVote(adjustVote(s, 'voto-si', 1), 'voto-si', 1), 'voto-no', -1);
+    expect(s.voting.options.map((o) => o.votes)).toEqual([2, 0]);
+
+    // Al mostrarla, el proyector deja la portada y pasa a la escena
+    s = toggleVotingOpen({ ...s, projectorMode: 'intro' });
+    expect(s.voting.open).toBe(true);
+    expect(s.projectorMode).toBe('scene');
+    expect(toggleVotingOpen({ ...s, projectorMode: 'map' }).projectorMode).toBe('map');
+    expect(resetVotes(s).voting).toMatchObject({ open: true, options: [{ votes: 0 }, { votes: 0 }] });
   });
 });

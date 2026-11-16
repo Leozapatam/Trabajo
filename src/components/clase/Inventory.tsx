@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ClassSettings } from '../gm/ClassSettings';
 import { ResourceBank } from '../gm/ResourceBank';
 import { StudentArena } from '../gm/StudentArena';
@@ -303,10 +302,6 @@ export const Inventory: React.FC<InventoryProps> = ({
               attendanceSaved={attendanceSaved}
               savedDatesCount={Object.keys(session.attendanceByDate).length}
             />
-            <p className="inv__empty">
-              ¿Echas de menos algo del panel anterior? Sigue disponible en el{' '}
-              <Link to="/game-master">panel clásico</Link> mientras terminamos este.
-            </p>
           </div>
         )}
       </div>

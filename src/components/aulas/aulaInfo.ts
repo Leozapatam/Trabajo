@@ -11,15 +11,29 @@ export interface Aula extends GradeGroup {
 
 const WORLDS: Record<string, { world: string; tagline: string }> = {
   '6°': { world: 'Orígenes', tagline: 'Del universo a las primeras ciudades' },
-  '7°': { world: 'Imperios', tagline: 'De Roma a la Conquista de América' },
-  '8°': { world: 'Revoluciones', tagline: 'Capitalismo, independencias y derechos' },
-  '9°': { world: 'Colombia, siglo XX', tagline: 'Territorio, crisis y cambios del país' },
-  '10°': { world: 'Geopolítica', tagline: 'Conflictos, culturas y orden internacional' },
-  '11°': { world: 'Globalización', tagline: 'Guerra Fría, paz y un planeta en juego' },
-  '6°–7°': { world: 'Orígenes e Imperios', tagline: 'Aula fusionada de Sexto y Séptimo' },
+  '7°': { world: 'Imperios y encuentros', tagline: 'De Roma a la Conquista de América' },
+  '8°': { world: 'Revoluciones e industria', tagline: 'Capitalismo, independencias y derechos' },
+  '9°': { world: 'Colombia en el siglo XX', tagline: 'Territorio, crisis y cambios del país' },
+  '10°': { world: 'Orden global y conflicto', tagline: 'Territorio, violencia y orden internacional' },
+  '11°': { world: 'Dilemas del mundo actual', tagline: 'Clima, paz, Guerra Fría y globalización' },
+  '6°–7°': { world: 'Orígenes e imperios', tagline: 'Aula fusionada de Sexto y Séptimo' },
   '8°–9°': { world: 'Revoluciones y siglo XX', tagline: 'Aula fusionada de Octavo y Noveno' },
-  '10°–11°': { world: 'Geopolítica y Globalización', tagline: 'Aula fusionada de Décimo y Once' },
+  '10°–11°': { world: 'Orden global y dilemas actuales', tagline: 'Aula fusionada de Décimo y Once' },
 };
+
+/** Nombre de cada mundo como se muestra en pantalla (los datos lo traen en mayúsculas) */
+const WORLD_NAMES: Record<string, string> = {
+  origenes: 'Orígenes',
+  'mundo-7': 'Imperios y encuentros',
+  'mundo-8': 'Revoluciones e industria',
+  'mundo-9': 'Colombia en el siglo XX',
+  'mundo-10': 'Orden global y conflicto',
+  'mundo-11': 'Dilemas del mundo actual',
+};
+
+export function worldDisplayName(world: { id: string; title: string }): string {
+  return WORLD_NAMES[world.id] ?? world.title;
+}
 
 // Arte de los grupos fusionados: fondos temáticos (por fragmento del nombre de archivo)
 const FUSED_ART: Record<string, string> = {

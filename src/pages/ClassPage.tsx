@@ -1,14 +1,21 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AmbientBreeze } from '../components/AmbientBreeze';
-import { getAula } from '../components/aulas/aulaInfo';
+import { getAula, worldDisplayName } from '../components/aulas/aulaInfo';
 import { GradeLabel } from '../components/aulas/GradeLabel';
 import { ClassSummaryScreen } from '../components/clase/ClassSummaryScreen';
 import { CATEGORIES, GroupColumn, type FloatFx } from '../components/clase/GroupColumn';
 import { Inventory, INVENTORY_TABS, type InventoryTab } from '../components/clase/Inventory';
+import { VotingBlock } from '../components/clase/VotingBlock';
 import { DiskStatusBadge } from '../components/gm/DiskStatusBadge';
 import { MISSIONS_LIST, worldArtById, worldsByGrade } from '../data/catalog';
-import { getClassSummary, rememberClassProgress, resumeClassProgress, type ClassSummary } from '../engine/classFlow';
+import {
+  getClassSummary,
+  rememberClassProgress,
+  resumeClassProgress,
+  toggleVotingOpen,
+  type ClassSummary,
+} from '../engine/classFlow';
 import { requestDiskBackup } from '../engine/diskSync';
 import {
   awardStudentPoints,
@@ -43,6 +50,20 @@ function missionsForAula(aulaId: string) {
   return { worlds, missions: MISSIONS_LIST.filter((m) => ids.has(m.worldId)) };
 }
 
+/** Retoma la misión del aula y, si cambió, prepara su escena (incluidas las opciones de votación) */
+function resumeForAula(state: SessionState): SessionState {
+  const { missions } = missionsForAula(getAula(state.classroomName).id);
+  const resumed = resumeClassProgress(
+    state,
+    missions.map((m) => m.id)
+  );
+  if (resumed === state) return state;
+  const mission = missions.find((m) => m.id === resumed.missionId);
+  if (!mission) return resumed;
+  const index = Math.min(resumed.activeSceneIndex, mission.scenes.length - 1);
+  return changeSceneState(resumed, index, mission.scenes[index], mission.scenes.length);
+}
+
 function isTyping(target: EventTarget | null): boolean {
   const el = target as HTMLElement | null;
   return !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable);
@@ -50,16 +71,18 @@ function isTyping(target: EventTarget | null): boolean {
 
 /**
  * Pantalla "En clase": solo lo que se necesita mientras se narra.
- * ← → escenas · H pista · R revelar · 1–4 categoría · I inventario · P proyector · Ctrl+Z deshacer.
+ * ← → escenas · H pista · R revelar · V votación · 1–4 categoría · I inventario · P proyector · Ctrl+Z deshacer.
+ * Con ?modo=gestion abre directo el inventario, sin clase iniciada.
  */
 export const ClassPage: React.FC = () => {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const manageOnly = params.get('modo') === 'gestion';
   // Desde el primer cuadro el aula ya está en su propia misión (cada grado lleva la suya)
   const resumedOnLoad = useRef(false);
   const [session, setSession] = useState<SessionState>(() => {
     const loaded = loadSessionState();
-    const ids = missionsForAula(getAula(loaded.classroomName).id).missions.map((m) => m.id);
-    const resumed = resumeClassProgress(loaded, ids);
+    const resumed = resumeForAula(loaded);
     // Lo retomado aún no está guardado: el proyector lo necesita de inmediato
     resumedOnLoad.current = resumed !== loaded;
     return resumed;
@@ -69,7 +92,7 @@ export const ClassPage: React.FC = () => {
   const [category, setCategory] = useState<RecognitionCategory>('participacion');
   const [floats, setFloats] = useState<Record<string, FloatFx>>({});
   const [toast, setToast] = useState<Toast | null>(null);
-  const [inventory, setInventory] = useState<InventoryTab | null>(null);
+  const [inventory, setInventory] = useState<InventoryTab | null>(manageOnly ? 'exploradores' : null);
   const [closing, setClosing] = useState<{ summary: ClassSummary; backup: string | null | undefined } | null>(null);
   const [clock, setClock] = useState(() => new Date());
   const fxCounter = useRef(0);
@@ -87,10 +110,9 @@ export const ClassPage: React.FC = () => {
 
   // Deja guardado el punto de partida, y vuelve a retomar si el aula cambia desde Ajustes
   useEffect(() => {
-    const ids = missions.map((m) => m.id);
-    commit((prev) => resumeClassProgress(prev, ids), resumedOnLoad.current);
+    commit(resumeForAula, resumedOnLoad.current);
     resumedOnLoad.current = false;
-  }, [missions, commit]);
+  }, [aula.id, commit]);
 
   useEffect(() => {
     const id = window.setInterval(() => setClock(new Date()), 20000);
@@ -231,6 +253,7 @@ export const ClassPage: React.FC = () => {
       else if (key === 'h') a.revealHint();
       else if (key === 'r') a.toggleReveal();
       else if (key === 'p') a.openProjector();
+      else if (key === 'v') a.commit((prev) => (prev.voting.options.length ? toggleVotingOpen(prev) : prev));
       else if (key === 'i' || e.key === 'Tab') setInventory('exploradores');
       else if (e.key >= '1' && e.key <= '4') setCategory(CATEGORIES[Number(e.key) - 1].key);
       else return;
@@ -255,7 +278,7 @@ export const ClassPage: React.FC = () => {
           <span className="clase__hud-aula">
             AULA <GradeLabel grades={aula.grades} />
           </span>
-          <span className="clase__hud-world">{world?.title ?? aula.world}</span>
+          <span className="clase__hud-world">{world ? worldDisplayName(world) : aula.world}</span>
           {zone && (
             <span className="clase__hud-zone">
               Territorio {zone.number} de {world?.zones.length} · {zone.title}
@@ -270,9 +293,31 @@ export const ClassPage: React.FC = () => {
           <button type="button" className="clase__hud-btn" onClick={openProjector} title="Abrir la pantalla del proyector (P)">
             Proyector: {PROJECTOR_LABEL[session.projectorMode]}
           </button>
-          <button type="button" className="clase__hud-btn is-quiet" onClick={closeClass}>
-            Cerrar clase
-          </button>
+          {session.classStarted ? (
+            <>
+              <button
+                type="button"
+                className={`clase__hud-btn is-quiet${session.status === 'paused' ? ' is-paused' : ''}`}
+                onClick={() => commit((prev) => ({ ...prev, status: prev.status === 'paused' ? 'running' : 'paused' }))}
+                title="El proyector avisa al grupo que la clase está en pausa"
+              >
+                {session.status === 'paused' ? 'Reanudar' : 'Pausar'}
+              </button>
+              <button type="button" className="clase__hud-btn is-quiet" onClick={closeClass}>
+                Cerrar clase
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="clase__hud-mode">SIN CLASE INICIADA</span>
+              <button type="button" className="clase__hud-btn" onClick={() => navigate('/lista')}>
+                Empezar clase
+              </button>
+              <button type="button" className="clase__hud-btn is-quiet" onClick={() => navigate('/')}>
+                Portada
+              </button>
+            </>
+          )}
         </div>
       </header>
 
@@ -316,9 +361,16 @@ export const ClassPage: React.FC = () => {
               <p>{scene.publicAnswerSummary}</p>
             </section>
 
+            <VotingBlock session={session} commit={commit} question={scene.promptQuestion} />
+
             <section className="clase__block is-quiet">
               <h2>OJO CON</h2>
               <p>{scene.teacherNotes.whatToWatchFor}</p>
+            </section>
+
+            <section className="clase__block is-quiet">
+              <h2>PROPÓSITO</h2>
+              <p>{scene.teacherNotes.pedagogicalGoal}</p>
             </section>
           </article>
         ) : (
@@ -410,7 +462,7 @@ export const ClassPage: React.FC = () => {
         <ClassSummaryScreen
           summary={closing.summary}
           grades={aula.grades}
-          world={world?.title ?? aula.world}
+          world={world ? worldDisplayName(world) : aula.world}
           backupName={closing.backup}
           onHome={() => navigate('/')}
           onAulas={() => navigate('/aulas')}

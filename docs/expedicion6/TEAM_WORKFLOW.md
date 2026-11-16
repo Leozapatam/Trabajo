@@ -36,7 +36,7 @@ Ambos agentes trabajan sobre la misma carpeta local y sincronizan mediante `git 
 |---|---|
 | `src/engine/**` y `src/engine/__tests__/**` | `src/pages/ProjectorPage.tsx`, `WorldMapPage.tsx`, `ExplorerPage.tsx` |
 | `server/**`, `scripts/**`, `launcher/**` | `src/components/*` existentes y nuevos componentes visuales |
-| `src/pages/GameMasterPage.tsx` y `src/components/gm/**` (lógica y estructura) | `src/data/**` (mundos, misiones, escenas) |
+| `src/pages/ClassPage.tsx`, `AulasPage.tsx`, `RollCallPage.tsx`, `src/components/clase/**`, `aulas/**` y `gm/**` | `src/data/**` (mundos, misiones, escenas) |
 | `src/hooks/**` (lógica de portada y panel) | `public/assets/**`, `src/styles/theme.css` |
 | `vite.config.ts`, `docs/expedicion6/DATA_*.md` | Aspecto visual de `LandingPage.tsx` (la lógica vive en un hook) |
 

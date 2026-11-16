@@ -119,6 +119,7 @@
 
 /* Rótulos con texto variable (pueden llevar tildes, que la letra pixel deforma) */
 .clase__kicker,
+.clase__block h2,
 .inv__label,
 .inv__mission-code,
 .resumen__kicker,
@@ -1028,4 +1029,132 @@
   .inv__log {
     grid-template-columns: 1fr;
   }
+}
+
+/* --- Estado de la clase en el HUD --- */
+.clase__hud-mode {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: rgba(226, 232, 240, 0.6);
+}
+
+.clase__hud-btn.is-paused {
+  border-color: #fde68a;
+  color: #fde68a;
+  background: rgba(232, 184, 109, 0.2);
+}
+
+/* --- Votación a mano alzada --- */
+.clase__vote {
+  padding-left: 14px;
+  border-left: 3px dashed rgba(125, 211, 252, 0.45);
+}
+
+.clase__vote.is-open {
+  border-left: 3px solid #38bdf8;
+}
+
+.clase__vote.is-open h2 {
+  color: #7dd3fc;
+}
+
+.clase__vote-list {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.clase__vote-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(60px, 1fr) auto auto auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.clase__vote-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.clase__vote-bar span {
+  display: block;
+  height: 100%;
+  background: #38bdf8;
+  transition: width 0.2s ease;
+}
+
+.clase__vote-btn {
+  width: 30px;
+  height: 30px;
+  background: rgba(6, 10, 19, 0.5);
+  border: 2px solid rgba(148, 163, 184, 0.45);
+  color: #f8fafc;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.clase__vote-btn.is-plus {
+  border-color: #38bdf8;
+  color: #7dd3fc;
+}
+
+.clase__vote-btn:hover:not(:disabled),
+.clase__vote-btn:focus-visible {
+  border-color: #fde68a;
+  outline: none;
+}
+
+.clase__vote-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.clase__vote-count {
+  min-width: 2ch;
+  text-align: center;
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #fde68a;
+}
+
+.clase__vote-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.clase__vote-quick {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(6, 10, 19, 0.45);
+  border: 1px solid rgba(125, 211, 252, 0.5);
+  color: #bae6fd;
+  font: inherit;
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+
+.clase__vote-quick:hover,
+.clase__vote-quick:focus-visible {
+  border-color: #fde68a;
+  color: #fde68a;
+  outline: none;
+}
+
+.clase__vote-quick kbd {
+  font-family: var(--font-pixel);
+  font-size: 0.46rem;
+  padding: 3px 5px;
+  border: 1px solid currentColor;
 }

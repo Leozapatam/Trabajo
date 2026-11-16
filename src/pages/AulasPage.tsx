@@ -34,7 +34,7 @@ export const AulasPage: React.FC = () => {
     const switched = switchClassroomRoster(current, current.schoolYear, aulaId);
     if (manageOnly) {
       saveAndBroadcastSession({ ...switched, classStarted: false, active: false, status: 'idle' });
-      navigate('/game-master?tab=estudiantes');
+      navigate('/clase?modo=gestion');
     } else {
       saveAndBroadcastSession(switched);
       navigate('/lista');
