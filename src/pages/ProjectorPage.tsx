@@ -40,7 +40,7 @@ export const ProjectorPage: React.FC = () => {
   const gradeWorlds = worldsByGrade[session.classroomName] ?? [];
   const activeWorld = gradeWorlds[0] ?? getWorld(mission.worldId);
   const hasWorldForGrade = gradeWorlds.length > 0;
-  const worldArt = worldArtById[activeWorld.id] ?? '/assets/art/mundo-6-origenes.jpg';
+  const worldArt = worldArtById[activeWorld.id] ?? '/assets/art/mundo-6-origenes.webp';
 
   const handleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -190,7 +190,7 @@ export const ProjectorPage: React.FC = () => {
 
           <div className="pixel-frame" style={{ overflow: 'hidden', padding: 0 }}>
             <img
-              src={hasWorldForGrade ? worldArt : '/assets/art/title-screen.jpg'}
+              src={hasWorldForGrade ? worldArt : '/assets/art/title-screen.webp'}
               alt={hasWorldForGrade ? activeWorld.title : `Grado ${session.classroomName}`}
               style={{
                 width: '100%',

@@ -1,0 +1,48 @@
+/* Fondo ilustrado con rotación y fundido */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background-color: #060a13;
+}
+
+.backdrop__layer {
+  position: absolute;
+  inset: 0;
+}
+
+.backdrop__layer.is-entering {
+  animation: backdrop-fade-in 2.4s ease-in-out both;
+}
+
+.backdrop__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.9;
+  /* Solo se anima transform: el navegador lo mueve en la tarjeta gráfica */
+  will-change: transform;
+}
+
+.backdrop__vignette,
+.backdrop__scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Líneas de monitor antiguo, muy tenues: dan textura retro sin tocar la lectura */
+.backdrop__scanlines {
+  background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0 1px, transparent 1px 3px);
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+
+@keyframes backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+}

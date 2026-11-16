@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
+import './styles/fonts';
 import './styles/theme.css';
 import { flushDiskSave, restoreFromDisk } from './engine/diskSync';
 import { SESSION_STORAGE_KEY } from './engine/sessionStore';

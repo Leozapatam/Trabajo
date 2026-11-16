@@ -1,20 +1,33 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { LandingPage } from './pages/LandingPage';
-import { GameMasterPage } from './pages/GameMasterPage';
-import { GroupsPage } from './pages/GroupsPage';
-import { ProjectorPage } from './pages/ProjectorPage';
+
+// La portada carga de inmediato; las demás pantallas se descargan al entrar
+const GameMasterPage = lazy(() => import('./pages/GameMasterPage').then((m) => ({ default: m.GameMasterPage })));
+const GroupsPage = lazy(() => import('./pages/GroupsPage').then((m) => ({ default: m.GroupsPage })));
+const ProjectorPage = lazy(() => import('./pages/ProjectorPage').then((m) => ({ default: m.ProjectorPage })));
+
+const Loading: React.FC = () => (
+  <div
+    className="font-pixel"
+    style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#060a13', color: '#fde68a', fontSize: '0.7rem' }}
+  >
+    CARGANDO…
+  </div>
+);
 
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/grupos" element={<GroupsPage />} />
-        <Route path="/game-master" element={<GameMasterPage />} />
-        <Route path="/projector" element={<ProjectorPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<Loading />}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/grupos" element={<GroupsPage />} />
+          <Route path="/game-master" element={<GameMasterPage />} />
+          <Route path="/projector" element={<ProjectorPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 };

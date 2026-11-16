@@ -16,7 +16,7 @@ export const worldsByGrade: Record<string, WorldDefinition[]> = {
 };
 
 export const worldArtById: Record<string, string> = {
-  [ORIGENES_WORLD.id]: '/assets/art/mundo-6-origenes.jpg',
+  [ORIGENES_WORLD.id]: '/assets/art/mundo-6-origenes.webp',
 };
 
 export const WORLDS: Record<string, WorldDefinition> = {

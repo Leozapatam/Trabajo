@@ -3,10 +3,10 @@ import { Compass, Lock, MapPin, Sparkles } from 'lucide-react';
 import { ORIGENES_WORLD } from '../data/origenesWorld';
 
 const ZONE_ARTWORKS: Record<string, string> = {
-  'zona-1': '/assets/art/zona1-cosmos.jpg',
-  'zona-2': '/assets/art/zona2-sistema-solar.jpg',
-  'zona-3': '/assets/art/zona3-pangea.jpg',
-  'zona-4': '/assets/art/zona4-vida.jpg',
+  'zona-1': '/assets/art/zona1-cosmos.webp',
+  'zona-2': '/assets/art/zona2-sistema-solar.webp',
+  'zona-3': '/assets/art/zona3-pangea.webp',
+  'zona-4': '/assets/art/zona4-vida.webp',
 };
 
 interface TacticalOriginMapProps {
