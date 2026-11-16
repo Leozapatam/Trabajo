@@ -8,6 +8,7 @@ import {
   Users,
 } from 'lucide-react';
 import { getMission, getWorld, worldArtById, worldsByGrade } from '../data/catalog';
+import { creditLine, getTopicBackground } from '../data/topicBackgrounds';
 import {
   buildPublicProjectorView,
   getActiveStudentsCount,
@@ -43,6 +44,8 @@ export const ProjectorPage: React.FC = () => {
   const hasWorldForGrade = gradeWorlds.length > 0;
   const worldArt = worldArtById[activeWorld.id] ?? '/assets/art/mundo-6-origenes.webp';
 
+  const topicBg = getTopicBackground(session.missionId);
+
   const handleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen?.().catch(() => {});
@@ -53,7 +56,15 @@ export const ProjectorPage: React.FC = () => {
 
   return (
     <div className="projector-root" style={{ zIndex: 1 }}>
-      {session.projectorMode === 'intro' ? <TitleBackdrop /> : <CosmicBackdrop />}
+      {session.projectorMode === 'intro' ? (
+        <TitleBackdrop />
+      ) : topicBg && session.projectorMode === 'scene' ? (
+        <div className="proj-photo" aria-hidden="true">
+          <img key={topicBg.src} src={topicBg.src} alt="" style={{ objectPosition: topicBg.position }} />
+        </div>
+      ) : (
+        <CosmicBackdrop />
+      )}
 
       {/* HUD de videojuego: corazones arriba a la izquierda, estrellas arriba a la derecha.
           Sin número de misión, escena ni modos: el grupo solo ve la historia */}
@@ -314,6 +325,7 @@ export const ProjectorPage: React.FC = () => {
             <Users size={11} /> {activeStudents} exploradores
           </span>
         )}
+        {topicBg && session.projectorMode === 'scene' && <span className="proj-foot__credit">{creditLine(topicBg)}</span>}
         <span className="proj-foot__brand">CIENCIAS SOCIALES · I.E.R. BOYACÁ</span>
       </footer>
     </div>

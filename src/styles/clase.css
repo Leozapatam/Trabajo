@@ -22,8 +22,9 @@
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(6, 10, 19, 0.93) 0%, rgba(6, 10, 19, 0.84) 46%, rgba(6, 10, 19, 0.6) 72%, rgba(6, 10, 19, 0.82) 100%),
-    linear-gradient(0deg, rgba(6, 10, 19, 0.9) 0%, rgba(6, 10, 19, 0) 30%);
+    linear-gradient(90deg, rgba(6, 10, 19, 0.82) 0%, rgba(6, 10, 19, 0.6) 46%, rgba(6, 10, 19, 0.38) 70%, rgba(6, 10, 19, 0.72) 100%),
+    linear-gradient(0deg, rgba(6, 10, 19, 0.88) 0%, rgba(6, 10, 19, 0) 26%),
+    linear-gradient(180deg, rgba(6, 10, 19, 0.7) 0%, rgba(6, 10, 19, 0) 18%);
 }
 
 .clase__hud,
@@ -2143,4 +2144,22 @@
   .mirror__dot {
     animation: none;
   }
+}
+
+/* Crédito del fondo fotográfico (las licencias CC BY-SA piden citar autor) */
+.clase__credit {
+  position: fixed;
+  right: 12px;
+  bottom: 4px;
+  z-index: 1;
+  max-width: 46vw;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.6rem;
+  color: rgba(226, 232, 240, 0.38);
+  text-decoration: none;
+}
+.clase__credit:hover {
+  color: rgba(226, 232, 240, 0.8);
 }

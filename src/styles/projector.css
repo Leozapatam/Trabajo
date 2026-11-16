@@ -102,3 +102,48 @@
   font-size: 0.5rem;
   letter-spacing: 0.08em;
 }
+
+/* Fondo fotográfico del tema (4K) con velo oscuro para que el texto se lea */
+.proj-photo {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #03050a;
+}
+.proj-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: proj-photo-in 1.2s ease-out both, proj-photo-drift 40s ease-in-out infinite alternate;
+}
+.proj-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(3, 5, 10, 0.55) 0%, rgba(3, 5, 10, 0.25) 35%, rgba(3, 5, 10, 0.55) 70%, rgba(3, 5, 10, 0.85) 100%),
+    radial-gradient(ellipse at center, transparent 40%, rgba(3, 5, 10, 0.5) 100%);
+}
+@keyframes proj-photo-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes proj-photo-drift {
+  from {
+    transform: scale(1.02);
+  }
+  to {
+    transform: scale(1.09) translate(-1%, -1%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .proj-photo img {
+    animation: none;
+  }
+}
+.proj-foot__credit {
+  font-size: 0.62rem;
+  color: rgba(226, 232, 240, 0.4);
+}

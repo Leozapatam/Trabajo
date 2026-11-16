@@ -16,6 +16,7 @@ import { TopicMap } from '../components/clase/TopicMap';
 import { KIND_LABEL, YearPlanWindow } from '../components/clase/YearPlanWindow';
 import { DiskStatusBadge } from '../components/gm/DiskStatusBadge';
 import { MISSIONS_LIST, worldArtById, worldsByGrade } from '../data/catalog';
+import { creditLine, getTopicBackground } from '../data/topicBackgrounds';
 import {
   getClassSummary,
   rememberClassProgress,
@@ -180,7 +181,10 @@ export const ClassPage: React.FC = () => {
   const scene = specialClass ? null : (mission?.scenes[sceneIndex] ?? null);
   const world = worlds.find((w) => w.id === mission?.worldId) ?? worlds[0];
   const zone = world?.zones.find((z) => z.id === mission?.zoneId);
+  // Fondo fotográfico del tema; si el tema aún no tiene, la ilustración de su territorio
+  const topicBg = specialClass ? null : getTopicBackground(mission?.id);
   const art =
+    topicBg?.src ??
     zone?.artwork ?? (zone ? LEGACY_ZONE_ART[zone.id] : undefined) ?? world?.artwork ?? (world ? worldArtById[world.id] : undefined) ?? aula.art;
 
   const showToast = (text: string, undo?: () => void) => {
@@ -361,8 +365,13 @@ export const ClassPage: React.FC = () => {
   return (
     <div className="clase">
       <div className="aulas__art" aria-hidden="true">
-        <img key={art} src={art} alt="" className="is-active" />
+        <img key={art} src={art} alt="" className="is-active" style={{ objectPosition: topicBg?.position }} />
       </div>
+      {topicBg && (
+        <a className="clase__credit" href={topicBg.source} target="_blank" rel="noreferrer" title="Ver la imagen original">
+          {creditLine(topicBg)}
+        </a>
+      )}
       <div className="clase__shade" aria-hidden="true" />
       <AmbientBreeze scene="tierra" intensity="soft" />
 
