@@ -734,7 +734,13 @@ export function recordAttendanceSnapshot(state: SessionState): SessionState {
   for (const s of state.students) {
     if (s.active) dayMap[s.id] = s.attendanceToday;
   }
-  const attendanceByDate = { ...state.attendanceByDate, [dateKey]: dayMap };
+  // La fecha es compartida por todas las aulas: solo se reemplaza lo de esta lista,
+  // para no borrar la asistencia de otro grado que tuvo clase el mismo día
+  const rosterIds = new Set(state.students.map((s) => s.id));
+  const otherClassrooms = Object.fromEntries(
+    Object.entries(state.attendanceByDate[dateKey] ?? {}).filter(([id]) => !rosterIds.has(id))
+  );
+  const attendanceByDate = { ...state.attendanceByDate, [dateKey]: { ...otherClassrooms, ...dayMap } };
   const periodByDate = { ...state.periodByDate, [dateKey]: state.period };
   const nextStudents = state.students.map((s) => {
     const summary = getAttendanceSummary({ attendanceByDate, periodByDate }, s.id);

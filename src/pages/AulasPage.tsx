@@ -54,7 +54,7 @@ export const AulasPage: React.FC = () => {
         setIndex((i - 1 + AULAS.length) % AULAS.length);
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        go(AULAS[i].id);
+        if (!e.repeat) go(AULAS[i].id);
       } else if (e.key === 'Escape') {
         navigate('/');
       }

@@ -53,7 +53,7 @@ export const RollCallPage: React.FC = () => {
       status: 'running',
       projectorMode: 'intro',
     });
-    navigate('/game-master');
+    navigate('/clase');
   };
 
   const handlersRef = useRef({ start });
@@ -61,9 +61,10 @@ export const RollCallPage: React.FC = () => {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Enter') {
-        // Enter siempre comienza (aunque el foco esté en una ficha)
+        // Enter siempre comienza (aunque el foco esté en una ficha).
+        // Una tecla que viene sostenida desde la pantalla anterior no cuenta.
         e.preventDefault();
-        handlersRef.current.start();
+        if (!e.repeat) handlersRef.current.start();
         return;
       }
       if (e.key === 'Escape') {
