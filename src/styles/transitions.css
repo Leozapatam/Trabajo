@@ -1,0 +1,120 @@
+/*
+ * Transiciones cinemáticas entre pantallas (ver components/CinematicStage.tsx).
+ * Se conservan aunque cambien las pantallas: no se declaran en cada página.
+ * La animación solo deja estilos mientras corre (fill-mode backwards), así los
+ * elementos fijos de cada pantalla quedan en su sitio al terminar.
+ */
+:root {
+  --cine-duration: 0.9s;
+  --cine-ease: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.cine-stage {
+  min-height: 100vh;
+  animation: cine-enter var(--cine-duration) var(--cine-ease) backwards;
+}
+
+@keyframes cine-enter {
+  from {
+    opacity: 0;
+    transform: scale(1.045);
+    filter: blur(10px) brightness(0.4);
+  }
+  55% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Franjas de cine que se abren desde el centro */
+.cine-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  display: grid;
+  grid-template-rows: 1fr 0 1fr;
+  animation: cine-curtain-out 0.2s linear calc(var(--cine-duration) + 0.05s) forwards;
+}
+
+.cine-curtain__bar {
+  background: #03050a;
+}
+.cine-curtain__bar.is-top {
+  animation: cine-bar-top var(--cine-duration) var(--cine-ease) forwards;
+}
+.cine-curtain__bar.is-bottom {
+  animation: cine-bar-bottom var(--cine-duration) var(--cine-ease) forwards;
+}
+
+/* Destello dorado en la línea de corte */
+.cine-curtain__glint {
+  position: relative;
+  height: 0;
+}
+.cine-curtain__glint::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -1px;
+  width: 100%;
+  height: 2px;
+  transform: translateX(-50%) scaleX(0);
+  background: linear-gradient(90deg, transparent, #fde68a 30%, #fff 50%, #fde68a 70%, transparent);
+  box-shadow: 0 0 18px 4px rgba(253, 230, 138, 0.55);
+  animation: cine-glint var(--cine-duration) ease-out forwards;
+}
+
+@keyframes cine-bar-top {
+  0%, 18% {
+    transform: none;
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+@keyframes cine-bar-bottom {
+  0%, 18% {
+    transform: none;
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes cine-glint {
+  0% {
+    transform: translateX(-50%) scaleX(0);
+    opacity: 1;
+  }
+  30% {
+    transform: translateX(-50%) scaleX(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-50%) scaleX(1);
+    opacity: 0;
+  }
+}
+@keyframes cine-curtain-out {
+  to {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cine-stage {
+    animation: cine-fade 0.3s ease-out backwards;
+  }
+  .cine-curtain {
+    display: none;
+  }
+  @keyframes cine-fade {
+    from {
+      opacity: 0;
+    }
+  }
+}

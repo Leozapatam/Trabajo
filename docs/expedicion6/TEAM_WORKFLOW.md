@@ -55,5 +55,13 @@ Ambos agentes trabajan sobre la misma carpeta local y sincronizan mediante `git 
 
 - El software se llama **Ciencias Sociales** (I.E.R. Boyacá). Es solo para el docente: no hay modo estudiante, ni "Explorar en casa", ni mapa público suelto.
 - Al abrir: **Empezar nueva clase** o **Solo gestionar**.
-- Grados: **6°, 7°, 8°, 9°, 10°, 11°** (un grupo por grado, sin letras) y grupos fusionados **6°–7°, 8°–9°, 10°–11°**, que empiezan vacíos.
+- Grados: **6°, 7°, 8°, 9°, 10°, 11°** (un grupo por grado, sin letras) y grupos unidos **6°–7°, 8°–9°, 10°–11°**, que empiezan vacíos.
+  En Gestión de grupos el unido propone a los activos de sus grados y solo entran los que el profe acepta.
+- Escuadrones por rendimiento (nota del periodo, escala SIE): **Vanguardia** = Superior y Alto, **Centro** = Básico, **Retaguardia** = Bajo (`src/engine/groups.ts`).
+
+## 6. Transiciones cinemáticas (2026-11-16) — no quitar
+
+- Todas las pantallas entran con la transición de `src/components/CinematicStage.tsx` + `src/styles/transitions.css` (franjas de cine, destello dorado y acercamiento).
+- `App.tsx` envuelve **todas** las rutas en `<CinematicStage>`. Las pantallas nuevas la heredan solas: no declaren su propia transición de entrada ni quiten el envoltorio.
+- `src/__tests__/transitions.test.ts` falla si alguien saca las rutas del escenario o la cortina.
 - Contenido: solo el **núcleo depurado** del plan DBA (`src/data/dbaPlan.json`, generado con `node scripts/extract-dba.mjs`). No se crean misiones sobre evidencias marcadas como "ruido".

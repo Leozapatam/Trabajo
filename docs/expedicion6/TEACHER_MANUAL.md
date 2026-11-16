@@ -58,4 +58,6 @@ Para proyectar sin mostrar tu guion, notas ni respuestas:
 - La nota anual pondera los periodos 30 % / 35 % / 35 % según el SIE.
 - Todo se guarda solo en tu Google Drive (`1. Clases\Expedicion6-Datos`), con respaldos automáticos, y te sigue a cualquier PC. Detalles en `DATA_PERSISTENCE.md`.
 - La matrícula y los retiros se hacen en **Gestión de grupos**, desde la portada.
+  - En un grupo unido (6°–7°, 8°–9°, 10°–11°) aparecen los estudiantes de cada grado: toca a quien no va y pulsa **Aceptar**. Nadie entra sin tu aceptación.
+  - **Escuadrones** reparte al grupo por su nota del periodo: Vanguardia (Superior y Alto), Centro (Básico) y Retaguardia (Bajo).
 - **Logros** (portada): años dando clase, semanas cotizadas y fecha estimada de pensión. Tus fechas se guardan solo en tu archivo de datos.

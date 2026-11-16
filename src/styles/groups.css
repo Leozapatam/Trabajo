@@ -166,3 +166,171 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* --- Grupo unido: propuesta para aceptar --- */
+.fusion {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px dashed rgba(125, 211, 252, 0.55);
+  border-radius: 12px;
+  background: rgba(10, 24, 40, 0.6);
+  animation: groups-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fusion__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: #7dd3fc;
+}
+.fusion__head strong {
+  flex: 1;
+  color: #f8fafc;
+}
+.fusion__all {
+  padding: 3px 10px;
+  font-size: 0.78rem;
+}
+.fusion__group {
+  display: grid;
+  gap: 6px;
+}
+.fusion__from {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: rgba(253, 230, 138, 0.8);
+}
+.fusion__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fusion__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(226, 232, 240, 0.55);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: line-through;
+}
+.fusion__chip.is-on {
+  border-color: rgba(125, 211, 252, 0.6);
+  background: rgba(125, 211, 252, 0.14);
+  color: #e0f2fe;
+  text-decoration: none;
+}
+.fusion__accept {
+  justify-self: start;
+}
+
+/* --- Pestañas Lista / Escuadrones --- */
+.groups-view {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+.groups-view__tab {
+  padding: 8px 14px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: rgba(226, 232, 240, 0.6);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.groups-view__tab.is-active {
+  border-bottom-color: #fde68a;
+  color: #fde68a;
+}
+
+/* --- Escuadrones --- */
+.squads {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.squad {
+  --c: #fbbf24;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
+  border-top: 4px solid var(--c);
+  border-radius: 12px;
+  background: rgba(8, 12, 22, 0.6);
+  animation: groups-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.squad.is-centro {
+  --c: #7dd3fc;
+  animation-delay: 0.08s;
+}
+.squad.is-retaguardia {
+  --c: #fb923c;
+  animation-delay: 0.16s;
+}
+.squad__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--c);
+}
+.squad__name {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.squad__count {
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+}
+.squad__hint {
+  font-size: 0.75rem;
+  color: rgba(226, 232, 240, 0.55);
+}
+.squad__list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.squad__list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.9rem;
+}
+.squad__list strong {
+  color: var(--c);
+  font-variant-numeric: tabular-nums;
+}
+.squad__empty {
+  color: rgba(226, 232, 240, 0.4);
+}
+
+@keyframes groups-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@media (max-width: 900px) {
+  .squads {
+    grid-template-columns: 1fr;
+  }
+}

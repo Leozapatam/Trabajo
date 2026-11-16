@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, UserMinus, UserPlus, UserRoundCheck } from 'lucide-react';
 import { TitleBackdrop } from '../components/TitleBackdrop';
 import { DiskStatusBadge } from '../components/gm/DiskStatusBadge';
+import { FusionProposal } from '../components/groups/FusionProposal';
+import { SquadBoard } from '../components/groups/SquadBoard';
+import { acceptFusionCandidates, getFusionCandidates } from '../engine/groups';
 import { getGradeGroup, GRADE_GROUPS } from '../engine/grades';
 import {
   enrollStudents,
@@ -24,6 +27,7 @@ export const GroupsPage: React.FC = () => {
   const [names, setNames] = useState('');
   const [query, setQuery] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [view, setView] = useState<'lista' | 'escuadrones'>('lista');
 
   const commit = (next: SessionState) => setSession(saveAndBroadcastSession(next));
   useEffect(() => subscribeToNewerSession(setSession), []);
@@ -56,6 +60,13 @@ export const GroupsPage: React.FC = () => {
     const parts = [`${result.added} matriculado${result.added === 1 ? '' : 's'} en ${group.id}`];
     if (result.skipped.length) parts.push(`${result.skipped.length} ya estaba${result.skipped.length === 1 ? '' : 'n'}`);
     setFeedback(parts.join(' · '));
+  };
+
+  const candidates = group.fused ? getFusionCandidates(session, groupId) : [];
+  const acceptFusion: React.ComponentProps<typeof FusionProposal>['onAccept'] = (accepted) => {
+    const result = acceptFusionCandidates(session, groupId, accepted);
+    if (result.added > 0) commit(result.state);
+    setFeedback(`${result.added} unido${result.added === 1 ? '' : 's'} a ${group.id}`);
   };
 
   const selectGroup = (id: string) => {
@@ -120,6 +131,36 @@ export const GroupsPage: React.FC = () => {
             </span>
           </div>
 
+          {candidates.length > 0 && (
+            <FusionProposal
+              key={groupId}
+              groupId={group.id}
+              sources={group.grades.map((n) => `${n}°`)}
+              candidates={candidates}
+              onAccept={acceptFusion}
+            />
+          )}
+
+          <div className="groups-view" role="tablist" aria-label="Vista del grupo">
+            {(['lista', 'escuadrones'] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                role="tab"
+                aria-selected={view === v}
+                className={`groups-view__tab${view === v ? ' is-active' : ''}`}
+                onClick={() => setView(v)}
+              >
+                {v === 'lista' ? 'Lista y matrícula' : 'Escuadrones'}
+              </button>
+            ))}
+          </div>
+
+          {view === 'escuadrones' ? (
+            <SquadBoard session={session} roster={roster} />
+          ) : (
+          <>
+
           <form onSubmit={handleEnroll} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Matricular estudiantes (pega la lista: un nombre por línea)
@@ -147,7 +188,7 @@ export const GroupsPage: React.FC = () => {
           {roster.length === 0 ? (
             <p style={{ margin: 0, color: 'var(--text-muted)' }}>
               {group.fused
-                ? 'Grupo fusionado vacío. Solo tendrá estudiantes si los matriculas aquí.'
+                ? 'Grupo unido vacío. Acepta arriba a los estudiantes de cada grado o matricúlalos aquí.'
                 : 'Aún no hay estudiantes matriculados en este grado.'}
             </p>
           ) : (
@@ -187,6 +228,8 @@ export const GroupsPage: React.FC = () => {
                 Retirar no borra notas ni asistencia: el estudiante deja de aparecer en el tablero de clase.
               </p>
             </>
+          )}
+          </>
           )}
         </section>
       </div>
