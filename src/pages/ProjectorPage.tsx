@@ -133,7 +133,7 @@ export const ProjectorPage: React.FC = () => {
           }}
         >
           <span className="pixel-badge" style={{ borderColor: '#38BDF8', color: '#7DD3FC' }}>
-            <Sparkles size={14} /> EXPEDICIÓN 6 · AÑO {session.schoolYear} · {session.classroomName}
+            <Sparkles size={14} /> CIENCIAS SOCIALES · AÑO {session.schoolYear} · {session.classroomName}
           </span>
 
           <h1
@@ -333,7 +333,7 @@ export const ProjectorPage: React.FC = () => {
           </span>
         </div>
         <span className="font-pixel" style={{ fontSize: '0.64rem', color: 'var(--text-muted)' }}>
-          EXPEDICIÓN 6 · ORÍGENES
+          CIENCIAS SOCIALES
         </span>
       </footer>
     </div>

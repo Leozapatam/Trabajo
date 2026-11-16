@@ -77,9 +77,9 @@ describe('Motor de Sesión, Asistencia, Heteroevaluación e Inventario', () => {
     expect(calculateStudentGrade(session.students[0], { baseGrade: 3.5, stepPerPoint: 0.1 })).toBe(3.6);
 
     // Persistencia de listas por salón al cambiar de grupo
-    session = switchClassroomRoster(session, '2026', '6°B');
+    session = switchClassroomRoster(session, '2026', '7°');
     expect(session.students).toHaveLength(0);
-    session = switchClassroomRoster(session, '2026', '6°A');
+    session = switchClassroomRoster(session, '2026', '6°');
     expect(session.students).toHaveLength(3);
   });
 

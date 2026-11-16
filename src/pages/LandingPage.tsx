@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Compass, FolderCog, Play, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Compass, FolderCog, Play } from 'lucide-react';
 import { TitleBackdrop } from '../components/TitleBackdrop';
+import { GRADE_GROUPS } from '../engine/grades';
 import {
+  getActiveCountsByGrade,
   getTodayIsoDate,
   loadSessionState,
   saveAndBroadcastSession,
@@ -14,13 +16,14 @@ export const LandingPage: React.FC = () => {
   const initial = loadSessionState();
 
   const [classDate, setClassDate] = useState<string>(initial.classDate || getTodayIsoDate());
-  const [classroomName, setClassroomName] = useState<string>(initial.classroomName || '6°A');
+  const [classroomName, setClassroomName] = useState<string>(initial.classroomName);
+  const countsByGrade = getActiveCountsByGrade(initial);
   const [period, setPeriod] = useState<1 | 2 | 3>(initial.period || 1);
 
   const handleStartNewClass = (e: React.FormEvent) => {
     e.preventDefault();
     const current = loadSessionState();
-    const switched = switchClassroomRoster(current, current.schoolYear, classroomName.trim() || '6°A');
+    const switched = switchClassroomRoster(current, current.schoolYear, classroomName);
     saveAndBroadcastSession({
       ...switched,
       classDate,
@@ -35,7 +38,7 @@ export const LandingPage: React.FC = () => {
 
   const handleManageOnly = () => {
     const current = loadSessionState();
-    const switched = switchClassroomRoster(current, current.schoolYear, classroomName.trim() || '6°A');
+    const switched = switchClassroomRoster(current, current.schoolYear, classroomName);
     saveAndBroadcastSession({
       ...switched,
       classDate,
@@ -78,7 +81,7 @@ export const LandingPage: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div>
             <span className="pixel-badge" style={{ marginBottom: 14 }}>
-              <Compass size={14} /> EXPEDICIÓN 6 · MUNDO 1
+              <Compass size={14} /> I.E.R. BOYACÁ · AÑO {initial.schoolYear}
             </span>
 
             <h1
@@ -91,7 +94,7 @@ export const LandingPage: React.FC = () => {
                 textShadow: '4px 4px 0 #060A13, 6px 6px 0 rgba(232, 184, 109, 0.38)',
               }}
             >
-              ORÍGENES
+              CIENCIAS SOCIALES
             </h1>
             <p
               className="font-display"
@@ -103,7 +106,7 @@ export const LandingPage: React.FC = () => {
                 textShadow: '0 2px 10px rgba(0, 0, 0, 0.85)',
               }}
             >
-              Del universo a la Tierra
+              Sexto a Once
             </p>
           </div>
 
@@ -138,13 +141,10 @@ export const LandingPage: React.FC = () => {
                 </label>
 
                 <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                  Grado / Salón
-                  <input
-                    type="text"
+                  Grado
+                  <select
                     value={classroomName}
                     onChange={(e) => setClassroomName(e.target.value)}
-                    placeholder="Ej. 6°A"
-                    required
                     style={{
                       width: '100%',
                       marginTop: 5,
@@ -155,7 +155,16 @@ export const LandingPage: React.FC = () => {
                       padding: '9px 10px',
                       fontSize: '0.94rem',
                     }}
-                  />
+                  >
+                    {GRADE_GROUPS.map((g) => {
+                      const count = countsByGrade[g.id] ?? 0;
+                      return (
+                        <option key={g.id} value={g.id}>
+                          {g.id} · {g.label} {count > 0 ? `(${count})` : g.fused ? '(vacío)' : ''}
+                        </option>
+                      );
+                    })}
+                  </select>
                 </label>
               </div>
 
@@ -203,24 +212,6 @@ export const LandingPage: React.FC = () => {
                 </button>
               </div>
             </form>
-
-            <div
-              style={{
-                marginTop: 16,
-                paddingTop: 12,
-                borderTop: '1px solid var(--border-subtle)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '0.82rem',
-              }}
-            >
-              <Link to="/origenes" style={{ color: 'var(--accent-teal)', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                <Sparkles size={13} /> Mapa de Orígenes
-              </Link>
-              <Link to="/explorar" style={{ color: 'var(--text-secondary)' }}>
-                Explorar en Casa
-              </Link>
-            </div>
           </section>
         </div>
 

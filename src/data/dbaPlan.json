@@ -1,0 +1,443 @@
+{
+  "source": "DBA PLAN IER BOYACÁ — núcleo depurado",
+  "grades": [
+    {
+      "grade": 6,
+      "title": "Sexto",
+      "dbas": [
+        {
+          "num": 1,
+          "statement": "Comprende que existen diversas explicaciones y teorías sobre el origen del universo en nuestra búsqueda por entender que hacemos parte de un mundo más amplio.",
+          "focus": "Pensamiento Social: Diferenciación epistemológica entre explicaciones mítico-religiosas y teorías científicas como base del pensamiento racional.",
+          "evidences": [
+            "Compara teorías científicas, religiosas y mitos de culturas ancestrales sobre el origen del universo.",
+            "Interpreta diferentes teorías científicas sobre el origen del universo (Big Bang, inflacionaria, multiuniversos) para reconocer el cambio de paradigmas."
+          ]
+        },
+        {
+          "num": 2,
+          "statement": "Comprende que la Tierra es un planeta en constante transformación cuyos cambios influyen en las formas del relieve terrestre y en la vida de las comunidades que la habitan.",
+          "focus": "Geografía Sistémica: Análisis del espacio geográfico como escenario dinámico condicionado por variables físicas y acciones humanas.",
+          "evidences": [
+            "Describe las interacciones que se dan entre el relieve, el clima, las zonas bioclimáticas y las acciones humanas.",
+            "Diferencia las repercusiones de some fenómenos climáticos (huracanes, tornados, fenómeno del niño y de la niña, lluvias tropicales) en la vulnerabilidad socioeconómica de las personas.",
+            "Argumenta a partir de evidencias los efectos de un sismo en la población y conoce las recomendaciones a seguir, en caso de un sismo."
+          ]
+        },
+        {
+          "num": 3,
+          "statement": "Analiza los aspectos centrales del proceso de hominización y del desarrollo tecnológico dados durante la prehistoria, para explicar las transformaciones del entorno.",
+          "focus": "Pensamiento Social: El trabajo y la evolución técnica como génesis de la estratificación social y la alteración de los ecosistemas.",
+          "evidences": [
+            "Identifica los cambios tecnológicos que tuvieron los homínidos (piedras talladas, huesos, conchas…) así como las repercusiones en su vida y en el entorno.",
+            "Explica el papel del trabajo de los homínidos (caza, pesca, recolección) y la importancia de estas actividades en la organización social y en el proceso de humanización."
+          ]
+        },
+        {
+          "num": 4,
+          "statement": "Analiza cómo en las sociedades antiguas surgieron las primeras ciudades y el papel de la agricultura y el comercio para la expansión de estas.",
+          "focus": "Economía Política: El excedente agrícola como detonante de la propiedad privada, la división social del trabajo, el esclavismo y el Estado.",
+          "evidences": [
+            "Relaciona el origen de la agricultura con el desarrollo de las sociedades antiguas y la aparición de elementos que permanecen en la actualidad (canales de riego, la escritura, el ladrillo).",
+            "Establece las implicaciones del proceso de sedentarización, la domesticación de animales y el empleo de mano de obra esclavizada en la revolución agrícola para la humanidad."
+          ]
+        },
+        {
+          "num": 5,
+          "statement": "Analiza los legados que las sociedades americanas prehispánicas dejaron en diversos campos.",
+          "focus": "Análisis Comparativo: Estructuras estatales complejas en América prehispánica y su integración metabólica/económica con el entorno urbano.",
+          "evidences": [
+            "Compara la estructura social, política y económica de las sociedades prehispánicas con las sociedades actuales del continente americano, estableciendo continuidades y rupturas.",
+            "Explica la importancia de alimentos domesticados en América como el maíz, el tomate y la papa en la demografía y geopolítica alimentaria mundial contemporánea."
+          ]
+        },
+        {
+          "num": 6,
+          "statement": "Analiza las distintas formas de gobierno ejercidas in la antigüedad y las compara con el ejercicio del poder político en el mundo contemporáneo.",
+          "focus": "Pensamiento Social: Desmitificación del ejercicio del poder. Mecanismos de legitimación jurídica, militar y teocrática del Estado.",
+          "evidences": [
+            "Compara las características de la democracia ateniense, del poder feudal, del absolutismo y de la democracia parlamentaria.",
+            "Explica cómo en la antigüedad se accedía al poder, cómo se justificaba, cómo se mantenía y cuál era el protagonismo de las personas en la elección de sus gobernantes.",
+            "Describe semejanzas y diferencias que se observan entre la democracia ateniense y las democracias actuales, en especial la colombiana, señalando límites de representatividad."
+          ]
+        },
+        {
+          "num": 7,
+          "statement": "Analiza cómo en el escenario político democrático entran en juego intereses desde diferentes sectores sociales, políticos y económicos, los cuales deben ser dirimidos por los ciudadanos.",
+          "focus": "Análisis de Perspectivas: La participación ciudadana como mecanismo de canalización y resolución de conflictos de interés material.",
+          "evidences": [
+            "Describe el origen de la ciudadanía, los cambios que ha tenido en el tiempo y su significado actual.",
+            "Argumenta la importancia de participar activamente en la toma de decisiones para el bienestar colectivo en la sociedad, en el contexto de una democracia.",
+            "Explica, a partir de ejemplos, las consecuencias que pueden tener sobre sí mismo y sobre los demás la no participación activa en las decisiones de una comunidad."
+          ]
+        },
+        {
+          "num": 8,
+          "statement": "Comprende que en una sociedad democrática no es aceptable ninguna forma de discriminación por origen étnico, creencias religiosas, género, discapacidad y/o apariencia física.",
+          "focus": "Pensamiento Reflexivo: Fundamentación jurídica de la igualdad ante la ley. El bloque de constitucionalidad frente al prejuicio cultural.",
+          "evidences": [
+            "Reconoce que las personas tenemos derecho a no ser discriminadas a la luz de la Declaración Universal de los Derechos Humanos y de la Constitución Nacional de Colombia de 1991.",
+            "Argumenta cómo los derechos de las personas se basan en el principio de la igualdad ante la ley, aunque cada uno viva y se exprese de manera diferente."
+          ]
+        }
+      ]
+    },
+    {
+      "grade": 7,
+      "title": "Séptimo",
+      "dbas": [
+        {
+          "num": 1,
+          "statement": "Comprende que las representaciones del mundo han cambiado a partir de las visiones de quienes las elaboran y de los avances de la tecnología.",
+          "focus": "Pensamiento Reflexivo: La cartografía como instrumento ideológico y geopolítico. El mapa como construcción de poder.",
+          "evidences": [
+            "Relaciona la concepción y representación del mundo que se tenía en la Edad Media influenciada por la Biblia con la cultura espacial europea y señala los cambios y las continuidades más relevantes.",
+            "Argumenta que las representaciones del espacio son producto de las imágenes que se tienen del mundo y que se modifican con el tiempo.",
+            "Compara las representaciones del mundo conocido en la Edad Media y el representado hoy desde los mapas e imágenes satelitales."
+          ]
+        },
+        {
+          "num": 2,
+          "statement": "Interpreta las relaciones entre el crecimiento de la población, el desarrollo de los centros urbanos y las problemáticas sociales.",
+          "focus": "Geografía Crítica: Demografía y tensiones de la urbanización. La producción social del espacio segregado.",
+          "evidences": [
+            "Reconoce y utiliza conceptos propios de la geografía urbana (desarrollo, crecimiento, conurbación, área metropolitana y planificación urbana) en su contexto.",
+            "Localiza en zonas de la ciudad o del municipio la concentración de fenómenos sociales como la pobreza, la violencia, los asentamientos informales y explica sus causas.",
+            "Relaciona la industrialización y la migración del campo a la ciudad con los procesos de organización de las ciudades en Colombia en las últimas décadas."
+          ]
+        },
+        {
+          "num": 3,
+          "statement": "Analiza la influencia del imperio romano en la cultura de occidente y los aportes en diversos campos como la literatura, las leyes, la ingeniería y la vida cotidiana.",
+          "focus": "Pensamiento Social: Institucionalidad y colapso estatal. Roma como matriz del derecho civil y la sobreextensión militar.",
+          "evidences": [
+            "Reconoce el imperio romano como un sistema político, militar y económico que ejerció control territorial e influyó en las estructuras jurídicas de occidente.",
+            "Argumenta las razones que llevaron a la crisis del imperio romano, para identificar los factores que pueden incidir en la decadencia de un Estado.",
+            "Describe el legado cultural del imperio romano en aspectos tales como el sistema político, el desarrollo de la infraestructura y el comercio."
+          ]
+        },
+        {
+          "num": 4,
+          "statement": "Analiza la Edad Media como un periodo histórico que dio origen a instituciones sociales, económicas y políticas en relación con el mismo período de las sociedades precolombinas.",
+          "focus": "Análisis Comparativo: El feudalismo como monopolio de la tierra y la Iglesia como aparato de hegemonía cultural/ideológica frente a la teocracia americana.",
+          "evidences": [
+            "Describe los principales eventos que identificaron las sociedades europeas en la Edad Media (modelo económico feudal, poder político de la iglesia, desigualdad social).",
+            "Argumenta las continuidades del ordenamiento político instaurado durante la Edad Media y las discontinuidades en el desarrollo de las culturas precolombinas con la llegada de los europeos.",
+            "Reconoce la organización social de las culturas precolombinas en los períodos clásico y posclásico y señala similitudes con las sociedades medievales."
+          ]
+        },
+        {
+          "num": 5,
+          "statement": "Analiza el Renacimiento como una época que dio paso en Europa a una nueva configuración cultural en campos como las ciencias, la política, las artes y la literatura.",
+          "focus": "Pensamiento Social: Secularización y precapitalismo. Ruptura del monopolio teológico e inicio de la racionalidad instrumental mercantil.",
+          "evidences": [
+            "Describe algunos acontecimientos que dieron paso a la Modernidad e incidieron en un nuevo pensamiento político, social, económico e intelectual.",
+            "Explica las implicaciones políticas y económicas que tuvo la Reforma protestante para Europa y América.",
+            "Interpreta mapas temáticos en los que reconoce ciudades estratégicas de Europa por su importancia económica y rutas de comercio comercial."
+          ]
+        },
+        {
+          "num": 6,
+          "statement": "Evalúa las causas y consecuencias de los procesos de Conquista y colonización europea dados en América.",
+          "focus": "Pensamiento Social: Estructuración de la desigualdad americana. Capitalismo primitivo, desestructuración demográfica y castas socio-raciales.",
+          "evidences": [
+            "Explica los cambios y continuidades de las organizaciones sociales, políticas y económicas instauradas durante la época colonial en América.",
+            "Interpreta las consecuencias demográficas, políticas y culturales que tuvo para los pueblos ancestrales la incorporación forzada al sistema imperial europeo.",
+            "Argumenta la importancia de la diversidad étnica y cultural del país como resultado del proceso histórico de mestizaje y resistencia."
+          ]
+        },
+        {
+          "num": 7,
+          "statement": "Comprende la responsabilidad que tiene una sociedad democrática para evitar la violación de los derechos fundamentales de sus ciudadanos.",
+          "focus": "Análisis Instrumental Jurídico: Estructura del Estado Social de Derecho. Mecanismos procesales de protección inmediata (La Acción de Tutela).",
+          "evidences": [
+            "Compara la Declaración Universal de los Derechos Humanos con los derechos fundamentales enunciados en la Constitución de 1991.",
+            "Expresa una posición argumentada frente a hechos o situaciones en los que se vulneran los derechos fundamentales, basándose en la norma constitucional.",
+            "Identifica en qué situaciones puede usar la tutela como mecanismo para la protección y defensa de los derechos del ciudadano frente al Estado o particulares."
+          ]
+        },
+        {
+          "num": 8,
+          "statement": "Aplica procesos y técnicas de mediación de conflictos en pro del establecimiento de una cultura de la paz.",
+          "focus": "Análisis de Perspectivas: Teoría del conflicto social. Identificación de actores, posiciones divergentes e intereses contrapuestos.",
+          "evidences": [
+            "Reconoce los distintos puntos de vista de personas o grupos en una situación de conflicto para plantear posibles alternativas de solución.",
+            "Compara diferentes estrategias para la solución de conflictos (negociación, arbitraje, conciliación, mediación) para el fortalecimiento institucional."
+          ]
+        }
+      ]
+    },
+    {
+      "grade": 8,
+      "title": "Octavo",
+      "dbas": [
+        {
+          "num": 1,
+          "statement": "Evalúa la influencia de los procesos de cooperación económica y política entre los Estados Nacionales en la actualidad.",
+          "focus": "Pensamiento Reflexivo: Geopolítica del comercio global. Alianzas interestatales como estructuras de hegemonía de mercado y subordinación periférica.",
+          "evidences": [
+            "Reconoce la constitución de la Unión Europea como un ejemplo de integración y su influencia en la arquitectura del orden mundial contemporáneo.",
+            "Explica las relaciones económicas y políticas (Tratados, acuerdos aduaneros) que Colombia sostiene hoy con otros países de la región y bloques globales."
+          ]
+        },
+        {
+          "num": 2,
+          "statement": "Comprende el fenómeno de las migraciones en distintas partes del mundo y cómo afectan a las dinámicas de los países receptores y a países de origen.",
+          "focus": "Pensamiento Sistémico: Demografía y asimetrías macroeconómicas. Flujos migratorios globales como síntoma de la disparidad en el desarrollo humano.",
+          "evidences": [
+            "Explica las diferencias de capital e infraestructura entre países emisores y receptores y sus efectos en el mercado laboral transnacional.",
+            "Reconoce la correlación entre los niveles en el Índice de Desarrollo Humano (IDH) y la atracción de fuerza laboral migrante.",
+            "Argumenta los impactos económicos, demográficos y culturales de las poblaciones migrantes tanto en los Estados de origen como en los de destino."
+          ]
+        },
+        {
+          "num": 3,
+          "statement": "Analiza los cambios sociales, económicos, políticos y culturales generados por el surgimiento y consolidación del capitalismo en Europa y las razones por las cuales este sigue siendo un sistema económico vigente.",
+          "focus": "Pensamiento Social: Modos de producción. El capitalismo industrial como reconfigurador del tiempo social, la propiedad fabril y la estratificación de clases.",
+          "evidences": [
+            "Describe las transformaciones que se produjeron en Europa a partir del desarrollo del comercio manufacturero y la mecanización fabril en los siglos XVIII y XIX.",
+            "Explica las categorías constitutivas del modo de producción capitalista (plusvalía, propiedad privada de medios de producción, libre mercado) y sus contradicciones.",
+            "Compara los sistemas económicos contemporáneos (capitalismo de libre mercado, economías planificadas y modelos mixtos) en sus lógicas de distribución."
+          ]
+        },
+        {
+          "num": 4,
+          "statement": "Analiza los procesos de expansión territorial desarrollados por Europa durante el siglo XIX y las nuevas manifestaciones imperialistas observadas en las sociedades contemporáneas.",
+          "focus": "Pensamiento Sistémico: La división internacional del trabajo. Imperialismo decimonónico y neocolonialismo de recursos como condición del desarrollo industrial del norte.",
+          "evidences": [
+            "Relaciona la acumulación de capital de las potencias industriales europeas con el reparto territorial y la extracción forzada en África y Asia en el siglo XIX.",
+            "Compara los mecanismos de control territorial del imperialismo clásico con la influencia asimétrica de las corporaciones transnacionales hoy.",
+            "Explica el impacto de la política exterior y económica de potencias globales en la soberanía y balanza comercial de Estados latinoamericanos como Colombia."
+          ]
+        },
+        {
+          "num": 5,
+          "statement": "Comprende cómo se produjeron los procesos de independencia de las colonias americanas durante los siglos XVIII y XIX y sus implicaciones para las sociedades contemporáneas.",
+          "focus": "Pensamiento Social: Revoluciones de élites criollas. El quiebre fiscal del orden colonial y el mantenimiento de las estructuras de exclusión agraria y racial.",
+          "evidences": [
+            "Describe el impacto de las transformaciones ideológicas occidentales (Ilustración) y estructurales (Revolución Industrial) en la crisis del régimen colonial americano.",
+            "Compara las configuraciones estatales post-independencia en el continente y los conflictos internos por el control fiscal y centralización del poder."
+          ]
+        },
+        {
+          "num": 6,
+          "statement": "Evalúa el impacto producido por los avances tecnológicos en el desarrollo social y económico de Colombia en el siglo XIX.",
+          "focus": "Geografía de la Desigualdad: Infraestructura extractiva y construcción truncada del Estado-Nación en el territorio colombiano.",
+          "evidences": [
+            "Relaciona los enclaves exportadores (café, tabaco) y la inserción tecnológica con la configuración urbana precaria y la acumulación regional de riqueza.",
+            "Reconoce el papel de la Comisión Corográfica como instrumento de reconocimiento estatal, ordenamiento territorial y cartografía fiscal del suelo colombiano.",
+            "Explica la degradación y alteración de ecosistemas locales provocada por las dinámicas primario-exportadoras e industrialización temprana."
+          ]
+        },
+        {
+          "num": 7,
+          "statement": "Evalúa hechos trascendentales para la dignidad humana (abolición de la esclavitud, reconocimiento de los derechos de las mujeres, derechos de las minorías) y describe las discriminaciones que aún se presentan.",
+          "focus": "Pensamiento Reflexivo: Ciudadanía material vs formal. La pugna histórica de los movimientos subalternos por la ampliación real del catálogo de derechos.",
+          "evidences": [
+            "Identifica la persistencia de exclusiones estructurales (brechas de ingresos, segregación laboral) nacidas de lógicas históricas de discriminación.",
+            "Analiza situaciones de vulneración de los derechos constitucionales mediante el examen de fallos o coyunturas institucionales contemporáneas.",
+            "Propone acciones constitucionales y legales orientadas a garantizar la igualdad ante la ley de grupos minoritarios o excluidos."
+          ]
+        },
+        {
+          "num": 8,
+          "statement": "Comprende la importancia de las asociaciones, los gremios, los movimientos y organizaciones sindicales en la defensa de los derechos colectivos.",
+          "focus": "Pensamiento Social: Conflicto social y laboral. El derecho de asociación sindical y la movilización social como contrapeso a las asimetrías del capital.",
+          "evidences": [
+            "Describe las demandas y hitos de los movimientos sociales (campesinos, obreros, estudiantiles) del siglo XX en la conquista de derechos laborales en Colombia.",
+            "Analiza el papel de los mecanismos alternativos de resolución de conflictos colectivos y la concertación en el marco de la legislación laboral.",
+            "Argumenta cómo la organización gremial y sindical incide en las políticas macroeconómicas y fiscales del Estado Social de Derecho."
+          ]
+        }
+      ]
+    },
+    {
+      "grade": 9,
+      "title": "Noveno",
+      "dbas": [
+        {
+          "num": 1,
+          "statement": "Analiza la situación ambiental de los geosistemas más biodiversos de Colombia (selvas, páramos, arrecifes coralinos) y las problemáticas que enfrentan actualmente debido a la explotación a que han sido sometidos.",
+          "focus": "Pensamiento Reflexivo y Sistémico (Saber 11): Evaluación de dilemas ambientales. Colisión de intereses entre modelos extractivos corporativos, soberanía local y límites ecológicos.",
+          "evidences": [
+            "Evalúa las tensiones económicas que subyacen a la expansión de la frontera agroindustrial, la minería transnacional y los megaproyectos frente a la preservación de áreas protegidas.",
+            "Analiza la incidencia del centralismo estatal y la debilidad institucional en la fiscalización de la deforestación y la degradación de ecosistemas estratégicos."
+          ]
+        },
+        {
+          "num": 2,
+          "statement": "Comprende las consecuencias que han traído los procesos migratorios en la organización social y económica de Colombia en el siglo XX y en la actualidad.",
+          "focus": "Pensamiento Social (Saber 11): Desplazamiento forzado sistemático. El despojo de tierras y el terrorismo armado como motores de la hiper-urbanización periférica.",
+          "evidences": [
+            "Rastrea las causas estructurales del desplazamiento forzado interno en la historia reciente de Colombia, vinculándolo a la concentración de la propiedad rural.",
+            "Analiza las dinámicas de precarización laboral, segregación urbana e informalidad económica en las grandes urbes receptoras de población desplazada.",
+            "Establece conexiones multicausales entre el abandono estatal del agro, la violencia armada y la transformación demográfica de las periferias municipales."
+          ]
+        },
+        {
+          "num": 3,
+          "statement": "Analiza las crisis económicas dadas en la Colombia contemporánea y sus repercusiones en la vida cotidiana de las personas.",
+          "focus": "Pensamiento Sistémico (Saber 11): Relación macro-micro. El impacto de los choques macroeconómicos institucionales y la devaluación fiscal sobre la canasta familiar y el empleo.",
+          "evidences": [
+            "Compara el impacto de crisis macroeconómicas específicas (v.g., colapso del UPAC, fin del pacto cafetero, choques petroleros) sobre la soberanía económica del hogar colombiano.",
+            "Identifica las causas estructurales (endeudamiento externo, déficit fiscal, inflación) que fuerzan la adopción de reformas tributarias y la contracción del gasto social.",
+            "Analiza las variaciones del poder adquisitivo y el desempleo como determinantes en la precarización de los derechos sociales fundamentales."
+          ]
+        },
+        {
+          "num": 4,
+          "statement": "Analiza los cambios sociales, políticos, económicos y culturales en Colombia en el siglo XX y su impacto en la vida de los habitantes del país.",
+          "focus": "Pensamiento Social (Saber 11): Modernización periférica e inconclusa. La emergencia de la clase obrera, los conflictos de la industrialización y la cooptación del Estado.",
+          "evidences": [
+            "Explica las tensiones políticas surgidas de la modernización de infraestructura vial, ferroviaria y portuaria y su subordinación al capital agroexportador en la primera mitad del siglo XX.",
+            "Vincula el desarrollo manufacturero urbano con la consolidación legal e ideológica de las centrales obreras y la exigencia del derecho de huelga.",
+            "Analiza críticamente los procesos de exclusión representativa institucional que detonaron los ciclos de insurgencia armada en la segunda mitad del siglo XX."
+          ]
+        },
+        {
+          "num": 5,
+          "statement": "Evalúa cómo las sociedades democráticas en un Estado social de Derecho tienen el deber de proteger y promover los derechos fundamentales de sus ciudadanos.",
+          "focus": "Análisis Instrumental Jurídico (Saber 11): Mecanismos constitucionales de defensa. Clasificación de derechos (fundamentales, colectivos, DESCA) y sus vías de exigibilidad.",
+          "evidences": [
+            "Diferencia el alcance procesal y los ámbitos de aplicación de la Acción de Tutela, las Acciones Populares, las de Cumplimiento y el Derecho de Petición.",
+            "Evalúa situaciones de vulneración sistémica de derechos colectivos (medio ambiente, servicios públicos) para determinar la vía jurídica óptima de amparo.",
+            "Justifica el uso de los mecanismos de participación ciudadana directa (plebiscito, referendo, cabildo abierto) como límites institucionales al poder ejecutivo."
+          ]
+        },
+        {
+          "num": 6,
+          "statement": "Comprende el papel de las mujeres en los cambios sociales, políticos, económicos y culturales en el mundo y la igualdad de derechos que han adquirido en los últimos años.",
+          "focus": "Análisis de Perspectivas (Saber 11): Violencia estructural de género. El desmontaje de asimetrías de poder en la matriz laboral, reproductiva y de representatividad política.",
+          "evidences": [
+            "Analiza las luchas históricas por el sufragio femenino, el acceso a la educación superior y la paridad laboral en Colombia como conquistas frente a la exclusión legal.",
+            "Deconstruye las dimensiones socioeconómicas de la violencia de género, el trabajo de cuidado no remunerado y la brecha salarial estructural."
+          ]
+        },
+        {
+          "num": 7,
+          "statement": "Evalúa cómo todo conflicto puede solucionarse mediante acuerdos en que las personas ponen de su parte para superar las diferencias.",
+          "focus": "Análisis de Perspectivas (Saber 11): Deconstrucción de discursos bélicos. Detección de sesgos ideológicos, argumentos falaces e intencionalidades propagandísticas en escenarios de confrontación.",
+          "evidences": [
+            "Identifica prejuicios, estereotipos e intereses ocultos en los discursos públicos que legitiman la violencia armada o la exclusión del adversario político.",
+            "Evalúa la validez y confiabilidad de fuentes contrapuestas sobre un mismo hecho de violencia para determinar agendas políticas subyacentes."
+          ]
+        },
+        {
+          "num": 8,
+          "statement": "Comprende el impacto social del crecimiento económico desigual que se da en las diferentes regiones del país.",
+          "focus": "Pensamiento Reflexivo y Sistémico (Saber 11): Geografía económica del subdesarrollo. La asimetría Centro-Periferia explicada desde la inversión fiscal y el abandono estatal.",
+          "evidences": [
+            "Analiza la correlación entre la ausencia histórica de infraestructura estatal en regiones periféricas y la proliferación de economías ilícitas y conflicto armado.",
+            "Compara los Índices de Desarrollo Humano (IDH) y coeficientes de Gini entre las regiones centrales andinas y las periferias litorales/fronterizas del país.",
+            "Rastrea los intereses sectoriales y gremiales que condicionan la distribución del presupuesto nacional y la asignación de regalías."
+          ]
+        }
+      ]
+    },
+    {
+      "grade": 10,
+      "title": "Décimo",
+      "dbas": [
+        {
+          "num": 1,
+          "statement": "Analiza conflictos que se presentan en el territorio colombiano originados por la degradación ambiental, el escaso desarrollo económico y la inestabilidad política.",
+          "focus": "Pensamiento Sistémico (Saber 11): Ecología política del despojo. Conflictos territoriales por el control de recursos estratégicos (agua, oro, minerales) entre lógicas comunitarias y extractivismo transnacional.",
+          "evidences": [
+            "Evalúa las dimensiones jurídicas, económicas y ambientales de los conflictos interétnicos y campesinos por la gobernanza del recurso hídrico frente a las concesiones minero-energéticas.",
+            "Analiza los impactos sociopolíticos y la reconfiguración territorial causada por la minería ilegal y los cultivos de uso ilícito en la destrucción de los tejidos colectivos locales."
+          ]
+        },
+        {
+          "num": 2,
+          "statement": "Evalúa las causas y consecuencias de la violencia en la segunda mitad del siglo XX en Colombia y su incidencia en los ámbitos social, político, económico y cultural.",
+          "focus": "Pensamiento Social (Saber 11): Historiografía del conflicto armado colombiano. Multicausalidad de la violencia armada: exclusión del Frente Nacional, problema agrario e institucionalización de actores armados.",
+          "evidences": [
+            "Diferencia y categoriza conceptualmente las nociones de violencia directa, violencia estructural y violencia cultural aplicadas al desarrollo del conflicto armado en el territorio nacional.",
+            "Explica el impacto de los periodos de violencia bipartidista y exclusión coalicionista (Frente Nacional) en el surgimiento de las organizaciones insurgentes y su posterior degradación."
+          ]
+        },
+        {
+          "num": 3,
+          "statement": "Comprende que existen multitud de culturas y una sola humanidad en el mundo y que entre ellas se presenta la discriminación y exclusión de algunos grupos, lo cual dificulta el bienestar de todos.",
+          "focus": "Análisis Instrumental Constitucional (Saber 11): Pluralismo jurídico y exclusión estructural. Mecanismos procesales de amparo constitucional para la defensa de la autonomía territorial indígena y afrodescendiente.",
+          "evidences": [
+            "Identifica y deconstruye las bases normativas e históricas de la segregación racial, étnica y socioeconómica reflejada en el acceso diferenciado a bienes públicos en Colombia.",
+            "Compara el uso táctico y los alcances procesales de la Acción de Tutela, las Acciones Populares y la Consulta Previa como salvaguardas de la soberanía comunitaria."
+          ]
+        },
+        {
+          "num": 4,
+          "statement": "Interpreta el papel que cumplen los organismos internacionales como formas de alianza y organización entre los Estados y que responden a los intereses entre los países.",
+          "focus": "Pensamiento Reflexivo (Saber 11): Gobernanza económica internacional. Las instituciones financieras multilaterales (FMI, Banco Mundial, OMC) y la subordinación de la soberanía legislativa nacional a los dictámenes del capital transnacional.",
+          "evidences": [
+            "Analiza el impacto de los programas de ajuste estructural y las condicionalidades fiscales dictadas por organismos multilaterales en la arquitectura de las políticas públicas locales.",
+            "Explica cómo la adscripción de Colombia a tratados y organismos de arbitraje internacional limita o condiciona la soberanía jurídica e industrial del Estado."
+          ]
+        },
+        {
+          "num": 5,
+          "statement": "Analiza los conflictos bélicos presentes en las sociedades contemporáneas, sus causas y consecuencias así como su incidencia en la vida cotidiana de los pueblos.",
+          "focus": "Pensamiento Social e Histórico (Saber 11): Dinámicas geopolíticas globales del siglo XX. Reordenamiento imperialista, polarización ideológica del orden internacional y determinantes macroeconómicos de las guerras totales.",
+          "evidences": [
+            "Analiza críticamente las causas sistémicas (disputas territoriales, competencia arancelaria, bloques ideológicos) que propiciaron el estallido de las conflagraciones mundiales del siglo XX.",
+            "Interpreta las modificaciones cartográficas y el surgimiento de nuevas hegemonías estatales mundiales derivadas del colapso de los imperios coloniales europeos y la caída de bloques.",
+            "Rastrea el surgimiento de nuevos focos de conflicto geopolítico asociados al control de fuentes de energía y recursos escasos tras el fin de la Guerra Fría."
+          ]
+        }
+      ]
+    },
+    {
+      "grade": 11,
+      "title": "Undécimo",
+      "dbas": [
+        {
+          "num": 1,
+          "statement": "Analiza cómo el bienestar y la supervivencia de la humanidad dependen de la protección que hagan del ambiente los diferentes actores (políticos, económicos y sociales).",
+          "focus": "Pensamiento Reflexivo y Sistémico (Saber 11): Economía ecológica global. Evaluación psicométrica de dilemas ambientales complejos: incentivos de mercado industrial frente a externalidades biofísicas globales.",
+          "evidences": [
+            "Identifica y analiza las contradicciones entre las políticas de crecimiento económico de los Estados industrializados y los límites ecosistémicos de absorción de carbono.",
+            "Evalúa la eficacia jurídica e implicaciones soberanas de los tratados globales (Protocolo de Kioto, Acuerdo de París) frente a la priorización de las agendas comerciales de los bloques hegemónicos."
+          ]
+        },
+        {
+          "num": 2,
+          "statement": "Evalúa la importancia de la solución negociada de los conflictos armados para la búsqueda de la paz.",
+          "focus": "Análisis de Perspectivas (Saber 11): Modelos de Justicia Transicional. Contraste sociopolítico e ideológico entre retribución punitiva, restauración material, esclarecimiento de la verdad e impunidad institucional.",
+          "evidences": [
+            "Deconstruye las posiciones e intereses contrapuestos de diversos actores sociales frente al marco jurídico de la justicia transicional y los sistemas de reparación a víctimas.",
+            "Analiza la tensión constitucional entre la paz como derecho de rango supremo y la exigencia de penas privativas de la libertad según estándares internacionales de justicia."
+          ]
+        },
+        {
+          "num": 3,
+          "statement": "Analiza las consecuencias políticas, económicas y sociales de algunos conflictos geopolíticos desde finales del siglo XX hasta la actualidad a nivel mundial.",
+          "focus": "Pensamiento Social e Histórico (Saber 11): Geopolítica extractiva contemporánea. Cartografía de conflictos armados modernos por el monopolio de fuentes hidrocarburíferas, acuíferas y minerales tecnológicos (litio, coltán).",
+          "evidences": [
+            "Identifica las causas materiales subyacentes e intereses de potencias extranjeras detrás de las intervenciones militares contemporáneas en Oriente Medio, África subsahariana y Europa del Este.",
+            "Analiza las consecuencias sistémicas de la militarización interestatal: crisis globales de refugiados, reconfiguración de rutas comerciales marítimas y sanciones macroeconómicas transnacionales.",
+            "Rastrea el papel de los actores no estatales (corporaciones transnacionales, contratistas militares privados) en la desestabilización política de los Estados de la preferencia global."
+          ]
+        },
+        {
+          "num": 4,
+          "statement": "Comprende las implicaciones sociales, económicas y políticas que tuvo la Guerra Fría en el mundo y las relaciona con las vividas en América Latina.",
+          "focus": "Pensamiento Social (Saber 11): Doctrina de Seguridad Nacional en América Latina. La inserción de los Estados periféricos en la lógica bipolar a través de regímenes dictatoriales y la insurgencia armada.",
+          "evidences": [
+            "Compara el impacto institucional de los modelos político-económicos contrapuestos (capitalismo neoliberal frente a economías de planificación estatal) en el desarrollo regional.",
+            "Analiza las consecuencias sociopolíticas del intervencionismo extranjero en Latinoamérica (Planes militares, fomento de golpes de Estado) y su correlación con la radicalización armada local."
+          ]
+        },
+        {
+          "num": 5,
+          "statement": "Analiza la globalización como un proceso que redefine el concepto de territorio, las dinámicas de los mercados, las gobernanzas nacionales y las identidades locales.",
+          "focus": "Pensamiento Reflexivo y Sistémico (Saber 11): Impacto macroeconómico de la apertura comercial. Tratados de Libre Comercio (TLC), desindustrialización sustitutiva y reconfiguración del mercado de trabajo nacional.",
+          "evidences": [
+            "Evalúa los efectos económicos y las tensiones productivas generadas en el sector agrario e industrial colombiano como consecuencia directa de la firma de Tratados de Libre Comercio.",
+            "Analiza cómo la desregulación financiera transnacional y la flexibilización laboral reconfiguran la capacidad soberana de los Estados para gravar el capital corporativo.",
+            "Rastrea las respuestas locales y la emergencia de movimientos de resistencia social/comunitaria frente a la homogeneización de los mercados globales."
+          ]
+        }
+      ]
+    }
+  ]
+}

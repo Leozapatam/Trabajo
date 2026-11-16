@@ -50,3 +50,10 @@ Ambos agentes trabajan sobre la misma carpeta local y sincronizan mediante `git 
 - Escala: Superior 4.6–5.0 · Alto 4.0–4.5 · Básico 3.0–3.9 · Bajo 1.0–2.9 (no aprobatorio).
 - Inasistencia sin excusa ≥ 25 % puede llevar a reprobar el área: el sistema alerta desde el 15 %.
 - Componentes del SIE: Actitudinal 25 % (auto 40 % + hetero 60 %), Cognitivo 35 % (prueba de periodo = 30 % del componente), Procedimental 40 %.
+
+## 5. Decisiones de producto (2026-11-15)
+
+- El software se llama **Ciencias Sociales** (I.E.R. Boyacá). Es solo para el docente: no hay modo estudiante, ni "Explorar en casa", ni mapa público suelto.
+- Al abrir: **Empezar nueva clase** o **Solo gestionar**.
+- Grados: **6°, 7°, 8°, 9°, 10°, 11°** (un grupo por grado, sin letras) y grupos fusionados **6°–7°, 8°–9°, 10°–11°**, que empiezan vacíos.
+- Contenido: solo el **núcleo depurado** del plan DBA (`src/data/dbaPlan.json`, generado con `node scripts/extract-dba.mjs`). No se crean misiones sobre evidencias marcadas como "ruido".

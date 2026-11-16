@@ -24,8 +24,6 @@ import {
   Radio,
   Square,
   Trash2,
-  UserCheck,
-  UserMinus,
   Users,
 } from 'lucide-react';
 import { getMission, MISSIONS_LIST } from '../data/catalog';
@@ -33,41 +31,30 @@ import { ORIGENES_WORLD } from '../data/origenesWorld';
 import {
   addResourceItem,
   addStudentsFromText,
-  awardStudentPoints,
-  calculateStudentGrade,
   changeSceneState,
   createInitialSessionState,
   getActiveStudentsCount,
-  getStudentTotalPoints,
+  getAttendanceOnClassDate,
   getTodayIsoDate,
   loadSessionState,
   recordAttendanceSnapshot,
   removeResourceItem,
   saveAndBroadcastSession,
-  setStudentAttendance,
   switchClassroomRoster,
   toggleResourceUsed,
-  toggleStudentActive,
 } from '../engine/sessionStore';
 import type {
   ActiveEventBanner,
-  AttendanceStatus,
   ProjectorViewMode,
-  RecognitionCategory,
   ResourceItem,
   SessionState,
 } from '../engine/types';
 import { CosmicBackdrop } from '../components/CosmicBackdrop';
 import { DiskStatusBadge } from '../components/gm/DiskStatusBadge';
+import { StudentArena } from '../components/gm/StudentArena';
 import { requestDiskBackup } from '../engine/diskSync';
+import { GRADE_GROUPS } from '../engine/grades';
 import { TacticalOriginMap } from '../components/TacticalOriginMap';
-
-const CATEGORY_LABELS: { key: RecognitionCategory; label: string; color: string }[] = [
-  { key: 'investigacion', label: 'Investigación', color: '#38BDF8' },
-  { key: 'participacion', label: 'Participación', color: '#E8B86D' },
-  { key: 'comportamiento', label: 'Comportamiento', color: '#34D399' },
-  { key: 'actitudinal', label: 'Actitudinal', color: '#F472B6' },
-];
 
 const QUICK_EVENTS: ActiveEventBanner[] = [
   {
@@ -241,7 +228,13 @@ export const GameMasterPage: React.FC = () => {
   };
 
   const handleSaveAttendanceToday = () => {
-    commit((prev) => recordAttendanceSnapshot(prev));
+    // Confirma la lista del día: lo no marcado queda Presente
+    commit((prev) =>
+      recordAttendanceSnapshot({
+        ...prev,
+        students: prev.students.map((s) => ({ ...s, attendanceToday: getAttendanceOnClassDate(prev, s.id) })),
+      })
+    );
     setAttendanceSavedToast(true);
     window.setTimeout(() => setAttendanceSavedToast(false), 2500);
   };
@@ -889,9 +882,8 @@ export const GameMasterPage: React.FC = () => {
                   />
                 </label>
                 <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Salón
-                  <input
-                    type="text"
+                  Grado
+                  <select
                     value={session.classroomName}
                     onChange={(e) =>
                       commit((prev) => switchClassroomRoster(prev, prev.schoolYear, e.target.value))
@@ -905,7 +897,13 @@ export const GameMasterPage: React.FC = () => {
                       borderRadius: 6,
                       padding: '6px 8px',
                     }}
-                  />
+                  >
+                    {GRADE_GROUPS.map((g) => (
+                      <option key={g.id} value={g.id}>
+                        {g.id} · {g.label}
+                      </option>
+                    ))}
+                  </select>
                 </label>
                 <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                   Periodo (3 al año)
@@ -1032,163 +1030,7 @@ export const GameMasterPage: React.FC = () => {
               </form>
             </section>
 
-            {/* Lista de estudiantes */}
-            <section className="editorial-card" style={{ padding: 20, gridColumn: 'span 1' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                <h2 className="font-display" style={{ fontSize: '1.6rem', margin: 0 }}>
-                  Lista de Estudiantes ({activeStudentsCount} activos / {session.students.length})
-                </h2>
-                <span className="font-mono" style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Fechas guardadas: {savedDatesCount}
-                </span>
-              </div>
-
-              {session.students.length === 0 ? (
-                <p style={{ color: 'var(--text-muted)', margin: 0 }}>
-                  Agrega tu lista de estudiantes a la izquierda para tomar asistencia (Presente, Ausente, Excusa) y llevar puntos +1 / -1 de heteroevaluación.
-                </p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 560, overflowY: 'auto' }}>
-                  {session.students.map((st) => {
-                    const total = getStudentTotalPoints(st);
-                    const grade = calculateStudentGrade(st, session.gradeConfig);
-                    return (
-                      <div
-                        key={st.id}
-                        style={{
-                          padding: 12,
-                          borderRadius: 10,
-                          border: '1px solid var(--border-subtle)',
-                          background: st.active ? 'rgba(255,255,255,0.03)' : 'rgba(251,113,133,0.06)',
-                          opacity: st.active ? 1 : 0.65,
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                          <div>
-                            <span style={{ fontWeight: 700, fontSize: '1rem', textDecoration: st.active ? 'none' : 'line-through' }}>
-                              {st.name}
-                            </span>
-                            <div className="font-mono" style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                              Historial: {st.attendanceHistory.presentes}P · {st.attendanceHistory.ausentes}A · {st.attendanceHistory.excusas}E
-                            </div>
-                          </div>
-
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span
-                              className="badge-pill"
-                              style={{
-                                fontSize: '0.8rem',
-                                fontWeight: 700,
-                                color: grade < 3.0 ? '#FECDD3' : '#6EE7B7',
-                                borderColor: grade < 3.0 ? '#FB7185' : '#34D399',
-                              }}
-                            >
-                              Nota: {grade.toFixed(1)}
-                            </span>
-                            <span
-                              className="font-mono"
-                              style={{
-                                fontSize: '0.84rem',
-                                fontWeight: 700,
-                                color: total < 0 ? '#FB7185' : 'var(--accent-gold)',
-                              }}
-                            >
-                              {total > 0 ? `+${total}` : total} pts
-                            </span>
-                            <button
-                              type="button"
-                              className="btn btn-ghost"
-                              style={{ padding: '4px 8px', fontSize: '0.75rem' }}
-                              onClick={() => commit((prev) => toggleStudentActive(prev, st.id))}
-                            >
-                              {st.active ? <UserCheck size={14} color="#34D399" /> : <UserMinus size={14} color="#FB7185" />}
-                              {st.active ? 'Activo' : 'Retirado'}
-                            </button>
-                          </div>
-                        </div>
-
-                        {st.active && (
-                          <>
-                            <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-                              {(
-                                [
-                                  { id: 'presente', label: 'Presente', color: '#34D399' },
-                                  { id: 'ausente', label: 'Ausente', color: '#FB7185' },
-                                  { id: 'excusa', label: 'Excusa', color: '#E8B86D' },
-                                ] as { id: AttendanceStatus; label: string; color: string }[]
-                              ).map((att) => {
-                                const selected = st.attendanceToday === att.id;
-                                return (
-                                  <button
-                                    key={att.id}
-                                    type="button"
-                                    onClick={() => commit((prev) => setStudentAttendance(prev, st.id, att.id))}
-                                    style={{
-                                      flex: 1,
-                                      padding: '5px 8px',
-                                      fontSize: '0.76rem',
-                                      borderRadius: 6,
-                                      border: `1px solid ${selected ? att.color : 'var(--border-subtle)'}`,
-                                      background: selected ? `${att.color}22` : 'transparent',
-                                      color: selected ? att.color : 'var(--text-muted)',
-                                      fontWeight: selected ? 700 : 400,
-                                    }}
-                                  >
-                                    {att.label}
-                                  </button>
-                                );
-                              })}
-                            </div>
-
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 6 }}>
-                              {CATEGORY_LABELS.map((cat) => (
-                                <div
-                                  key={cat.key}
-                                  style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    padding: '4px 8px',
-                                    borderRadius: 6,
-                                    background: 'rgba(0,0,0,0.25)',
-                                    fontSize: '0.76rem',
-                                  }}
-                                >
-                                  <span style={{ color: cat.color }}>{cat.label}</span>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                                    <button
-                                      type="button"
-                                      className="btn btn-ghost"
-                                      style={{ padding: '2px 6px', fontSize: '0.74rem', color: '#FB7185' }}
-                                      onClick={() => commit((prev) => awardStudentPoints(prev, st.id, cat.key, -1))}
-                                      aria-label={`Restar 1 ${cat.label} a ${st.name}`}
-                                    >
-                                      -1
-                                    </button>
-                                    <span className="font-mono" style={{ minWidth: 18, textAlign: 'center' }}>
-                                      {st.points[cat.key]}
-                                    </span>
-                                    <button
-                                      type="button"
-                                      className="btn"
-                                      style={{ padding: '2px 6px', fontSize: '0.74rem', color: '#6EE7B7' }}
-                                      onClick={() => commit((prev) => awardStudentPoints(prev, st.id, cat.key, 1))}
-                                      aria-label={`Sumar 1 ${cat.label} a ${st.name}`}
-                                    >
-                                      +1
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
+            <StudentArena session={session} commit={commit} />
           </div>
         )}
 

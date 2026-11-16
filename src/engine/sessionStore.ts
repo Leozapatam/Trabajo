@@ -1,5 +1,6 @@
 import { calculatePeriodGrade, getAttendanceSummary, sumPointLog } from './grading';
 import { scheduleDiskSave } from './diskSync';
+import { DEFAULT_GRADE_ID, normalizeClassroomName } from './grades';
 import type {
   AttendanceStatus,
   PointEvent,
@@ -183,7 +184,7 @@ export function createInitialSessionState(
     classDate: getTodayIsoDate(),
     status: 'idle',
     schoolYear: '2026',
-    classroomName: '6°A',
+    classroomName: DEFAULT_GRADE_ID,
     period: 1,
     missionId,
     resources: DEFAULT_RESOURCES.map((r) => ({ ...r })),
@@ -270,9 +271,15 @@ function normalizeStudent(s: StudentState, period: 1 | 2 | 3, date: string): Stu
 export function migrateSessionState(parsed: SessionState): SessionState {
   const period = parsed.period === 2 || parsed.period === 3 ? parsed.period : 1;
   const date = parsed.classDate ?? getTodayIsoDate();
+  const schoolYear = parsed.schoolYear ?? '2026';
+  // Las listas "6°A" / "6°B" de v1 se unen en el grado "6°" (un grupo por grado)
   const rosters: Record<string, StudentState[]> = {};
   for (const [key, list] of Object.entries(parsed.rostersByClassroom ?? {})) {
-    rosters[key] = Array.isArray(list) ? list.map((s) => normalizeStudent(s, period, date)) : [];
+    const [year, ...rest] = key.split('-');
+    const nextKey = getClassroomKey(year, normalizeClassroomName(rest.join('-')));
+    const merged = new Map((rosters[nextKey] ?? []).map((s) => [s.id, s]));
+    for (const s of Array.isArray(list) ? list : []) merged.set(s.id, normalizeStudent(s, period, date));
+    rosters[nextKey] = [...merged.values()];
   }
   return syncCurrentPeriodPoints({
     ...createInitialSessionState(),
@@ -280,8 +287,8 @@ export function migrateSessionState(parsed: SessionState): SessionState {
     schemaVersion: SESSION_SCHEMA_VERSION,
     classStarted: parsed.classStarted ?? false,
     classDate: date,
-    schoolYear: parsed.schoolYear ?? '2026',
-    classroomName: parsed.classroomName ?? '6°A',
+    schoolYear,
+    classroomName: normalizeClassroomName(parsed.classroomName),
     period,
     resources:
       Array.isArray(parsed.resources) && parsed.resources.length > 0
@@ -524,8 +531,9 @@ export function getClassroomKey(schoolYear: string, classroomName: string): stri
 export function switchClassroomRoster(
   state: SessionState,
   nextYear: string,
-  nextClassroom: string
+  rawNextClassroom: string
 ): SessionState {
+  const nextClassroom = normalizeClassroomName(rawNextClassroom);
   const prevKey = getClassroomKey(state.schoolYear, state.classroomName);
   const nextKey = getClassroomKey(nextYear, nextClassroom);
   const savedRosters = {
@@ -547,6 +555,34 @@ export function switchClassroomRoster(
 
 export function getActiveStudentsCount(students: StudentState[]): number {
   return students.filter((s) => s.active).length;
+}
+
+/** Estudiantes activos por grado del año actual (incluye la lista abierta) */
+export function getActiveCountsByGrade(state: SessionState): Record<string, number> {
+  const counts: Record<string, number> = {};
+  const prefix = `${state.schoolYear.trim()}-`;
+  for (const [key, list] of Object.entries(state.rostersByClassroom)) {
+    if (key.startsWith(prefix)) counts[key.slice(prefix.length)] = getActiveStudentsCount(list);
+  }
+  counts[state.classroomName.trim().toUpperCase()] = getActiveStudentsCount(state.students);
+  return counts;
+}
+
+/** Estado de asistencia del estudiante en la fecha de clase (Presente si aún no se marcó) */
+export function getAttendanceOnClassDate(state: SessionState, studentId: string): AttendanceStatus {
+  return state.attendanceByDate[state.classDate || getTodayIsoDate()]?.[studentId] ?? 'presente';
+}
+
+/**
+ * Marca la asistencia de un estudiante y guarda el día de inmediato.
+ * Los demás conservan lo marcado en esa fecha o quedan Presentes.
+ */
+export function markAttendance(state: SessionState, studentId: string, status: AttendanceStatus): SessionState {
+  const students = state.students.map((s) => ({
+    ...s,
+    attendanceToday: s.id === studentId ? status : getAttendanceOnClassDate(state, s.id),
+  }));
+  return recordAttendanceSnapshot({ ...state, students });
 }
 
 export function addStudentsFromText(state: SessionState, rawNames: string): SessionState {
