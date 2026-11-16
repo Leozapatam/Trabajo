@@ -19,6 +19,7 @@ import {
 import { MISION_00 } from '../../data/mision00';
 import { MISION_001 } from '../../data/mision001';
 import { ORIGENES_WORLD } from '../../data/origenesWorld';
+import dbaPlan from '../../data/dbaPlan.json';
 
 describe('Motor de Sesión, Asistencia, Heteroevaluación e Inventario', () => {
   it('oculta notas docentes y respuestas no reveladas en la vista pública del proyector', () => {
@@ -105,7 +106,9 @@ describe('Motor de Sesión, Asistencia, Heteroevaluación e Inventario', () => {
   });
 
   it('valida la estructura de Orígenes, Misión 00 y Misión 001', () => {
-    expect(ORIGENES_WORLD.zones).toHaveLength(4);
+    // Mundo 1 de 6°: una zona por cada DBA del núcleo depurado
+    const dbas6 = dbaPlan.grades.find((g) => g.grade === 6)!.dbas;
+    expect(ORIGENES_WORLD.zones).toHaveLength(dbas6.length);
     expect(MISION_00.scenes).toHaveLength(6);
     expect(MISION_001.scenes).toHaveLength(7);
   });

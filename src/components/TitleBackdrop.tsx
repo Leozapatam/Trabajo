@@ -13,7 +13,14 @@ const PIXEL_STARS: { left: string; top: string; size: number; delay: string; gol
   { left: '66%', top: '36%', size: 4, delay: '0.9s', gold: true },
 ];
 
-export const TitleBackdrop: React.FC = () => {
+const VIGNETTES = {
+  left: 'linear-gradient(90deg, rgba(6,10,19,0.88) 0%, rgba(6,10,19,0.58) 48%, rgba(6,10,19,0.22) 100%), linear-gradient(180deg, rgba(6,10,19,0.45) 0%, rgba(6,10,19,0.18) 45%, rgba(6,10,19,0.82) 100%)',
+  right:
+    'linear-gradient(270deg, rgba(6,10,19,0.78) 0%, rgba(6,10,19,0.35) 38%, rgba(6,10,19,0) 62%), linear-gradient(180deg, rgba(6,10,19,0.25) 0%, rgba(6,10,19,0) 40%, rgba(6,10,19,0.55) 100%)',
+};
+
+/** `vignette` oscurece el lado donde va el texto (izquierda por defecto) */
+export const TitleBackdrop: React.FC<{ vignette?: keyof typeof VIGNETTES }> = ({ vignette = 'left' }) => {
   return (
     <div
       aria-hidden="true"
@@ -45,8 +52,7 @@ export const TitleBackdrop: React.FC = () => {
         style={{
           position: 'absolute',
           inset: 0,
-          background:
-            'linear-gradient(90deg, rgba(6,10,19,0.88) 0%, rgba(6,10,19,0.58) 48%, rgba(6,10,19,0.22) 100%), linear-gradient(180deg, rgba(6,10,19,0.45) 0%, rgba(6,10,19,0.18) 45%, rgba(6,10,19,0.82) 100%)',
+          background: VIGNETTES[vignette],
         }}
       />
 
